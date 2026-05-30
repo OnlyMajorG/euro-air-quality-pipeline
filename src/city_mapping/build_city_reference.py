@@ -224,14 +224,21 @@ def validate_city_reference(df: pd.DataFrame) -> None:
     if not df["city_id"].is_unique:
         raise ValueError("city_id values must be unique")
 
+    invalid_country_codes = df.loc[~df["country_code"].str.fullmatch(r"[A-Z]{2}"), "country_code"].tolist()
+    if invalid_country_codes:
+        raise ValueError(f"Invalid country_code values: {invalid_country_codes}")
+
+    invalid_normalized_names = df.loc[
+        ~df["city_name_normalized"].str.fullmatch(r"[a-z0-9_]+"),
+        "city_name_normalized",
+    ].tolist()
+    if invalid_normalized_names:
+        raise ValueError(f"Invalid city_name_normalized values: {invalid_normalized_names}")
+
     expected_city_ids = df["city_name_normalized"] + "_" + df["country_code"].str.lower()
     invalid_city_ids = df.loc[df["city_id"] != expected_city_ids, "city_id"].tolist()
     if invalid_city_ids:
         raise ValueError(f"Invalid city_id values: {invalid_city_ids}")
-
-    invalid_country_codes = df.loc[~df["country_code"].str.fullmatch(r"[A-Z]{2}"), "country_code"].tolist()
-    if invalid_country_codes:
-        raise ValueError(f"Invalid country_code values: {invalid_country_codes}")
 
     if not df["latitude"].between(-90, 90).all():
         raise ValueError("latitude values must be between -90 and 90")
