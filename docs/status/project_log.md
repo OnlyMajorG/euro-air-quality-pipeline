@@ -93,3 +93,13 @@ No data pipeline logic was implemented.
 - Updated project status and phase gate register.
 - Did not implement Phase 2 city reference data or any Kafka/Spark/full
   ingestion logic.
+
+### Phase 1 QA Follow-Up Corrections
+
+- Re-reviewed Phase 1 documentation, notebook state, sample hygiene, and scope.
+- Updated README to reflect that Phase 1 is complete and Phase 2 may start.
+- Replaced corrupted repository tree characters in README with an ASCII tree.
+- Updated BDENG requirement mapping wording to distinguish validated
+  feasibility from planned later implementation artifacts.
+- Did not change source modules, tests, data model outputs, Kafka, Spark, or
+  ingestion logic.

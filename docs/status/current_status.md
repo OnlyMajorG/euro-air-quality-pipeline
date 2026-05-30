@@ -22,7 +22,6 @@ No full pipeline implementation exists yet. That is intentional.
 | Severity | Issue | Source |
 | --- | --- | --- |
 | Minor | `pytest` is listed in requirements but is not installed in the active local interpreter used during QA. | `docs/qa/phase0_qa_report.md` |
-| Minor | README BDENG checklist may read as completed capability rather than planned scaffolding. | `docs/qa/phase0_qa_report.md` |
 | Minor | Docker Compose uses `latest` image tags. | `docs/qa/phase0_qa_report.md` |
 | Minor | `pytest` could not be run during Phase 1 QA because it is not installed in the active interpreter. | `docs/qa/phase1_qa_report.md` |
 
@@ -31,6 +30,7 @@ No full pipeline implementation exists yet. That is intentional.
 | Date | Issue | Evidence |
 | --- | --- | --- |
 | 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes for all seven notebooks. |
+| 2026-05-30 | README still described Phase 1 as next work after Phase 1 QA had passed. | README now states Phase 1 complete and Phase 2 ready to start. |
 
 ## Completed Phase 1 Work
 

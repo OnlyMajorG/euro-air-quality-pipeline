@@ -130,3 +130,19 @@ logic, Kafka producer behavior, Spark jobs, or Gold-layer analytics.
 **Approved for Phase 2**
 
 Approval is constrained to Phase 2 City Mapping and Reference Model work.
+
+## Follow-Up QA Addendum - 2026-05-30
+
+A follow-up review found that Phase 1 itself was implemented correctly and
+within scope, but README still described Phase 1 as the next active workflow.
+README was updated to show the latest state:
+
+- Phase 1 complete.
+- Phase 2 may start.
+- Phase 2 is limited to City Mapping and Reference Model work.
+- BDENG requirement mapping now distinguishes completed feasibility evidence
+  from planned later implementation artifacts.
+- A corrupted repository tree rendering was replaced with an ASCII tree.
+
+No source modules, tests, data model outputs, Kafka code, Spark code, ingestion
+logic, or analytics were changed.

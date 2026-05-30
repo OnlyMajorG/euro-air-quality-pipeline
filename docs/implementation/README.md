@@ -18,3 +18,10 @@ Each implementation document should include:
 - Mermaid diagram when useful.
 - Validation performed.
 - Known limitations.
+
+## Existing Implementation Notes
+
+| Document | Scope |
+| --- | --- |
+| `phase0_infrastructure.md` | Phase 0 project-control and documentation infrastructure. |
+| `phase1_source_feasibility.md` | Phase 1 source spike and feasibility documentation. |
