@@ -6,7 +6,7 @@ Last updated: 2026-05-30
 
 Current phase: **Phase 3 in progress**
 
-Decision: **Phase 2 complete (PASS); Phase 3 active through Issue 3.6**
+Decision: **Phase 2 complete (PASS); Phase 3 active through Issue 3.7**
 
 ## Summary
 
@@ -65,13 +65,13 @@ exists.
 - Issue 3.4: EEA loader for controlled local CSV/Parquet files implemented.
 - Issue 3.5: EEA data quality validation rules implemented, tested, and documented.
 - Issue 3.6: EEA city daily Silver Parquet writer implemented and tested.
+- Issue 3.7: Notebook 02 updated as the readable Phase 3 documentation trail.
 
 ## Next Allowed Work
 
 The next allowed work remains Phase 3 EEA Batch Ingestion:
 
 - Resolve placeholder station mappings before real ingestion.
-- Complete Issue 3.7 notebook 02 final documentation.
 - Complete Issue 3.8 Phase 3 QA report and gate decision.
 
 ## Explicitly Not Implemented

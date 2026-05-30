@@ -365,3 +365,23 @@ No data pipeline logic was implemented.
 - Issues 3.1 through 3.6 are implemented, tested, or documented.
 - Remaining Phase 3 work is limited to Issue 3.7 notebook 02 final
   documentation and Issue 3.8 Phase 3 QA/gate decision.
+
+### Phase 3.7 Notebook 02 Documentation Trail
+
+- Updated `notebooks/02_eea_batch_ingestion.ipynb` as the readable Phase 3
+  documentation trail.
+- Confirmed the notebook documents EEA source policy, raw-data hygiene, schema,
+  core pollutants, station-to-city mapping dependency, data quality rules,
+  daily aggregation, output contract, and Parquet readback pattern.
+- Corrected outdated notebook statements so the Spark batch job is not claimed
+  as implemented; Phase 3 uses the pandas/pyarrow local writer for the Silver
+  Parquet output.
+- Kept notebook outputs at 0.
+- Did not download data, call APIs, implement Kafka, implement Spark
+  Structured Streaming, or add Gold analysis.
+
+### Current Phase 3 State After Issue 3.7
+
+- Phase 3 remains in progress.
+- Issues 3.1 through 3.7 are implemented, tested, or documented.
+- Remaining Phase 3 work is limited to Issue 3.8 Phase 3 QA/gate decision.
