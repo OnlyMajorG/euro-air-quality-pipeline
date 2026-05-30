@@ -32,7 +32,16 @@ Gate decision: **Approved for Phase 2**
 
 ## Phase 2 - City Mapping And Reference Model
 
-Status: **Ready to start**
+Status: **In progress**
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| Starter city scope defined | Done | `docs/data_model.md` and notebook 01 document exactly 8 starter cities. |
+| Canonical city reference schema designed | Done | `docs/data_model.md` documents fields, types, nullability, identifier rules, and validation constraints. |
+| ADR-003 reviewed | Done | `docs/decisions/ADR-003-city-reference-model.md` confirms the decision remains unchanged. |
+| Station-to-city mapping rules | Pending | Planned Phase 2 work. |
+| Source-specific city mapping rules | Pending | Planned Phase 2 work. |
+| City reference validation tests | Pending | Planned Phase 2 work. |
 
 Allowed focus:
 
