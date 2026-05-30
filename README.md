@@ -436,38 +436,107 @@ Documentation locations:
 | `docs/qa/` | Phase QA reports and readiness checks. |
 | `docs/status/` | Current status, phase gates, and project log. |
 
-## Setup
+## Local Setup And Inbetriebnahme
+
+Use this sequence for a clean local setup. The commands prepare the repository
+for validation and notebook work. They do not start the pipeline and do not
+download project datasets.
+
+### 1. Clone Repository
 
 ```bash
 git clone <repo-url>
 cd euro-air-quality-pipeline
+```
+
+### 2. Create Virtual Environment
+
+Windows PowerShell:
+
+```powershell
 python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 ```
 
 Linux/macOS:
 
 ```bash
+python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
+python -m pip install --upgrade pip
 ```
+
+### 3. Install Python Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Create Local Environment File
 
 Windows PowerShell:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Lightweight validation:
+Linux/macOS:
+
+```bash
+cp .env.example .env
+```
+
+The `.env` file is local only and must not be committed.
+
+### 5. Validate Repository Without Starting Services
 
 ```bash
 python -m pytest
 docker compose config
 ```
 
-Do not start Kafka or Spark services unless the active phase requires it.
+If `python -m pytest` fails with `No module named pytest`, the active virtual
+environment is not prepared correctly or dependencies were not installed into
+the active interpreter.
+
+### 6. Start Jupyter Only When Needed
+
+The notebook server is useful for documentation and source-spike work:
+
+```bash
+docker compose up jupyter
+```
+
+Then open the URL printed by Jupyter in the terminal. Stop the service with
+`Ctrl+C` when done.
+
+### 7. Kafka And Spark Services
+
+Kafka and Spark are part of the planned core project, but they should only be
+started when the active phase requires them.
+
+Allowed later-phase command pattern:
+
+```bash
+docker compose up kafka spark
+```
+
+Do not start Kafka or Spark during Phase 0 cleanup or Phase 1 source
+feasibility work unless an issue explicitly requires a Docker service check.
+
+### 8. Current Phase 1 Workflow
+
+For Phase 1, the expected local workflow is:
+
+```bash
+python -m pytest
+docker compose config
+jupyter notebook notebooks/00_project_scope_and_sources.ipynb
+```
+
+Phase 1 may perform controlled source-spike requests, but it must not implement
+the full data pipeline.
 
 ## Data And Secret Hygiene
 
