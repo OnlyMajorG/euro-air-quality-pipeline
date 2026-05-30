@@ -126,6 +126,14 @@ RAW_COLUMNS: tuple[str, ...] = (
     "unit",
 )
 
+REQUIRED_EEA_ROW_COLUMNS: tuple[str, ...] = (
+    "city_id",
+    "datetime_begin",
+    "pollutant",
+    "concentration",
+    "unit",
+)
+
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -351,6 +359,59 @@ def map_stations_to_cities(
     return merged[merged["city_id"].notna()].reset_index(drop=True)
 
 
+def validate_eea_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Validate normalised EEA rows before daily aggregation.
+
+    The validator is intentionally strict about schema and required join fields:
+    missing required columns or null required values raise ``ValueError``.
+    Invalid measurement rows are rejected from the returned DataFrame so they
+    cannot silently enter downstream aggregation.
+
+    Required input columns are ``city_id``, ``datetime_begin``, ``pollutant``,
+    ``concentration``, and ``unit``.
+    """
+    missing_columns = [col for col in REQUIRED_EEA_ROW_COLUMNS if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f"Missing required EEA row columns: {missing_columns}")
+
+    null_required = [
+        col
+        for col in REQUIRED_EEA_ROW_COLUMNS
+        if df[col].isna().any() or (df[col].astype(str).str.strip() == "").any()
+    ]
+    if null_required:
+        raise ValueError(f"Required EEA row fields contain null or empty values: {null_required}")
+
+    validated = df.copy()
+    validated["datetime_begin"] = pd.to_datetime(
+        validated["datetime_begin"],
+        utc=True,
+        errors="coerce",
+    )
+    invalid_dates = validated["datetime_begin"].isna()
+    if invalid_dates.any():
+        raise ValueError("EEA rows contain invalid or unparseable datetime_begin values")
+
+    validated["concentration"] = pd.to_numeric(validated["concentration"], errors="coerce")
+    invalid_measurements = validated["concentration"].isna() | (validated["concentration"] < 0)
+    if invalid_measurements.any():
+        logger.warning(
+            "Rejected %d EEA rows with negative or invalid concentration values",
+            int(invalid_measurements.sum()),
+        )
+        validated = validated[~invalid_measurements].copy()
+
+    unsupported_pollutants = sorted(set(validated["pollutant"]) - CORE_POLLUTANTS)
+    if unsupported_pollutants:
+        logger.warning(
+            "Rejected EEA rows with unsupported pollutant values: %s",
+            unsupported_pollutants,
+        )
+        validated = validated[validated["pollutant"].isin(CORE_POLLUTANTS)].copy()
+
+    return validated.reset_index(drop=True)
+
+
 def aggregate_to_city_daily(
     mapped_df: pd.DataFrame,
     processing_time_utc: datetime | None = None,
@@ -377,6 +438,10 @@ def aggregate_to_city_daily(
         Silver schema DataFrame with columns matching ``SILVER_COLUMNS``.
         Empty if ``mapped_df`` is empty.
     """
+    if mapped_df.empty:
+        return pd.DataFrame(columns=list(SILVER_COLUMNS))
+
+    mapped_df = validate_eea_rows(mapped_df)
     if mapped_df.empty:
         return pd.DataFrame(columns=list(SILVER_COLUMNS))
 

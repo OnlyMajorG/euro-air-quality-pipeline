@@ -273,22 +273,18 @@ No data pipeline logic was implemented.
   output, Open-Meteo client, Kafka, or Gold tables.
 ### Phase 3.3 EEA Station-To-City Mapping Table
 
-- Created src/city_mapping/build_station_mapping.py with deterministic,
+- Created `src/city_mapping/build_station_mapping.py` with a deterministic,
   side-effect-free builder from local constants.
-- Implemented uild_station_mapping(), alidate_station_mapping(),
-  write_station_mapping(), and _haversine_km() helper.
-- Seeded mapping from Phase 1 EEA station metadata observations:
-  - ienna_at: AT90TAB (selected), AT90AKC and AT9STEF (candidate).
-  - erlin_de: DEBE068 (selected); PM2.5 coverage constraint 2020+ documented.
-  - All 6 remaining cities: placeholder entries with candidate status and
-    explicit instructions for real station review before Issue 3.4.
-- Added 14 new station mapping tests to 	ests/test_city_mapping.py.
-  All 29 city mapping tests pass (32 total across all test files).
-- Updated docs/data_model.md with Phase 3.3 section: mapping table fields,
-  current mapping status per city, unresolved decisions, Berlin PM2.5
-  constraint, and scope boundary.
-- Updated 
-otebooks/02_eea_batch_ingestion.ipynb with Issue 3.3 Markdown
+- Implemented `build_station_mapping()`, `validate_station_mapping()`,
+  `write_station_mapping()`, and `_haversine_km()`.
+- Seeded selected station mappings for Vienna and Berlin from Phase 1 evidence.
+- Kept the six remaining starter cities as explicit placeholder mappings until
+  real station review is completed.
+- Added station mapping tests to `tests/test_city_mapping.py`.
+- Updated `docs/data_model.md` and `notebooks/02_eea_batch_ingestion.ipynb`
+  with station status, constraints, and scope boundaries.
+- Did not download EEA station metadata, run Spark, produce Silver output,
+  implement Kafka, or build Gold tables.
 
 ### Adapted Cluster Execution Strategy Documented
 
@@ -303,12 +299,46 @@ otebooks/02_eea_batch_ingestion.ipynb with Issue 3.3 Markdown
 - Updated README, current status, phase gate register, and agent working files
   to reflect the adapted execution strategy.
 - Decision: Spark `local[*]` is the default for Parquet-producing pipeline
-  runs. FH Spark cluster is documented as connectivity/compute evidence only
-  until shared storage is confirmed.
+  runs. FH Spark cluster is documented as connectivity and compute evidence
+  only until shared storage is confirmed.
 - Core scope remains unchanged: Kafka, Spark Structured Streaming, Parquet,
   Bronze/Silver/Gold, City Mapping, Jupyter, and storytelling remain required.
-  cell covering mapping structure, station status table, constraints, and DoD.
-- Verified: uild_station_mapping() produces 10 rows, 8 cities covered,
-  2 selected stations (AT90TAB for vienna_at, DEBE068 for berlin_de).
-- Did not download EEA station metadata, implement loader, run Spark, produce
-  Silver air quality output, implement Kafka, or build Gold tables.
+
+### Phase 3.4 EEA Loader For Controlled Local Files
+
+- Implemented controlled local CSV/Parquet loading in
+  `src/ingestion/eea_loader.py`.
+- Kept the loader side-effect free on import.
+- Supported column normalization, pollutant normalization to PM2.5, PM10, and
+  NO2, validity filtering, station-to-city joining, and daily aggregation.
+- Added EEA loader tests in `tests/test_eea_loader.py`.
+- Did not download EEA data, call external APIs, run Kafka, run Spark
+  Structured Streaming, or produce Gold analytics.
+
+### Phase 3.5 EEA Data Quality Validation Rules
+
+- Added `validate_eea_rows()` to `src/ingestion/eea_loader.py`.
+- Required normalized EEA row fields: `city_id`, `datetime_begin`, `pollutant`,
+  `concentration`, and `unit`.
+- Missing required columns, null join keys, invalid timestamps, and missing
+  units fail validation.
+- Negative or invalid concentration values and unsupported pollutants are
+  rejected before aggregation.
+- Updated `tests/test_eea_loader.py` with explicit data quality tests.
+- Updated `docs/data_sources.md` and `notebooks/02_eea_batch_ingestion.ipynb`.
+- Did not implement Gold analytics, live API validation, Spark streaming, or
+  causal interpretation.
+
+### Current Phase 3 State After Issue 3.5
+
+- Phase 3 remains in progress.
+- Issues 3.1 through 3.5 are implemented, tested, or documented.
+- Issue 3.5 added EEA row-level data quality validation for required fields,
+  timestamps, pollutant scope, units, and invalid concentration values.
+- The current test suite passes with 79 tests.
+- Remaining Phase 3 work is limited to Issue 3.6 Silver Parquet output,
+  Issue 3.7 notebook 02 final documentation, and Issue 3.8 Phase 3 QA/gate
+  decision.
+- No Gold analytics, production Wikipedia scraping, Open-Meteo client behavior,
+  Kafka producer, Spark Structured Streaming, or cluster Parquet persistence was
+  implemented.
