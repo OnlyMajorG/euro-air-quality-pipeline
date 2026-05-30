@@ -55,13 +55,14 @@ No full pipeline implementation exists yet. That is intentional.
 - Documented the EEA station-to-city mapping strategy, including distance,
   pollutant coverage, time coverage, representativeness, fallback behavior, and
   the `city_id` join rule.
+- Documented Wikipedia metadata join, null-handling, ambiguity-handling, and
+  contextual-only rules.
 
 ## Next Allowed Work
 
 The next allowed work remains within Phase 2 city mapping and reference model:
 
 - Carry forward Open-Meteo field mapping.
-- Define how Wikipedia metadata joins to cities.
 - Extend validation tests as EEA, Wikipedia, and Open-Meteo mapping rules
   become more specific.
 
