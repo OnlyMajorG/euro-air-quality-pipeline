@@ -1,14 +1,5 @@
-flowchart LR
-    B["Bronze Layer
-    Raw/source-aligned local data
-    Git-ignored"] --> S["Silver Layer
-    Normalized and join-ready Parquet
-    city_id joins"]
-    S --> G["Gold Layer
-    Analysis-ready Parquet"]
-    G --> A["Jupyter analysis and visualization"]
-
-    Mode["Reliable Parquet mode:
-    Spark local[*] or pandas/pyarrow"] --> S
-    Cluster["FH Spark cluster:
-    connectivity/compute evidence"] -. "no final Parquet until shared storage confirmed" .-> Mode
+flowchart TD
+    Sources["EEA files + Wikipedia HTML + Open-Meteo API"] --> Bronze["Bronze: source-shaped local evidence"]
+    Bronze --> Silver["Silver: normalized city, metadata, EEA daily, streaming outputs"]
+    Silver --> Gold["Gold: analysis-ready tables"]
+    Gold --> Viz["Visualizations and final story"]
