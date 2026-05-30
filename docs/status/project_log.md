@@ -162,3 +162,16 @@ No data pipeline logic was implemented.
   free-text city names or station names.
 - Did not download EEA files, implement station-radius matching, run Spark, or
   aggregate measurements.
+
+### Phase 2.6 Wikipedia Metadata Join Rules Documented
+
+- Added Wikipedia Metadata Join Rules to `docs/data_model.md`.
+- Documented planned contextual metadata fields: population, area, population
+  density, page title, URL, coordinates, country context, and metadata notes.
+- Defined `city_id` as the join key and free-text Wikipedia fields as
+  traceability only.
+- Documented null handling and ambiguity handling for missing, conflicting,
+  redirected, or disambiguated Wikipedia values.
+- Updated `notebooks/01_city_mapping.ipynb` with a concise summary.
+- Did not implement an HTML parser, scraping, metadata Parquet output,
+  dashboards, or analysis.
