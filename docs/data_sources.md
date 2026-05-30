@@ -494,3 +494,46 @@ This table will be populated during Phase 3 implementation issues (3.3, 3.4).
 - Spark batch processing job.
 - Silver or Gold Parquet output.
 - Any Open-Meteo, Wikipedia, Kafka, or streaming work.
+
+## Phase 3 EEA Data Quality Rules
+
+Phase 3 validates normalized EEA measurement rows before daily aggregation.
+These rules protect `data/silver/eea_city_daily.parquet` from silently using
+bad station records.
+
+### Required Fields
+
+The normalized row-level EEA DataFrame must contain these required fields:
+
+| field | required behavior |
+| --- | --- |
+| `city_id` | Non-null canonical city join key from station mapping. |
+| `datetime_begin` | Non-null, parseable timestamp normalized to UTC. |
+| `pollutant` | Non-null and one of PM2.5, PM10, NO2. |
+| `concentration` | Non-null numeric measured value, non-negative after validation. |
+| `unit` | Non-null, non-empty unit string; expected `µg/m³` or equivalent source spelling. |
+
+Missing required columns fail validation with `ValueError`. Null or empty
+required fields fail validation with `ValueError`.
+
+### Rejected Or Filtered Rows
+
+| condition | behavior |
+| --- | --- |
+| Negative concentration | Row is rejected before aggregation. |
+| Missing or non-numeric concentration | Row is rejected before aggregation. |
+| Unsupported pollutant outside PM2.5, PM10, NO2 | Row is rejected before aggregation. |
+| Invalid or unparseable timestamp | Validation fails; source file requires review. |
+| Missing unit | Validation fails; source file requires review. |
+| Missing `city_id` | Validation fails; station mapping must be fixed. |
+| Known invalid validity flag such as `-1`, `-99`, or `-999` | Row is rejected during raw loading. |
+
+### Limitations
+
+- These checks do not prove that a station is representative for a whole city;
+  that remains a station mapping decision.
+- These checks do not compare EEA historical values with Open-Meteo live/API
+  values.
+- These checks do not implement Gold analytics or causal interpretation.
+- If real EEA files expose different column names, the loader may map them to
+  the canonical concepts, but the validation rules remain unchanged.

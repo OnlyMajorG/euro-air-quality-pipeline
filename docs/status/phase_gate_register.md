@@ -80,7 +80,7 @@ Status: **In progress**
 | EEA input schema defined | Done | `docs/data_model.md` contains `Phase 3 EEA Batch Ingestion Data Model`. |
 | Station-to-city mapping table | Done with constraints | `src/city_mapping/build_station_mapping.py`; placeholders remain for six non-pilot cities. |
 | EEA loader implementation | Done | `src/ingestion/eea_loader.py` reads controlled local CSV/Parquet files and has pytest coverage. |
-| Data quality validation | Pending | Issue 3.5 |
+| Data quality validation | Done | `src/ingestion/eea_loader.py` exposes `validate_eea_rows`; `tests/test_eea_loader.py`, `docs/data_sources.md`, and notebook 02 document and verify behavior. |
 | Silver Parquet output | Pending | Issue 3.6 |
 | Notebook 02 complete | Pending | Issue 3.7 |
 | Phase 3 QA report | Pending | Issue 3.8 |
