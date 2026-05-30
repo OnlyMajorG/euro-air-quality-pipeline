@@ -159,6 +159,47 @@ flowchart LR
     mapping --> ingestion
 ```
 
+## Wikipedia Metadata Join Rules
+
+Wikipedia metadata is contextual city metadata, not official ground truth. Later
+phases may use it to enrich the city reference model for documentation,
+comparison, and analysis context, but EEA measurements and Open-Meteo API data
+must not depend on Wikipedia values being complete.
+
+Wikipedia metadata must attach to the city reference model through `city_id`.
+Page titles, page URLs, translated names, and free-text city names are traceable
+source attributes only; they are not downstream join keys.
+
+### Planned Wikipedia Metadata Fields
+
+| city reference field | source meaning | handling rule |
+| --- | --- | --- |
+| wikipedia_page_title | Expected English Wikipedia page title for the city. | Store as linkage metadata; do not use as join key. |
+| wikipedia_url | Expected page URL for traceability. | Store as source trace; do not fetch during Phase 2. |
+| population | Contextual population value where parseable. | Nullable integer; keep null when ambiguous or missing. |
+| area_km2 | Contextual area value where parseable. | Nullable float; keep null when ambiguous or missing. |
+| population_density | Contextual or derived density value. | Nullable float; derive only when population and area are reliable. |
+| latitude | Canonical city coordinate. | Keep from the city reference model; do not overwrite from Wikipedia without review. |
+| longitude | Canonical city coordinate. | Keep from the city reference model; do not overwrite from Wikipedia without review. |
+| country_code | Canonical country context. | Keep from the city reference model; Wikipedia country text is a validation clue only. |
+| wikipedia_metadata_notes | Parsing, ambiguity, missing-field, or fallback notes. | Required whenever a planned metadata value is null, ambiguous, conflicting, or manually reviewed. |
+
+### Null And Ambiguity Handling
+
+- If `population` or `area_km2` cannot be parsed confidently, keep the field
+  null and populate `wikipedia_metadata_notes`.
+- If Wikipedia contains multiple population, area, or coordinate values, do not
+  choose one silently; document the ambiguity and keep the target field null
+  until a later parser rule is approved.
+- If a page is missing, redirected, disambiguated, or not clearly about the
+  city, keep metadata fields null and document the issue.
+- Do not infer values from unrelated pages, search snippets, dashboards, or
+  other websites.
+- Do not treat Wikipedia coordinates as a replacement for the canonical
+  `latitude` and `longitude` defined in the city reference table.
+- Production HTML parsing and metadata Parquet output remain out of scope for
+  Phase 2 unless a later issue explicitly activates them.
+
 ## Phase 2 Scope Boundary
 
 Allowed in Phase 2:
