@@ -66,25 +66,6 @@ No full pipeline implementation exists yet. That is intentional.
 
 ## Completed Phase 3 Work
 
-- Created `agents/soul.md` — the AI agent operating contract for this repository.
-- Issue 3.1: Documented EEA batch source access path, raw-data policy, file
-  naming convention, git-ignore verification, and reproducibility contract.
-- Issue 3.2: Documented EEA input field expectations, pollutant normalisation
-  table (PM2.5, PM10, NO2), Silver output schema (10 fields), and
-  historical vs. live data separation rule in `docs/data_model.md`.
-- Issue 3.3: Implemented `src/city_mapping/build_station_mapping.py` with
-  deterministic station-to-city mapping builder. Pilot city stations
-  (Vienna `AT90TAB`, Berlin `DEBE068`) are selected. All 8 starter cities
-  have at least one mapping entry. 6 non-pilot cities carry placeholder
-  entries pending real station review before Issue 3.4.
-  29 city mapping tests pass (14 new station mapping tests added).
-
-## Next Allowed Work
-
-Phase 3 issues in order:
-
-- Issue 3.4: Implement EEA loader for controlled local files.
-- Issue 3.5: Add EEA data quality validation rules.
 - Issue 3.6: Build EEA city daily Silver Parquet.
 - Issue 3.7: Update notebook 02 with full Phase 3 documentation.
 - Issue 3.8: Phase 3 QA report and gate decision.
