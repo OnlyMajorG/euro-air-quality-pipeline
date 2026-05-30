@@ -200,6 +200,54 @@ source attributes only; they are not downstream join keys.
 - Production HTML parsing and metadata Parquet output remain out of scope for
   Phase 2 unless a later issue explicitly activates them.
 
+## Open-Meteo Mapping Rules
+
+Open-Meteo Air Quality requests are coordinate-based. Later Open-Meteo API
+client and event schema work must use the canonical city reference `latitude`
+and `longitude` for each `city_id`. Phase 2 records the mapping rules only; it
+does not implement an API client, event schema, Kafka producer, scheduler, or
+streaming job.
+
+### Coordinate Usage
+
+| city reference field | Open-Meteo usage | rule |
+| --- | --- | --- |
+| city_id | Internal city join key | Carry into future Open-Meteo events and downstream joins. |
+| latitude | API request latitude | Use the fixed WGS84 coordinate from the city reference table. |
+| longitude | API request longitude | Use the fixed WGS84 coordinate from the city reference table. |
+| country_code | Context and validation | Preserve in future events for traceability; do not use as API coordinate input. |
+| open_meteo_coordinate_notes | Coordinate review notes | Record assumptions, corrections, or later coordinate review decisions. |
+
+Coordinates should be treated as city-level reference coordinates, not station
+locations. If a later phase changes a coordinate, the change must be documented
+because it can affect API responses and comparability.
+
+### Pollutant Field Mapping
+
+| project pollutant | Open-Meteo hourly field | planned internal meaning |
+| --- | --- | --- |
+| PM2.5 | `pm2_5` | Fine particulate matter. |
+| PM10 | `pm10` | Particulate matter up to 10 micrometers. |
+| NO2 | `nitrogen_dioxide` | Nitrogen dioxide. |
+
+The Phase 1 source spike confirmed these Open-Meteo field names for the pilot
+cities. Later Phase 5 work should map these fields into a stable internal event
+schema before Kafka is introduced in Phase 6.
+
+### Timezone Assumption
+
+Open-Meteo requests should use `timezone=UTC` unless a later ADR changes this
+decision. Future events should carry UTC timestamps explicitly, for example
+`event_time_utc` and `ingestion_time_utc`, so Spark and Parquet outputs can be
+compared consistently across cities.
+
+### Phase 5 Handoff
+
+Phase 5 may implement the Open-Meteo client and event schema using these rules.
+Phase 2 must stop at documentation and city reference support. No API calls,
+production client behavior, event schema implementation, Kafka producer, or
+Spark streaming logic belongs in this issue.
+
 ## Phase 2 Scope Boundary
 
 Allowed in Phase 2:

@@ -42,7 +42,7 @@ Status: **In progress**
 | Deterministic city reference builder | Done | `src/city_mapping/build_city_reference.py` builds local records and writes ignored CSV/Parquet only when explicitly called. |
 | Station-to-city mapping rules | Done | `docs/data_model.md` and notebook 01 document EEA candidate selection, required mapping fields, fallback behavior, and `city_id` join rules. |
 | Wikipedia metadata join rules | Done | `docs/data_model.md` and notebook 01 document planned fields, null handling, ambiguity handling, contextual-only status, and `city_id` joins. |
-| Open-Meteo coordinate and field mapping rules | Pending | Planned Phase 2 work. |
+| Open-Meteo coordinate and field mapping rules | Done | `docs/data_model.md` and notebook 01 document coordinate usage, PM2.5/PM10/NO2 field mapping, UTC assumption, and Phase 5 handoff. |
 | City reference validation tests | Done | `tests/test_city_mapping.py` validates schema, join keys, identifiers, country codes, normalized names, coordinates, duplicate rejection, minimum city count, and CSV/Parquet write/read. |
 
 Allowed focus:
@@ -50,6 +50,7 @@ Allowed focus:
 - Define stable city identifiers.
 - Build the city reference model.
 - Document station-to-city mapping rules.
+- Document source-specific mapping rules.
 - Add validation tests for city mapping.
 
 Not allowed yet:
