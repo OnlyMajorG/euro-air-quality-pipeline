@@ -103,3 +103,12 @@ No data pipeline logic was implemented.
   feasibility from planned later implementation artifacts.
 - Did not change source modules, tests, data model outputs, Kafka, Spark, or
   ingestion logic.
+
+### Phase 2.1 City Reference Scope Defined
+
+- Documented exactly 8 starter cities for the Phase 2 city reference model.
+- Included Vienna and Berlin from Phase 1.
+- Added city names, country codes, coordinates, and selection rationale in
+  `docs/data_model.md` and `notebooks/01_city_mapping.ipynb`.
+- Did not create city reference output files, download data, call APIs, scrape
+  Wikipedia, run Kafka, run Spark, or implement analytics.
