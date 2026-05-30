@@ -6,30 +6,34 @@ Last updated: 2026-05-30
 
 Current phase: **Phase 3 in progress**
 
-Decision: **Phase 2 complete (PASS); Phase 3 started — Issue 3.1 complete**
+Decision: **Phase 2 complete (PASS); Phase 3 active through Issue 3.4**
 
 ## Summary
 
-The repository contains a clean Phase 0 skeleton for a university Big Data
-Engineering project. It defines documentation placeholders, ADRs, diagram
-placeholders, source package placeholders, placeholder tests, data folder
-scaffolding, and a Phase 0 Docker Compose baseline.
+The repository contains a clean university Big Data Engineering project
+skeleton, completed Phase 1 source feasibility documentation, completed Phase 2
+city reference work, and early Phase 3 EEA batch ingestion implementation.
 
-No full pipeline implementation exists yet. That is intentional.
+The adapted execution strategy is now documented: Spark `local[*]` is the
+default for Parquet-producing pipeline runs. The FH Spark cluster is documented
+as connectivity and compute evidence only until a confirmed shared storage path
+exists.
 
 ## Current Known Issues
 
 | Severity | Issue | Source |
 | --- | --- | --- |
 | Minor | Docker Compose uses `latest` image tags. | `docs/qa/phase0_qa_report.md` |
+| Major | FH Spark cluster storage is not confirmed for Parquet outputs. | `docs/qa/cluster_connectivity_check.md`, ADR-004 |
+| Major | Placeholder station mappings remain for Paris, Madrid, Rome, Amsterdam, Warsaw, and Prague. | `src/city_mapping/build_station_mapping.py` |
 
 ## Resolved Issues
 
 | Date | Issue | Evidence |
 | --- | --- | --- |
-| 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes for all seven notebooks. |
-| 2026-05-30 | README lagged behind the active phase after Phase 1 QA and later Phase 2 work. | README now states Phase 2 in progress and lists completed Phase 2 city reference work through Issue 2.7. |
-| 2026-05-30 | `pytest` and `pyarrow` were missing from the active local interpreter. | Installed locally and verified `tests/test_city_mapping.py` passes. |
+| 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes. |
+| 2026-05-30 | README lagged behind the active phase. | README now states Phase 3 in progress and documents execution modes. |
+| 2026-05-30 | `pytest` and `pyarrow` were missing from the active local interpreter. | Installed locally; tests pass. |
 
 ## Completed Phase 1 Work
 
@@ -40,47 +44,42 @@ No full pipeline implementation exists yet. That is intentional.
 - Documented sample data hygiene rules.
 - Created the Phase 1 source feasibility matrix.
 - Created the Phase 1 QA report.
+- Recorded FH Spark cluster connectivity evidence and storage limitation.
+- Accepted ADR-004 for execution environment and storage strategy.
 
 ## Completed Phase 2 Work
 
 - Defined exactly 8 starter cities for the city reference model.
 - Designed the canonical city reference schema.
-- Reviewed ADR-003 and confirmed that the city reference model decision remains
-  unchanged.
-- Implemented a deterministic local city reference builder that writes ignored
-  CSV and Parquet artifacts only when explicitly called.
-- Added city reference integrity tests for schema, join keys, uniqueness,
-  country codes, normalized names, coordinates, city count, and Parquet
-  readback.
-- Documented the EEA station-to-city mapping strategy, including distance,
-  pollutant coverage, time coverage, representativeness, fallback behavior, and
-  the `city_id` join rule.
-- Documented Wikipedia metadata join, null-handling, ambiguity-handling, and
-  contextual-only rules.
-- Documented Open-Meteo coordinate, pollutant field, UTC timezone, and Phase 5
-  handoff rules.
-- Updated notebook 01 as the readable Phase 2 city mapping documentation trail,
-  including deliverables, schema, source mapping rules, validation checks, and
-  a local Parquet readback example.
-- Created the Phase 2 QA report and gate decision.
+- Implemented a deterministic local city reference builder.
+- Added city reference integrity tests.
+- Documented EEA, Wikipedia, and Open-Meteo mapping rules.
+- Updated notebook 01 as the Phase 2 documentation trail.
+- Created the Phase 2 QA report.
 
 ## Completed Phase 3 Work
 
-- Issue 3.6: Build EEA city daily Silver Parquet.
-- Issue 3.7: Update notebook 02 with full Phase 3 documentation.
-- Issue 3.8: Phase 3 QA report and gate decision.
+- Issue 3.1: EEA source access path and raw-data policy documented.
+- Issue 3.2: EEA input schema and Silver output schema documented.
+- Issue 3.3: EEA station-to-city mapping builder implemented from local constants.
+- Issue 3.4: EEA loader for controlled local CSV/Parquet files implemented.
 
-> **Prerequisite for Issue 3.4:** Placeholder station mappings for Paris,
-> Madrid, Rome, Amsterdam, Warsaw, and Prague must be resolved with real
-> EEA station EoI codes before ingestion begins.
+## Next Allowed Work
+
+The next allowed work remains Phase 3 EEA Batch Ingestion:
+
+- Resolve placeholder station mappings before real ingestion.
+- Complete Issue 3.5 data quality documentation and validation policy.
+- Complete Issue 3.6 reproducible EEA city daily Silver Parquet output.
+- Complete Issue 3.7 notebook 02 final documentation.
+- Complete Issue 3.8 Phase 3 QA report and gate decision.
 
 ## Explicitly Not Implemented
 
-- EEA loader or ingestion implementation.
-- EEA bulk data download.
-- Wikipedia scraping.
+- Production Wikipedia scraping.
 - Open-Meteo API client behavior.
 - Kafka producer behavior.
 - Spark Structured Streaming behavior.
-- Silver/Gold transformations beyond city reference.
-- Analysis results and final visualizations.
+- Gold transformations or analytics.
+- Final visualizations.
+- Cluster Spark Parquet persistence.

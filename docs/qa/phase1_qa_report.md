@@ -146,3 +146,20 @@ README was updated to show the latest state:
 
 No source modules, tests, data model outputs, Kafka code, Spark code, ingestion
 logic, or analytics were changed.
+
+## Cluster Feasibility Addendum - 2026-05-30
+
+FH/BDENG cluster smoke tests were documented after the initial source-feasibility
+gate in `docs/qa/cluster_connectivity_check.md`.
+
+The added infrastructure finding does not change the Phase 1 source decisions.
+It adds the execution-mode decision recorded in ADR-004:
+
+- FH Spark cluster connectivity and basic compute are documented as usable
+  evidence.
+- HDFS/shared storage for Parquet outputs is not confirmed.
+- Default Parquet-producing execution mode is Spark `local[*]` or local
+  pandas/pyarrow in the project path.
+
+This adaptation preserves the core scope and prevents unsupported claims about
+cluster-based Parquet persistence.

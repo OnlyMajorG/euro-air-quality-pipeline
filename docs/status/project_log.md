@@ -289,6 +289,24 @@ No data pipeline logic was implemented.
   constraint, and scope boundary.
 - Updated 
 otebooks/02_eea_batch_ingestion.ipynb with Issue 3.3 Markdown
+
+### Adapted Cluster Execution Strategy Documented
+
+- Added `docs/decisions/ADR-004-execution-environment-and-storage-strategy.md`.
+- Added `docs/cluster_setup.md`.
+- Added `docs/qa/cluster_connectivity_check.md`.
+- Updated `.env.example` and added `.env.cluster.example`.
+- Updated `src/config/settings.py` with side-effect-free environment settings.
+- Updated `docs/architecture.md` and Mermaid diagram files to reflect execution
+  modes and group-specific Kafka topic naming.
+- Updated `agents/soul.md`, `agents/memory.md`, and `agents/skills.md`.
+- Updated README, current status, phase gate register, and agent working files
+  to reflect the adapted execution strategy.
+- Decision: Spark `local[*]` is the default for Parquet-producing pipeline
+  runs. FH Spark cluster is documented as connectivity/compute evidence only
+  until shared storage is confirmed.
+- Core scope remains unchanged: Kafka, Spark Structured Streaming, Parquet,
+  Bronze/Silver/Gold, City Mapping, Jupyter, and storytelling remain required.
   cell covering mapping structure, station status table, constraints, and DoD.
 - Verified: uild_station_mapping() produces 10 rows, 8 cities covered,
   2 selected stations (AT90TAB for vienna_at, DEBE068 for berlin_de).

@@ -1,9 +1,22 @@
-graph TD
-    EEA[EEA Historical Data] --> Bronze[Bronze Parquet]
-    Wiki[Wikipedia City Metadata] --> Bronze
-    OpenMeteo[Open-Meteo API] --> Kafka[Kafka]
-    Kafka --> Spark[Spark Structured Streaming]
-    Spark --> Bronze
-    Bronze --> Silver[Silver Parquet]
-    Silver --> Gold[Gold Parquet]
-    Gold --> Jupyter[Jupyter Notebooks]
+flowchart TD
+    EEA["EEA historical files"] --> EEA_Bronze["Bronze: raw EEA files"]
+    EEA_Bronze --> EEA_Silver["Silver: eea_city_daily.parquet"]
+
+    Wiki["Wikipedia city pages"] --> Wiki_Bronze["Bronze: raw Wikipedia HTML"]
+    Wiki_Bronze --> Wiki_Silver["Silver: city_metadata.parquet"]
+
+    OpenMeteo["Open-Meteo Air Quality API"] --> Producer["Open-Meteo event builder"]
+    Producer --> Kafka["Kafka topic: bdeng_g1_air_quality_live"]
+    Kafka --> Spark["Spark Structured Streaming local[*] for Parquet"]
+    Spark --> Stream_Silver["Silver: open_meteo_city_hourly"]
+
+    CityRef["city_reference.parquet"] --> EEA_Silver
+    CityRef --> Wiki_Silver
+    CityRef --> Spark
+
+    EEA_Silver --> Gold["Gold analysis Parquet"]
+    Wiki_Silver --> Gold
+    Stream_Silver --> Gold
+    Gold --> Notebook["Jupyter analysis and storytelling"]
+
+    Cluster["FH Spark cluster"] -. "connectivity and compute evidence only" .-> SparkEvidence["docs/qa/cluster_connectivity_check.md"]

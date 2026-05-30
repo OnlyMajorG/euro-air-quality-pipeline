@@ -29,6 +29,8 @@ Gate decision: **Approved for Phase 2**
 | Sample data hygiene documented | Done | `Phase 1 Sample Data Hygiene Policy`. |
 | Source feasibility matrix created | Done | `Phase 1 Source Feasibility Matrix`. |
 | Phase 1 QA report exists | Done | `docs/qa/phase1_qa_report.md`. |
+| FH Spark cluster connectivity documented | Done | `docs/qa/cluster_connectivity_check.md`. |
+| Execution/storage strategy accepted | Done | `docs/decisions/ADR-004-execution-environment-and-storage-strategy.md`. |
 
 ## Phase 2 - City Mapping And Reference Model
 
@@ -74,10 +76,10 @@ Status: **In progress**
 | Raw-data policy defined | Done | `docs/data_sources.md` documents that large raw EEA files must not be committed; `data/bronze/eea/` is git-ignored. |
 | File naming convention documented | Done | Pattern `eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>` documented in `docs/data_sources.md` and notebook 02. |
 | Git-ignore verification confirmed | Done | `git check-ignore -v data/bronze/eea/sample_test.csv` returns the `.gitignore` rule as expected. |
-| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issue 3.1 Markdown summary with 0 code outputs. |
-| EEA input schema defined | Pending | Issue 3.2 |
-| Station-to-city mapping table | Pending | Issue 3.3 |
-| EEA loader implementation | Pending | Issue 3.4 |
+| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issues 3.1-3.4 summaries with 0 code outputs. |
+| EEA input schema defined | Done | `docs/data_model.md` contains `Phase 3 EEA Batch Ingestion Data Model`. |
+| Station-to-city mapping table | Done with constraints | `src/city_mapping/build_station_mapping.py`; placeholders remain for six non-pilot cities. |
+| EEA loader implementation | Done | `src/ingestion/eea_loader.py` reads controlled local CSV/Parquet files and has pytest coverage. |
 | Data quality validation | Pending | Issue 3.5 |
 | Silver Parquet output | Pending | Issue 3.6 |
 | Notebook 02 complete | Pending | Issue 3.7 |
@@ -97,3 +99,4 @@ Not allowed yet:
 - Kafka producer implementation.
 - Spark Structured Streaming.
 - Gold-layer analytics.
+- Cluster Spark Parquet persistence unless shared storage is confirmed.

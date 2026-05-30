@@ -360,6 +360,18 @@ Silver output schema for Phase 3. It is a schema contract only. It does not
 implement the EEA loader, run Spark, download data, or produce Silver or Gold
 outputs.
 
+### Phase 3 Execution Mode
+
+Parquet-producing Phase 3 work must use the reliable project execution mode:
+
+```text
+SPARK_MASTER_URL=local[*]
+```
+
+or a local pandas/pyarrow path in the project environment. The FH Spark cluster
+must not be used for final Phase 3 Parquet persistence unless a confirmed shared
+storage path is provided and tested. This follows ADR-004.
+
 ### EEA Input Field Expectations
 
 EEA historical time series files (downloaded as station-level Parquet or CSV
