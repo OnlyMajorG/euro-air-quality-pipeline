@@ -366,3 +366,131 @@ Wikipedia is **usable with constraints** for city metadata enrichment. The
 source is suitable for contextual fields such as population, area, coordinates,
 and country context, but the final parser must be conservative, tested, and
 transparent about missing or ambiguous values.
+
+## Phase 3 EEA Source Access
+
+### Overview
+
+Phase 3 implements controlled EEA historical air quality batch ingestion for the
+8 starter cities and the 3 core pollutants (PM2.5, PM10, NO2) defined in Phase 2.
+Before any ingestion logic is written, this section documents how EEA raw data
+is obtained, stored, and kept out of the repository.
+
+This section is **documentation and policy only**. It does not download EEA
+data, implement the EEA loader, run Spark, or produce Silver or Gold outputs.
+
+### EEA Source Access Path
+
+EEA historical air quality time series are available through the EEA Air Quality
+Download Service. The following access paths are accepted for Phase 3:
+
+| Access path | Description | Phase 3 use |
+| --- | --- | --- |
+| EEA Air Quality Download web app | Interactive download at `https://eeadmz1-downloads-webapp.azurewebsites.net` | Select country, station, pollutant, and year range; download zipped Parquet or CSV. |
+| EEA station spatial service | ArcGIS REST layer for station metadata at `https://air.discomap.eea.europa.eu/arcgis/rest/services/AirQuality/AirQualityDownloadServiceEUMonitoringStations/MapServer/0` | Used in Phase 1 to identify candidate stations; Phase 3 may re-query for specific station IDs. |
+| Station-specific Parquet links | Pollutant-specific validated E1a download links embedded in EEA station metadata popups | Preferred Phase 3 access path for individual station time series. |
+
+EEA raw files downloaded for Phase 3 must be stored locally under
+`data/bronze/eea/` and must not be committed to the repository.
+
+### Raw-Data Policy
+
+| Rule | Detail |
+| --- | --- |
+| Large raw EEA files must **not** be committed | All `data/**/*.parquet`, `data/**/*.csv`, `data/**/*.json` are git-ignored by repository policy. |
+| Raw files are kept local under `data/bronze/eea/` | This directory is git-ignored. Folder structure is maintained with `.gitkeep`. |
+| Raw files must be **reproducibly referenced** | Document the exact EEA download URL, station ID, pollutant, and year range used in `docs/data_sources.md` or in the notebook so a reviewer can re-download the same source files. |
+| Tiny controlled test fixtures are allowed | Small in-memory or temporary files used only in pytest fixtures are acceptable; they must not contain real sensitive measurement data and must not be committed. |
+| Phase 3 must not download data at bulk scale | Only the stations and time periods needed for the 8 starter cities and core pollutants are relevant. |
+
+### Naming Convention For Local EEA Files
+
+Files placed under `data/bronze/eea/` should follow this naming pattern:
+
+```
+eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>
+```
+
+Examples:
+
+```
+eea_AT90TAB_pm25_2018_2023.parquet
+eea_AT90TAB_no2_2018_2023.parquet
+eea_DEBE068_pm10_2020_2024.csv
+```
+
+Where:
+
+- `<station_id>` is the EEA station EoI code, e.g. `AT90TAB`.
+- `<pollutant_key>` is one of `pm25`, `pm10`, `no2`.
+- `<year_start>` and `<year_end>` are the inclusive year range of the download.
+- `<ext>` is `parquet` or `csv` depending on the download format used.
+
+Tiny sample files used only for local validation may use a `sample_` prefix:
+
+```
+sample_eea_AT90TAB_pm25_2022.csv
+```
+
+### Git-Ignore Verification
+
+The repository `.gitignore` covers all EEA raw data files through the following
+rules:
+
+```gitignore
+data/**/*.parquet
+data/**/*.csv
+data/**/*.json
+data/**/*.html
+data/**/checkpoints/**
+!**/.gitkeep
+```
+
+To confirm that a local EEA file is correctly ignored before attempting to add
+it:
+
+```bash
+git check-ignore -v data/bronze/eea/sample_test.csv
+```
+
+The expected output is a line referencing the `.gitignore` rule and the file
+path. If the file does not appear as ignored, check the `.gitignore` rules
+before proceeding.
+
+### Reproducibility Contract
+
+Because large EEA raw files are not committed, reproducibility depends on
+documentation. The following information must be recorded in this document or in
+notebook 02 for every EEA download used in Phase 3:
+
+| Item | Example |
+| --- | --- |
+| Station EoI code | `AT90TAB` |
+| Station name | `Taborstraße` |
+| City reference city_id | `vienna_at` |
+| Pollutant | PM2.5 |
+| Year range | 2018–2023 |
+| Download URL or service endpoint | `https://eeadmz1-downloads-webapp.azurewebsites.net` |
+| File format | Parquet (E1a validated) |
+| Download date | 2026-05-30 |
+| Local path | `data/bronze/eea/eea_AT90TAB_pm25_2018_2023.parquet` |
+
+This table will be populated during Phase 3 implementation issues (3.3, 3.4).
+
+### Phase 3 Scope Boundary
+
+**Included in this issue (3.1):**
+
+- Document the accepted EEA source access path.
+- Define raw-data policy and naming conventions.
+- Confirm git-ignore behaviour.
+- Record scope boundary.
+
+**Not included in this issue:**
+
+- Bulk EEA download or any data download.
+- EEA loader implementation.
+- Station-to-city mapping implementation.
+- Spark batch processing job.
+- Silver or Gold Parquet output.
+- Any Open-Meteo, Wikipedia, Kafka, or streaming work.
