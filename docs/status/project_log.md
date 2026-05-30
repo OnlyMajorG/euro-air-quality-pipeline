@@ -175,3 +175,15 @@ No data pipeline logic was implemented.
 - Updated `notebooks/01_city_mapping.ipynb` with a concise summary.
 - Did not implement an HTML parser, scraping, metadata Parquet output,
   dashboards, or analysis.
+
+### Phase 2.7 Open-Meteo Mapping Rules Documented
+
+- Added Open-Meteo Mapping Rules to `docs/data_model.md`.
+- Documented that future Open-Meteo requests must use city reference
+  `latitude` and `longitude` for each `city_id`.
+- Documented pollutant field mapping: PM2.5 to `pm2_5`, PM10 to `pm10`, and
+  NO2 to `nitrogen_dioxide`.
+- Documented the Phase 1 UTC timezone assumption and Phase 5 handoff boundary.
+- Updated `notebooks/01_city_mapping.ipynb` with a concise summary.
+- Did not implement an API client, event schema, Kafka producer, Spark
+  streaming job, or API calls.
