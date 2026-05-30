@@ -21,10 +21,12 @@ from src.ingestion.eea_loader import (
     REQUIRED_EEA_ROW_COLUMNS,
     SILVER_COLUMNS,
     aggregate_to_city_daily,
+    build_eea_city_daily_parquet,
     load_and_aggregate,
     load_eea_raw,
     map_stations_to_cities,
     validate_eea_rows,
+    write_eea_city_daily_parquet,
 )
 
 
@@ -804,3 +806,124 @@ def test_load_and_aggregate_multi_station_multi_city(tmp_path: Path) -> None:
 
     assert set(result["city_id"]) == {"vienna_at", "berlin_de"}
     assert len(result) == 2
+
+
+# ---------------------------------------------------------------------------
+# Phase 3.6 Silver Parquet writer
+# ---------------------------------------------------------------------------
+
+
+def test_write_eea_city_daily_parquet_roundtrip(tmp_path: Path) -> None:
+    rows = [
+        {
+            "AirQualityStationEoICode": "AT90TAB",
+            "DatetimeBegin": "2023-01-15T08:00:00+00:00",
+            "AirPollutant": "PM2.5",
+            "Concentration": 10.0,
+            "Unit": "Âµg/mÂ³",
+        },
+        {
+            "AirQualityStationEoICode": "AT90TAB",
+            "DatetimeBegin": "2023-01-15T09:00:00+00:00",
+            "AirPollutant": "PM2.5",
+            "Concentration": 20.0,
+            "Unit": "Âµg/mÂ³",
+        },
+    ]
+    p = _make_minimal_csv(tmp_path, rows)
+    raw = load_eea_raw(p)
+    mapped = map_stations_to_cities(raw, _minimal_station_mapping())
+    silver = aggregate_to_city_daily(mapped, processing_time_utc=_FIXED_PROCESSING_TS)
+
+    output_path = tmp_path / "silver" / "eea_city_daily.parquet"
+    written = write_eea_city_daily_parquet(silver, output_path)
+    roundtrip = pd.read_parquet(written)
+
+    assert written == output_path
+    assert list(roundtrip.columns) == list(SILVER_COLUMNS)
+    assert len(roundtrip) == 1
+    assert roundtrip.iloc[0]["city_id"] == "vienna_at"
+    assert roundtrip.iloc[0]["pollutant"] == "PM2.5"
+    assert roundtrip.iloc[0]["mean_value"] == pytest.approx(15.0)
+    assert roundtrip.iloc[0]["min_value"] == pytest.approx(10.0)
+    assert roundtrip.iloc[0]["max_value"] == pytest.approx(20.0)
+    assert roundtrip.iloc[0]["observation_count"] == 2
+    assert roundtrip.iloc[0]["source"] == "eea"
+
+
+def test_write_eea_city_daily_parquet_rejects_missing_columns(tmp_path: Path) -> None:
+    bad = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "date": "2023-01-15",
+                "pollutant": "PM2.5",
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="Missing EEA Silver output columns"):
+        write_eea_city_daily_parquet(bad, tmp_path / "bad.parquet")
+
+
+def test_write_eea_city_daily_parquet_rejects_unsupported_pollutants(tmp_path: Path) -> None:
+    good = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "date": pd.Timestamp("2023-01-15"),
+                "pollutant": "SO2",
+                "mean_value": 1.0,
+                "min_value": 1.0,
+                "max_value": 1.0,
+                "observation_count": 1,
+                "unit": "Âµg/mÂ³",
+                "source": "eea",
+                "processing_time_utc": pd.Timestamp(_FIXED_PROCESSING_TS),
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="unsupported pollutants"):
+        write_eea_city_daily_parquet(good, tmp_path / "bad.parquet")
+
+
+def test_write_eea_city_daily_parquet_rejects_non_eea_source(tmp_path: Path) -> None:
+    bad_source = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "date": pd.Timestamp("2023-01-15"),
+                "pollutant": "PM10",
+                "mean_value": 1.0,
+                "min_value": 1.0,
+                "max_value": 1.0,
+                "observation_count": 1,
+                "unit": "Âµg/mÂ³",
+                "source": "open_meteo",
+                "processing_time_utc": pd.Timestamp(_FIXED_PROCESSING_TS),
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="source must be 'eea'"):
+        write_eea_city_daily_parquet(bad_source, tmp_path / "bad.parquet")
+
+
+def test_build_eea_city_daily_parquet_explicit_end_to_end(tmp_path: Path) -> None:
+    p = _make_minimal_csv(tmp_path, _standard_rows())
+    output_path = tmp_path / "out" / "eea_city_daily.parquet"
+
+    silver = build_eea_city_daily_parquet(
+        p,
+        _minimal_station_mapping(),
+        output_path=output_path,
+        processing_time_utc=_FIXED_PROCESSING_TS,
+    )
+    roundtrip = pd.read_parquet(output_path)
+
+    assert output_path.exists()
+    assert list(silver.columns) == list(SILVER_COLUMNS)
+    assert list(roundtrip.columns) == list(SILVER_COLUMNS)
+    assert len(roundtrip) == 3
+    assert set(roundtrip["pollutant"]) == CORE_POLLUTANTS

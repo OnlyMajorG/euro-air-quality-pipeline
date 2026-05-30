@@ -9,7 +9,7 @@ Design constraints:
 - No external network calls, no EEA downloads.
 - No Kafka, no Spark, no Open-Meteo logic.
 - No global file-system access; all paths are explicit caller arguments.
-- All functions return plain pandas DataFrames; they do not write files.
+- File writes happen only through explicit writer functions.
 
 The Silver aggregation (city/day/pollutant summary) is handled by a separate
 function so callers can inspect and test raw records independently of the
@@ -30,6 +30,8 @@ import pandas as pd
 
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_EEA_CITY_DAILY_PATH = Path("data/silver/eea_city_daily.parquet")
 
 # ---------------------------------------------------------------------------
 # Core pollutant constants — must match docs/data_model.md exactly
@@ -502,3 +504,81 @@ def load_and_aggregate(
     raw = load_eea_raw(path)
     mapped = map_stations_to_cities(raw, station_mapping_df)
     return aggregate_to_city_daily(mapped, processing_time_utc=processing_time_utc)
+
+
+def write_eea_city_daily_parquet(
+    silver_df: pd.DataFrame,
+    output_path: Path | str = DEFAULT_EEA_CITY_DAILY_PATH,
+) -> Path:
+    """Write EEA city/day/pollutant Silver rows to Parquet explicitly.
+
+    This function is the Phase 3.6 output boundary. It validates the Silver
+    schema and pollutant/source constraints before writing. Importing this
+    module never writes files; callers must invoke this function deliberately.
+    """
+    missing_columns = [col for col in SILVER_COLUMNS if col not in silver_df.columns]
+    if missing_columns:
+        raise ValueError(f"Missing EEA Silver output columns: {missing_columns}")
+
+    output = silver_df[list(SILVER_COLUMNS)].copy()
+
+    if not output.empty:
+        unsupported_pollutants = sorted(set(output["pollutant"]) - CORE_POLLUTANTS)
+        if unsupported_pollutants:
+            raise ValueError(
+                "EEA Silver output contains unsupported pollutants: "
+                f"{unsupported_pollutants}"
+            )
+
+        invalid_sources = sorted(set(output["source"]) - {"eea"})
+        if invalid_sources:
+            raise ValueError(
+                "EEA Silver output source must be 'eea' only; found: "
+                f"{invalid_sources}"
+            )
+
+        required = [
+            "city_id",
+            "date",
+            "pollutant",
+            "mean_value",
+            "observation_count",
+            "unit",
+            "source",
+        ]
+        null_required = [
+            col
+            for col in required
+            if output[col].isna().any() or (output[col].astype(str).str.strip() == "").any()
+        ]
+        if null_required:
+            raise ValueError(
+                "EEA Silver output required fields contain null or empty values: "
+                f"{null_required}"
+            )
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    output.to_parquet(path, index=False)
+    return path
+
+
+def build_eea_city_daily_parquet(
+    input_path: Path | str,
+    station_mapping_df: pd.DataFrame,
+    output_path: Path | str = DEFAULT_EEA_CITY_DAILY_PATH,
+    processing_time_utc: datetime | None = None,
+) -> pd.DataFrame:
+    """Load local EEA rows, aggregate them, and explicitly write Silver Parquet.
+
+    This convenience function is intended for controlled local Phase 3 runs
+    using a caller-provided EEA CSV/Parquet sample and station mapping table.
+    It performs no network calls and does not mix Open-Meteo data.
+    """
+    silver = load_and_aggregate(
+        input_path,
+        station_mapping_df,
+        processing_time_utc=processing_time_utc,
+    )
+    write_eea_city_daily_parquet(silver, output_path)
+    return silver

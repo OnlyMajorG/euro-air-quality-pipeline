@@ -356,9 +356,10 @@ Not allowed in Phase 2:
 ## Phase 3 EEA Batch Ingestion Data Model
 
 This section documents the EEA input field expectations and the normalized
-Silver output schema for Phase 3. It is a schema contract only. It does not
-implement the EEA loader, run Spark, download data, or produce Silver or Gold
-outputs.
+Silver output schema for Phase 3. As of Issue 3.6, the pandas/pyarrow-based EEA
+loader, validation path, aggregation, and explicit local Silver Parquet writer
+are implemented. The section still does not represent Spark streaming, Gold
+tables, Open-Meteo merging, or any dataset download.
 
 ### Phase 3 Execution Mode
 
@@ -486,6 +487,32 @@ table without an explicit, documented decision.
 No Phase 3 code or transformation may read from, write to, or join with
 Open-Meteo Silver or Gold tables. The `source = 'eea'` field in the Silver
 schema makes this separation machine-checkable at all downstream layers.
+
+### Phase 3.6 Silver Parquet Output Implementation
+
+Issue 3.6 implements the reproducible write boundary for
+`data/silver/eea_city_daily.parquet`.
+
+Implemented functions in `src/ingestion/eea_loader.py`:
+
+- `aggregate_to_city_daily(mapped_df)` groups normalized EEA rows by
+  `city_id`, UTC `date`, `pollutant`, and `unit`.
+- `write_eea_city_daily_parquet(silver_df, output_path)` validates the Silver
+  schema and writes Parquet only when explicitly called.
+- `build_eea_city_daily_parquet(input_path, station_mapping_df, output_path)`
+  loads a caller-provided local EEA CSV/Parquet file, maps stations through the
+  selected station mapping, aggregates to Silver, and writes the Parquet output.
+
+The writer enforces:
+
+- output columns must match `SILVER_COLUMNS`;
+- `pollutant` must be limited to PM2.5, PM10, and NO2;
+- `source` must be exactly `eea`;
+- required join and measurement fields must be non-null;
+- output is written only through an explicit function call.
+
+The generated file is a local Phase 3 artifact and remains ignored by Git under
+the repository data policy.
 
 ### Phase 3.2 Scope Boundary
 
