@@ -81,6 +81,19 @@ text city names.
 - The schema is intentionally small enough to support focused tests in
   `tests/test_city_mapping.py`.
 
+### Phase 2.3 Local Builder
+
+`src/city_mapping/build_city_reference.py` implements the first deterministic
+city reference builder from local constants. The module is side-effect free on
+import. It writes the following local Silver artifacts only when explicitly
+called:
+
+- `data/silver/city_reference.csv`
+- `data/silver/city_reference.parquet`
+
+Both generated files are ignored by `.gitignore` under the repository data
+policy. They are local Phase 2 deliverables, not committed source data.
+
 ## Phase 2 Scope Boundary
 
 Allowed in Phase 2:
