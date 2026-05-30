@@ -42,7 +42,7 @@ Status: **In progress**
 | Deterministic city reference builder | Done | `src/city_mapping/build_city_reference.py` builds local records and writes ignored CSV/Parquet only when explicitly called. |
 | Station-to-city mapping rules | Pending | Planned Phase 2 work. |
 | Source-specific city mapping rules | Pending | Planned Phase 2 work. |
-| City reference validation tests | In progress | `tests/test_city_mapping.py` validates schema, identifiers, coordinates, duplicate rejection, and CSV/Parquet write/read. |
+| City reference validation tests | Done | `tests/test_city_mapping.py` validates schema, join keys, identifiers, country codes, normalized names, coordinates, duplicate rejection, minimum city count, and CSV/Parquet write/read. |
 
 Allowed focus:
 

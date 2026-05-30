@@ -135,3 +135,17 @@ No data pipeline logic was implemented.
   coordinates, duplicate rejection, and CSV/Parquet write/read.
 - Did not call APIs, scrape Wikipedia, download EEA data, run Kafka, run Spark,
   or implement analytics.
+
+### Phase 2.4 City Reference Validation Tests Added
+
+- Expanded `tests/test_city_mapping.py` into integrity tests for required
+  columns, required join keys, unique `city_id` values, normalized name
+  consistency, country code format, coordinate ranges, minimum city count, and
+  Parquet readback.
+- Adjusted city reference validation order so malformed country codes and
+  normalized names produce precise validation errors before derived `city_id`
+  checks.
+- Verified tests run locally without internet access, Kafka, Spark, EEA files,
+  or Wikipedia HTML.
+- Did not call APIs, scrape Wikipedia, download EEA data, run Kafka, run Spark,
+  or implement analytics.
