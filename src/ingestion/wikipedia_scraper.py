@@ -77,29 +77,129 @@ def _empty_record(city_id: str, wikipedia_url: str) -> dict:
     }
 
 
-def _normalize_number(raw: str) -> Optional[float]:
-    """Strip non-numeric noise from a Wikipedia infobox value string.
+# Unit suffixes to strip before number parsing.
+# Must match docs/data_model.md Phase 4 normalization rules.
+_UNIT_SUFFIXES: tuple[str, ...] = (
+    "/km\u00b2",  # /km² (with superscript)
+    "/km2",
+    "km\u00b2",   # km² (with superscript)
+    "km2",
+    "inhabitants",
+    "people",
+    "pop.",
+    "sq\u00a0mi",  # sq\xc2\xa0mi (non-breaking space)
+    "sq mi",
+)
 
-    Handles: comma/period thousands separators, citation markers [1],
-    parenthetical qualifiers, unit suffixes, and whitespace.
-    Returns None when the value cannot be parsed.
+
+def normalize_number(raw: str) -> Optional[float]:
+    """Strip non-numeric noise from a Wikipedia infobox value and return a float.
+
+    Supported input formats:
+    - Comma-separated thousands: ``"1,234,567"`` → ``1234567.0``
+    - Period-separated thousands (European style): ``"1.234.567"`` → ``1234567.0``
+    - Space-separated thousands: ``"1 234 567"`` → ``1234567.0``
+    - Decimal values: ``"414.87"`` → ``414.87``
+    - Mixed comma-thousands with decimal point: ``"1,234.56"`` → ``1234.56``
+    - Citation markers (numeric or alpha): ``"1,234[1]"`` ``"1,234[a]"`` → ``1234.0``
+    - Parenthetical qualifiers: ``"1,234 (estimate)"`` → ``1234.0``
+    - Unit suffixes: ``"414.87 km2"`` ``"1,897,491 inhabitants"`` → stripped
+    - Negative values are preserved: ``"-1.5"`` → ``-1.5``
+
+    Returns ``None`` for:
+    - Empty string or whitespace-only strings.
+    - Strings that contain no digits after cleaning.
+    - Strings that cannot be converted to float after all cleaning.
+
+    No value is ever silently converted to ``0`` or an arbitrary default.
+
+    Parameters
+    ----------
+    raw:
+        Raw string value from a Wikipedia infobox cell.
+
+    Returns
+    -------
+    float or None
+        Parsed numeric value, or ``None`` if parsing is not possible.
     """
     if not raw or not raw.strip():
         return None
-    cleaned = re.sub(r"\[.*?\]", "", raw)          # strip citations [1]
-    cleaned = re.sub(r"\(.*?\)", "", cleaned)        # strip parenthetical
-    # Remove known unit suffixes
-    for suffix in ("km2", "km²", "/km2", "/km²", "inhabitants", "people", "pop."):
+
+    # Step 1: Strip citation markers: [1], [a], [note 1], etc.
+    cleaned = re.sub(r"\[.*?\]", "", raw)
+
+    # Step 2: Strip parenthetical qualifiers: (estimate), (2020 census), etc.
+    cleaned = re.sub(r"\(.*?\)", "", cleaned)
+
+    # Step 3: Strip known unit suffixes (longest first to avoid partial matches)
+    for suffix in _UNIT_SUFFIXES:
         cleaned = cleaned.replace(suffix, "")
-    cleaned = re.sub(r"[^\d.,\-]", "", cleaned)      # keep digits, separators, minus
-    cleaned = cleaned.replace(",", "")               # remove thousands commas
+
+    # Step 4: Strip remaining non-numeric characters except digits, dot, comma,
+    # minus, and plus. Do this BEFORE deciding on separator style.
+    cleaned = re.sub(r"[^\d.,\-]", " ", cleaned).strip()
+
+    if not cleaned or not re.search(r"\d", cleaned):
+        return None
+
+    # Step 5: Collapse whitespace (space-separated thousands become one token
+    # or multiple tokens; we join them without separator).
+    # E.g. "1 234 567" after step 4 → "1 234 567" → after split/join → "1234567"
+    tokens = cleaned.split()
+    if len(tokens) > 1:
+        # Space-separated thousands: join all tokens that are purely digit groups
+        joined = "".join(tokens)
+        # If all tokens are pure digits (no dots/commas), safe to join
+        if all(re.match(r'^\d+$', t) for t in tokens):
+            try:
+                return float(joined)
+            except ValueError:
+                return None
+        # Otherwise fall through with the first token that has digits
+        cleaned = tokens[0]
+
+    # Step 6: Detect period-as-thousands-separator vs decimal point.
+    # Heuristic: if there are multiple dots and no comma, and all dot-separated
+    # groups after the first are exactly 3 digits, treat dots as thousands separators.
+    # Example: "1.234.567" → dots are grouping → remove them → 1234567
+    # Example: "414.87" → single dot, 2-digit fraction → it is a decimal point
+    dot_count = cleaned.count(".")
+    comma_count = cleaned.count(",")
+
+    if dot_count >= 2 and comma_count == 0:
+        # Check if all segments after split on dot are 3 digits (thousands grouping)
+        parts = cleaned.split(".")
+        if all(len(p) == 3 and p.isdigit() for p in parts[1:]):
+            # Period is a thousands separator: remove all dots
+            cleaned = cleaned.replace(".", "")
+    elif dot_count == 1 and comma_count >= 1:
+        # Comma is thousands separator, dot is decimal point
+        # E.g. "1,234.56" → remove commas → "1234.56"
+        cleaned = cleaned.replace(",", "")
+    elif dot_count == 0 and comma_count >= 1:
+        # Comma is thousands separator only (no decimal part)
+        # E.g. "1,234,567" → remove commas → "1234567"
+        cleaned = cleaned.replace(",", "")
+    elif dot_count == 1 and comma_count == 0:
+        # Single dot: treat as decimal point, no change needed
+        pass
+    else:
+        # Mixed or ambiguous: remove all commas, keep last dot as decimal
+        cleaned = cleaned.replace(",", "")
+
     cleaned = cleaned.strip(". ")
     if not cleaned:
         return None
+
     try:
         return float(cleaned)
     except ValueError:
         return None
+
+
+# Internal alias so existing code that calls _normalize_number keeps working
+_normalize_number = normalize_number
 
 
 def _get_infobox(soup: BeautifulSoup) -> Optional[object]:

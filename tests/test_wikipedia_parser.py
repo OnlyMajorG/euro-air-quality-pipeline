@@ -278,3 +278,90 @@ def test_scraped_at_is_iso_utc_string() -> None:
     # Must parse as ISO datetime
     dt = datetime.fromisoformat(record["scraped_at"])
     assert dt.tzname() in ("UTC", "+00:00")
+
+
+# ---------------------------------------------------------------------------
+# normalize_number — public API (Issue 4.4 comprehensive tests)
+# Issue 4.4 Acceptance Criteria: cover all mandatory formats
+# ---------------------------------------------------------------------------
+
+
+def test_normalize_number_public_comma_thousands() -> None:
+    """'1,234,567' → 1234567.0 (comma-separated thousands)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,234,567") == pytest.approx(1234567.0)
+
+
+def test_normalize_number_public_period_thousands() -> None:
+    """'1.234.567' → 1234567.0 (period-separated thousands, European style)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1.234.567") == pytest.approx(1234567.0)
+
+
+def test_normalize_number_public_space_thousands() -> None:
+    """'1 234 567' → 1234567.0 (space-separated thousands)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1 234 567") == pytest.approx(1234567.0)
+
+
+def test_normalize_number_public_unit_suffix_km2() -> None:
+    """'1,234.56 km2' → 1234.56 (unit suffix stripped)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,234.56 km2") == pytest.approx(1234.56)
+
+
+def test_normalize_number_public_citation_numeric() -> None:
+    """'1,234[1]' → 1234.0 (numeric citation marker stripped)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,234[1]") == pytest.approx(1234.0)
+
+
+def test_normalize_number_public_citation_alpha() -> None:
+    """'1,234[a]' → 1234.0 (alpha citation marker stripped)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,234[a]") == pytest.approx(1234.0)
+
+
+def test_normalize_number_public_na_returns_none() -> None:
+    """'N/A' → None (not parseable)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("N/A") is None
+
+
+def test_normalize_number_public_empty_returns_none() -> None:
+    """'' → None (empty string)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("") is None
+
+
+def test_normalize_number_public_decimal() -> None:
+    """'414.87' → 414.87 (decimal preserved)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("414.87") == pytest.approx(414.87)
+
+
+def test_normalize_number_public_mixed_comma_decimal() -> None:
+    """'1,897,491.5' → 1897491.5 (commas as thousands, dot as decimal)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,897,491.5") == pytest.approx(1897491.5)
+
+
+def test_normalize_number_public_parenthetical_stripped() -> None:
+    """'1,234 (estimate)' → 1234.0 (parenthetical qualifier stripped)."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("1,234 (estimate)") == pytest.approx(1234.0)
+
+
+def test_normalize_number_public_never_returns_zero_for_none() -> None:
+    """Unparseable values must return None, never 0."""
+    from src.ingestion.wikipedia_scraper import normalize_number
+    assert normalize_number("not available") is None
+    assert normalize_number("unknown") is None
+    assert normalize_number("   ") is None
+
+
+def test_normalize_number_private_alias_still_works() -> None:
+    """_normalize_number must remain importable as an alias (backward compat)."""
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("1,234,567") == pytest.approx(1234567.0)
+    assert _normalize_number("") is None
