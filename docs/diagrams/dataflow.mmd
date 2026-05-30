@@ -1,4 +1,14 @@
-graph LR
-    B[Bronze Layer] --> S[Silver Layer]
-    S --> G[Gold Layer]
-    G --> A[Analysis & Visualization]
+flowchart LR
+    B["Bronze Layer
+    Raw/source-aligned local data
+    Git-ignored"] --> S["Silver Layer
+    Normalized and join-ready Parquet
+    city_id joins"]
+    S --> G["Gold Layer
+    Analysis-ready Parquet"]
+    G --> A["Jupyter analysis and visualization"]
+
+    Mode["Reliable Parquet mode:
+    Spark local[*] or pandas/pyarrow"] --> S
+    Cluster["FH Spark cluster:
+    connectivity/compute evidence"] -. "no final Parquet until shared storage confirmed" .-> Mode
