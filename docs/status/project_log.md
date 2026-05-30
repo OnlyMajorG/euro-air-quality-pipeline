@@ -35,3 +35,13 @@ No data pipeline logic was implemented.
 - Updated `docs/data_sources.md` and `notebooks/00_project_scope_and_sources.ipynb`.
 - Did not create data files, city reference outputs, station matching, or
   ingestion logic.
+
+### Open-Meteo Phase 1 Feasibility Checked
+
+- Ran one limited Open-Meteo Air Quality API request for Vienna and one for
+  Berlin.
+- Saved small local JSON evidence files under `data/bronze/open_meteo_raw/`.
+- Documented observed fields, units, timestamp assumptions, risks, and source
+  status in `docs/data_sources.md`.
+- Did not implement a reusable client, Kafka event schema, producer, scheduler,
+  or streaming path.
