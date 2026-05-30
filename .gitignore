@@ -1,58 +1,25 @@
-# Python bytecode and cache
 __pycache__/
+**/__pycache__/
 *.py[cod]
-*$py.class
-
-# Virtual environments
+.pytest_cache/
 .venv/
 venv/
-env/
-ENV/
-
-# Environment files
 .env
 .env.*
 !.env.example
 !.env.cluster.example
-
-# Jupyter
 .ipynb_checkpoints/
-
-# IDE/editor
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
 .DS_Store
 Thumbs.db
-
-# Logs and temp
+.vscode/
+.idea/
 *.log
-logs/
-*.tmp
-*.temp
-.tmp/
 tmp/
-
-# Python tooling caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Data artifacts (keep folder structure with .gitkeep)
+temp/
 data/**/*.parquet
 data/**/*.csv
 data/**/*.json
 data/**/*.html
-data/**/checkpoints/**
-!**/.gitkeep
-
-# Project resources
-project-resources/*
-
-# Local AI agent working files
-agents/
+data/checkpoints/
+data/**/checkpoints/
+!data/**/.gitkeep
