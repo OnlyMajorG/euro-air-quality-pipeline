@@ -4,9 +4,9 @@ Last updated: 2026-05-30
 
 ## Status
 
-Current phase: **Phase 2 in progress**
+Current phase: **Phase 2 complete; Phase 3 may start**
 
-Decision: **Phase 2 in progress through Issue 2.7; Phase 2 gate not yet reviewed**
+Decision: **Approved for Phase 3**
 
 ## Summary
 
@@ -62,19 +62,20 @@ No full pipeline implementation exists yet. That is intentional.
 - Updated notebook 01 as the readable Phase 2 city mapping documentation trail,
   including deliverables, schema, source mapping rules, validation checks, and
   a local Parquet readback example.
+- Created the Phase 2 QA report and gate decision.
 
 ## Next Allowed Work
 
-The next allowed work remains within Phase 2 city mapping and reference model:
+The next allowed work is Phase 3 EEA Batch Ingestion:
 
-- Extend validation tests as EEA, Wikipedia, and Open-Meteo mapping rules
-  become more specific.
-- Prepare the Phase 2 QA/gate decision after remaining Phase 2 issue work is
-  complete.
+- inspect a small controlled EEA data sample or metadata path,
+- document EEA fields and source constraints,
+- prepare reproducible EEA batch ingestion,
+- use `city_id` from `city_reference.parquet` for city joins.
 
 ## Explicitly Not Implemented
 
-- EEA ingestion.
+- Full EEA ingestion beyond Phase 3 scope.
 - Wikipedia scraping.
 - Open-Meteo API client behavior.
 - Kafka producer behavior.
