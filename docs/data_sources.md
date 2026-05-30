@@ -571,3 +571,166 @@ Required output fields:
 
 The Parquet file is ignored by Git via `data/**/*.parquet`. It is a local,
 reproducible Phase 3 deliverable, not committed source data.
+
+## Phase 4 Wikipedia Source Access
+
+### Overview
+
+Phase 4 implements controlled Wikipedia city metadata scraping for the
+8 starter cities defined in Phase 2. Before any scraping logic is written,
+this section documents how Wikipedia raw HTML is obtained, stored, and kept
+out of the repository.
+
+This section is **documentation and policy only**. It does not download
+Wikipedia pages, implement the scraper or parser, run any processing, or
+produce Silver or Gold outputs.
+
+### Wikipedia Source Access Path
+
+Wikipedia English city pages are the accepted source for Phase 4 city
+metadata. The access path per city follows a predictable URL structure:
+
+| city_name | country_code | city_id | Wikipedia URL |
+| --- | --- | --- | --- |
+| Vienna | AT | `vienna_at` | `https://en.wikipedia.org/wiki/Vienna` |
+| Berlin | DE | `berlin_de` | `https://en.wikipedia.org/wiki/Berlin` |
+| Paris | FR | `paris_fr` | `https://en.wikipedia.org/wiki/Paris` |
+| Madrid | ES | `madrid_es` | `https://en.wikipedia.org/wiki/Madrid` |
+| Rome | IT | `rome_it` | `https://en.wikipedia.org/wiki/Rome` |
+| Warsaw | PL | `warsaw_pl` | `https://en.wikipedia.org/wiki/Warsaw` |
+| Amsterdam | NL | `amsterdam_nl` | `https://en.wikipedia.org/wiki/Amsterdam` |
+| Prague | CZ | `prague_cz` | `https://en.wikipedia.org/wiki/Prague` |
+
+The general URL structure is:
+
+```
+https://en.wikipedia.org/wiki/<City_Name>
+```
+
+Raw HTML fetched for Phase 4 must be stored locally under
+`data/bronze/wikipedia_html/` and must not be committed to the repository.
+
+### Raw-Data Policy
+
+| Rule | Detail |
+| --- | --- |
+| Raw Wikipedia HTML must **not** be committed | All `data/**/*.html` are git-ignored by repository policy. |
+| Raw files are kept local under `data/bronze/wikipedia_html/` | This directory is git-ignored. Folder structure is maintained with `.gitkeep`. |
+| Raw files must be **reproducibly referenced** | Document the exact Wikipedia URL, city_id, and fetch date in `docs/data_sources.md` or in notebook 03 so a reviewer can re-fetch the same source page. |
+| Tiny controlled test fixtures are allowed | Small fixed HTML excerpts used only in pytest fixtures are acceptable; they must not be committed. |
+| Phase 4 must **not** bulk-crawl Wikipedia | Only the pages needed for the 8 starter cities are in scope. |
+
+### Naming Convention For Local Wikipedia HTML Files
+
+Files placed under `data/bronze/wikipedia_html/` must follow these naming
+patterns:
+
+**Production files** (one per city, fetched by the Phase 4 scraper):
+
+```
+<city_id>.html
+```
+
+Examples:
+
+```
+vienna_at.html
+berlin_de.html
+paris_fr.html
+```
+
+**Sample and test files** (small HTML excerpts for local validation or
+Phase 1 evidence):
+
+```
+sample_wikipedia_<city>_<country>.html
+```
+
+Examples:
+
+```
+sample_wikipedia_vienna_at.html
+sample_wikipedia_berlin_de.html
+```
+
+Where:
+
+- `<city_id>` is the canonical city identifier from `city_reference.parquet`,
+  e.g. `vienna_at`.
+- `<city>` is the lower-case city name component, e.g. `vienna`.
+- `<country>` is the lower-case two-letter country code, e.g. `at`.
+
+### Git-Ignore Verification
+
+The repository `.gitignore` covers all Wikipedia HTML files through the
+following rules:
+
+```gitignore
+data/**/*.parquet
+data/**/*.csv
+data/**/*.json
+data/**/*.html
+data/**/checkpoints/**
+!**/.gitkeep
+```
+
+To confirm that a local Wikipedia HTML file is correctly ignored before
+attempting to add it:
+
+```bash
+git check-ignore -v data/bronze/wikipedia_html/sample_vienna.html
+```
+
+The expected output is a line referencing the `.gitignore` rule and the file
+path. If the file does not appear as ignored, check the `.gitignore` rules
+before proceeding.
+
+### Rate-Limiting And Politeness Policy
+
+Phase 4 scraping must respect Wikipedia's access guidelines:
+
+| Rule | Requirement |
+| --- | --- |
+| Minimum delay between requests | At least **1 second** between consecutive page fetches. |
+| User-Agent header | Every HTTP request must include a `User-Agent` header identifying the project: `euro-air-quality-pipeline/1.0`. |
+| No crawling beyond city pages | Only fetch the approved city page per city_id; do not follow internal links or download full site content. |
+| Fetch-once strategy | If a local HTML file already exists for a city_id, do not re-fetch; use the cached local file. |
+| Do not exceed normal browser-like request rates | The scraper must not send burst or parallel requests. |
+
+Example `User-Agent` header value:
+
+```
+User-Agent: euro-air-quality-pipeline/1.0
+```
+
+### Reproducibility Contract
+
+Because raw Wikipedia HTML files are not committed, reproducibility depends
+on documentation. The following information must be recorded in this document
+or in notebook 03 for every Wikipedia page fetched in Phase 4:
+
+| Item | Example |
+| --- | --- |
+| city_id | `vienna_at` |
+| Wikipedia URL | `https://en.wikipedia.org/wiki/Vienna` |
+| scraped_at (UTC) | `2026-05-30T17:00:00Z` |
+| Local path | `data/bronze/wikipedia_html/vienna_at.html` |
+
+This table will be populated during Phase 4 implementation issues.
+
+### Phase 4 Scope Boundary
+
+**Included in this issue (4.1):**
+
+- Document the accepted Wikipedia source access path.
+- Define raw-data policy and naming conventions.
+- Define rate-limiting and politeness policy.
+- Confirm git-ignore behaviour.
+- Record scope boundary.
+
+**Not included in this issue:**
+
+- Any Wikipedia page download or scraping.
+- HTML parser or infobox extraction implementation.
+- Silver Parquet city metadata output.
+- Any Open-Meteo, EEA, Kafka, or Spark work.
