@@ -18,4 +18,4 @@ The repository previously used `src/` modules and `tests/` as the implementation
 
 ## Non-Deleted Area
 
-`project-resources/` is intentionally preserved and must not be deleted by agents.
+`project-resources/` is intentionally preserved locally, ignored by Git, and must not be deleted by agents.
