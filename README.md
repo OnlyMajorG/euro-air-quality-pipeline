@@ -14,8 +14,8 @@ Jupyter notebooks, and final storytelling.
 **Current phase:** Phase 3 in progress
 
 **Latest QA decision:** Phase 2 QA approved the project for Phase 3. Phase 3 is
-limited to EEA Batch Ingestion work. Issues 3.1 through 3.5 are implemented,
-tested, or documented; Issues 3.6 through 3.8 remain open.
+limited to EEA Batch Ingestion work. Issues 3.1 through 3.6 are implemented,
+tested, or documented; Issues 3.7 through 3.8 remain open.
 
 At the current state, the repository contains the Phase 0 skeleton, Phase 1
 source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
@@ -23,7 +23,7 @@ source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
 ingestion work. The deterministic city reference builder, validation tests,
 local CSV/Parquet outputs, station mapping structure, EEA local-file loader,
 mapping rules, and Phase 2 QA report exist. It does **not** yet contain final
-EEA Silver Parquet output, production Wikipedia scraper, Open-Meteo client
+Phase 3 QA approval, production Wikipedia scraper, Open-Meteo client
 behavior, Kafka producer logic, Spark Structured Streaming, Gold tables, or
 analysis results.
 
@@ -318,12 +318,14 @@ Implemented so far:
 - EEA local-file loader for controlled CSV/Parquet files.
 - EEA row-level data quality validation for required fields, timestamps,
   pollutant scope, units, and invalid concentration values.
-- Tests for station mapping, EEA loader behavior, and EEA data quality rules.
+- Explicit local writer for `data/silver/eea_city_daily.parquet`.
+- Tests for station mapping, EEA loader behavior, EEA data quality rules, and
+  Silver Parquet readback.
 
 Remaining output:
 
 - Resolve placeholder station mappings before real ingestion.
-- Reproducible `data/silver/eea_city_daily.parquet`.
+- Notebook 02 final Phase 3 documentation.
 - Phase 3 QA report and gate decision.
 
 Execution rule:

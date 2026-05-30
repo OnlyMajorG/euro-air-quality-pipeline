@@ -537,3 +537,37 @@ required fields fail validation with `ValueError`.
 - These checks do not implement Gold analytics or causal interpretation.
 - If real EEA files expose different column names, the loader may map them to
   the canonical concepts, but the validation rules remain unchanged.
+
+## Phase 3 EEA City Daily Silver Output
+
+Issue 3.6 creates the local write path for the EEA city/day/pollutant Silver
+Parquet output:
+
+```text
+data/silver/eea_city_daily.parquet
+```
+
+The output is generated only when `write_eea_city_daily_parquet()` or
+`build_eea_city_daily_parquet()` is explicitly called. Importing
+`src/ingestion/eea_loader.py` does not write files.
+
+The output contains historical EEA batch data only. It must not be merged with
+Open-Meteo API/live data in Phase 3.
+
+Required output fields:
+
+| field | behavior |
+| --- | --- |
+| `city_id` | Canonical city join key from station mapping. |
+| `date` | UTC measurement date. |
+| `pollutant` | PM2.5, PM10, or NO2 only. |
+| `mean_value` | Daily average concentration. |
+| `min_value` | Daily minimum concentration. |
+| `max_value` | Daily maximum concentration. |
+| `observation_count` | Count of valid observations used. |
+| `unit` | Source measurement unit. |
+| `source` | Always `eea`. |
+| `processing_time_utc` | Processing timestamp for traceability. |
+
+The Parquet file is ignored by Git via `data/**/*.parquet`. It is a local,
+reproducible Phase 3 deliverable, not committed source data.
