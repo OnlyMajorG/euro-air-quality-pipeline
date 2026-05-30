@@ -228,6 +228,87 @@ def _parse_infobox_row(infobox, label_fragments: tuple[str, ...]) -> Optional[st
     return None
 
 
+def _parse_city_name(soup: BeautifulSoup, notes: list[str]) -> Optional[str]:
+    """Extract city name from the Wikipedia page h1 title."""
+    try:
+        title_tag = soup.find("h1", id="firstHeading") or soup.find("h1")
+        if title_tag:
+            return title_tag.get_text(strip=True)
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"city_name parse error: {exc}")
+    return None
+
+
+def _parse_population(infobox, notes: list[str]) -> Optional[int]:
+    """Extract and normalise population from the infobox."""
+    try:
+        pop_raw = _parse_infobox_row(infobox, ("population", "pop."))
+        if pop_raw is not None:
+            val = _normalize_number(pop_raw)
+            if val is not None:
+                return int(val)
+            notes.append(f"population not parseable: {pop_raw!r}")
+        else:
+            notes.append("population row not found in infobox")
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"population parse error: {exc}")
+    return None
+
+
+def _parse_area_km2(infobox, notes: list[str]) -> Optional[float]:
+    """Extract and normalise area in km² from the infobox."""
+    try:
+        area_raw = _parse_infobox_row(infobox, ("area", "km"))
+        if area_raw is not None:
+            val = _normalize_number(area_raw)
+            if val is not None:
+                return val
+            notes.append(f"area_km2 not parseable: {area_raw!r}")
+        else:
+            notes.append("area row not found in infobox")
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"area_km2 parse error: {exc}")
+    return None
+
+
+def _parse_population_density(
+    infobox,
+    population: Optional[int],
+    area_km2: Optional[float],
+    notes: list[str],
+) -> Optional[float]:
+    """Derive or parse population density.
+
+    Computes density from population / area_km2 when both are available.
+    Falls back to parsing the density row directly from the infobox.
+    Returns None if density cannot be determined.
+    """
+    try:
+        if population is not None and area_km2 is not None and area_km2 > 0:
+            return round(population / area_km2, 2)
+        density_raw = _parse_infobox_row(infobox, ("density", "pop. density"))
+        if density_raw is not None:
+            val = _normalize_number(density_raw)
+            if val is not None:
+                return val
+            notes.append(f"population_density not parseable: {density_raw!r}")
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"population_density parse error: {exc}")
+    return None
+
+
+def _parse_country_name(infobox, notes: list[str]) -> Optional[str]:
+    """Extract country name from the infobox."""
+    try:
+        country_raw = _parse_infobox_row(infobox, ("country", "nation", "state"))
+        if country_raw is not None:
+            return country_raw.split()[0] if country_raw else None
+        notes.append("country row not found in infobox")
+    except Exception as exc:  # noqa: BLE001
+        notes.append(f"country parse error: {exc}")
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -316,72 +397,18 @@ def parse_city_metadata(
         record["metadata_notes"] = f"html parse error: {exc}"
         return record
 
-    # --- city_name from page title ---
-    try:
-        title_tag = soup.find("h1", id="firstHeading") or soup.find("h1")
-        if title_tag:
-            record["city_name"] = title_tag.get_text(strip=True)
-    except Exception as exc:  # noqa: BLE001
-        notes.append(f"city_name parse error: {exc}")
+    record["city_name"] = _parse_city_name(soup, notes)
 
-    # --- infobox ---
     infobox = _get_infobox(soup)
     if infobox is None:
         notes.append("infobox not found")
 
-    # --- population ---
-    try:
-        pop_raw = _parse_infobox_row(infobox, ("population", "pop."))
-        if pop_raw is not None:
-            val = _normalize_number(pop_raw)
-            if val is not None:
-                record["population"] = int(val)
-            else:
-                notes.append(f"population not parseable: {pop_raw!r}")
-        else:
-            notes.append("population row not found in infobox")
-    except Exception as exc:  # noqa: BLE001
-        notes.append(f"population parse error: {exc}")
-
-    # --- area ---
-    try:
-        area_raw = _parse_infobox_row(infobox, ("area", "km"))
-        if area_raw is not None:
-            val = _normalize_number(area_raw)
-            if val is not None:
-                record["area_km2"] = val
-            else:
-                notes.append(f"area_km2 not parseable: {area_raw!r}")
-        else:
-            notes.append("area row not found in infobox")
-    except Exception as exc:  # noqa: BLE001
-        notes.append(f"area_km2 parse error: {exc}")
-
-    # --- population_density ---
-    try:
-        if record["population"] is not None and record["area_km2"] is not None and record["area_km2"] > 0:
-            record["population_density"] = round(record["population"] / record["area_km2"], 2)
-        else:
-            # Try to parse directly from infobox
-            density_raw = _parse_infobox_row(infobox, ("density", "pop. density"))
-            if density_raw is not None:
-                val = _normalize_number(density_raw)
-                if val is not None:
-                    record["population_density"] = val
-                else:
-                    notes.append(f"population_density not parseable: {density_raw!r}")
-    except Exception as exc:  # noqa: BLE001
-        notes.append(f"population_density parse error: {exc}")
-
-    # --- country ---
-    try:
-        country_raw = _parse_infobox_row(infobox, ("country", "nation", "state"))
-        if country_raw is not None:
-            record["country"] = country_raw.split()[0] if country_raw else None
-        else:
-            notes.append("country row not found in infobox")
-    except Exception as exc:  # noqa: BLE001
-        notes.append(f"country parse error: {exc}")
+    record["population"] = _parse_population(infobox, notes)
+    record["area_km2"] = _parse_area_km2(infobox, notes)
+    record["population_density"] = _parse_population_density(
+        infobox, record["population"], record["area_km2"], notes
+    )
+    record["country"] = _parse_country_name(infobox, notes)
 
     record["metadata_notes"] = "; ".join(notes) if notes else "ok"
     return record

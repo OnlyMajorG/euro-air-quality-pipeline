@@ -56,6 +56,25 @@ MALFORMED_NUMBER_HTML = """
 </body></html>
 """
 
+COMPLETELY_EMPTY_INFOBOX_HTML = """
+<html><body>
+<h1 id="firstHeading">EmptyCity</h1>
+<table class="infobox">
+  <tr><th>Founded</th><td>1000 AD</td></tr>
+</table>
+</body></html>
+"""
+
+MISSING_AREA_HTML = """
+<html><body>
+<h1 id="firstHeading">NoAreaCity</h1>
+<table class="infobox">
+  <tr><th>Country</th><td>Poland</td></tr>
+  <tr><th>Population</th><td>500,000</td></tr>
+</table>
+</body></html>
+"""
+
 
 # ---------------------------------------------------------------------------
 # Module import side-effect tests
@@ -365,3 +384,157 @@ def test_normalize_number_private_alias_still_works() -> None:
     from src.ingestion.wikipedia_scraper import _normalize_number
     assert _normalize_number("1,234,567") == pytest.approx(1234567.0)
     assert _normalize_number("") is None
+
+
+# ---------------------------------------------------------------------------
+# Issue 4.5: Null-handling and error resilience — targeted tests
+# ---------------------------------------------------------------------------
+
+
+def test_completely_missing_metadata_all_nullable_fields_null() -> None:
+    """Infobox with no relevant rows: all nullable fields are None, notes non-empty."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata, METADATA_COLUMNS
+    record = parse_city_metadata(
+        "empty_city",
+        "https://en.wikipedia.org/wiki/EmptyCity",
+        COMPLETELY_EMPTY_INFOBOX_HTML,
+    )
+    # Required fields always present
+    assert record["city_id"] == "empty_city"
+    assert record["source"] == "wikipedia"
+    assert record["wikipedia_url"] is not None
+    assert record["scraped_at"] is not None
+    assert record["metadata_notes"] is not None
+    assert record["metadata_notes"] != ""
+    # All nullable fields must be None
+    assert record["population"] is None
+    assert record["area_km2"] is None
+    assert record["population_density"] is None
+    # All METADATA_COLUMNS keys present
+    for field in METADATA_COLUMNS:
+        assert field in record, f"Missing schema field: {field}"
+
+
+def test_missing_area_returns_none_with_note() -> None:
+    """Population present but area missing: area_km2 and density are None, note set."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata(
+        "noarea_xx",
+        "https://en.wikipedia.org/wiki/NoAreaCity",
+        MISSING_AREA_HTML,
+    )
+    assert record["city_id"] == "noarea_xx"
+    assert record["population"] is not None        # population parsed
+    assert record["population"] > 0
+    assert record["area_km2"] is None              # area not found
+    assert record["population_density"] is None    # cannot be computed
+    assert record["metadata_notes"] != ""           # documents the missing area
+
+
+def test_population_density_computed_from_population_and_area() -> None:
+    """population_density equals population / area_km2 when both are non-null."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata(
+        "vienna_at",
+        "https://en.wikipedia.org/wiki/Vienna",
+        MINIMAL_INFOBOX_HTML,
+    )
+    assert record["population"] is not None
+    assert record["area_km2"] is not None
+    assert record["population_density"] is not None
+    expected = round(record["population"] / record["area_km2"], 2)
+    assert record["population_density"] == pytest.approx(expected, rel=1e-3)
+
+
+def test_single_city_failure_does_not_crash_batch() -> None:
+    """Simulated batch: a failure for one city does not prevent others from parsing."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    cities = [
+        ("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML),
+        ("empty_xx", "https://en.wikipedia.org/wiki/Empty", EMPTY_HTML),
+        ("unknown_xx", "https://en.wikipedia.org/wiki/Unknown", MISSING_INFOBOX_HTML),
+        ("partial_xx", "https://en.wikipedia.org/wiki/Partial", PARTIAL_INFOBOX_HTML),
+    ]
+    records = []
+    for city_id, url, html in cities:
+        # Must never raise regardless of HTML quality
+        record = parse_city_metadata(city_id, url, html)
+        records.append(record)
+
+    assert len(records) == 4
+    # Every record has city_id
+    assert all(r["city_id"] is not None for r in records)
+    # Vienna parses successfully
+    vienna = next(r for r in records if r["city_id"] == "vienna_at")
+    assert vienna["population"] is not None
+    # Others have notes explaining failures
+    for r in records:
+        if r["city_id"] != "vienna_at":
+            assert r["metadata_notes"] != ""
+
+
+def test_downstream_pandas_handles_null_fields() -> None:
+    """A pandas DataFrame built from records with None fields must not error."""
+    import pandas as pd
+    from src.ingestion.wikipedia_scraper import parse_city_metadata, METADATA_COLUMNS
+
+    cities = [
+        ("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML),
+        ("empty_xx", "https://en.wikipedia.org/wiki/Empty", EMPTY_HTML),
+        ("unknown_xx", "https://en.wikipedia.org/wiki/Unknown", MISSING_INFOBOX_HTML),
+    ]
+    records = [
+        parse_city_metadata(city_id, url, html)
+        for city_id, url, html in cities
+    ]
+
+    # Build DataFrame — must not raise
+    df = pd.DataFrame.from_records(records)
+
+    # All schema columns present
+    for col in METADATA_COLUMNS:
+        assert col in df.columns, f"Missing column in DataFrame: {col}"
+
+    # city_id is always non-null
+    assert df["city_id"].notna().all()
+
+    # Nullable columns may have NaN/None — basic operations must not raise
+    _ = df["population"].dropna()
+    _ = df["area_km2"].fillna(0)
+    _ = df["population_density"].describe()
+
+    # Filtering on nullable field must work
+    cities_with_pop = df[df["population"].notna()]
+    assert len(cities_with_pop) >= 1  # at least Vienna has population
+
+    # Count per source must work
+    source_counts = df.groupby("source").size()
+    assert "wikipedia" in source_counts.index
+
+
+def test_metadata_notes_ok_when_all_fields_parsed() -> None:
+    """metadata_notes is 'ok' when all fields parsed successfully."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata(
+        "vienna_at",
+        "https://en.wikipedia.org/wiki/Vienna",
+        MINIMAL_INFOBOX_HTML,
+    )
+    assert record["metadata_notes"] == "ok"
+
+
+def test_helpers_are_importable_and_callable() -> None:
+    """Private helper functions exist and are callable for unit testing."""
+    from src.ingestion.wikipedia_scraper import (
+        _parse_city_name,
+        _parse_population,
+        _parse_area_km2,
+        _parse_population_density,
+        _parse_country_name,
+    )
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(MINIMAL_INFOBOX_HTML, "html.parser")
+    notes: list = []
+    name = _parse_city_name(soup, notes)
+    assert name == "Vienna"
+    assert notes == []
