@@ -6,7 +6,7 @@ Last updated: 2026-05-30
 
 Current phase: **Phase 2 in progress**
 
-Decision: **Phase 2.1 and Phase 2.2 completed; Phase 2 gate not yet reviewed**
+Decision: **Phase 2 in progress through Issue 2.7; Phase 2 gate not yet reviewed**
 
 ## Summary
 
@@ -28,7 +28,7 @@ No full pipeline implementation exists yet. That is intentional.
 | Date | Issue | Evidence |
 | --- | --- | --- |
 | 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes for all seven notebooks. |
-| 2026-05-30 | README still described Phase 1 as next work after Phase 1 QA had passed. | README now states Phase 1 complete and Phase 2 ready to start. |
+| 2026-05-30 | README lagged behind the active phase after Phase 1 QA and later Phase 2 work. | README now states Phase 2 in progress and lists completed Phase 2 city reference work through Issue 2.7. |
 | 2026-05-30 | `pytest` and `pyarrow` were missing from the active local interpreter. | Installed locally and verified `tests/test_city_mapping.py` passes. |
 
 ## Completed Phase 1 Work
@@ -57,14 +57,17 @@ No full pipeline implementation exists yet. That is intentional.
   the `city_id` join rule.
 - Documented Wikipedia metadata join, null-handling, ambiguity-handling, and
   contextual-only rules.
+- Documented Open-Meteo coordinate, pollutant field, UTC timezone, and Phase 5
+  handoff rules.
 
 ## Next Allowed Work
 
 The next allowed work remains within Phase 2 city mapping and reference model:
 
-- Carry forward Open-Meteo field mapping.
 - Extend validation tests as EEA, Wikipedia, and Open-Meteo mapping rules
   become more specific.
+- Prepare the Phase 2 QA/gate decision after remaining Phase 2 issue work is
+  complete.
 
 ## Explicitly Not Implemented
 
