@@ -21,9 +21,7 @@ No full pipeline implementation exists yet. That is intentional.
 
 | Severity | Issue | Source |
 | --- | --- | --- |
-| Minor | `pytest` is listed in requirements but is not installed in the active local interpreter used during QA. | `docs/qa/phase0_qa_report.md` |
 | Minor | Docker Compose uses `latest` image tags. | `docs/qa/phase0_qa_report.md` |
-| Minor | `pytest` could not be run during Phase 1 QA because it is not installed in the active interpreter. | `docs/qa/phase1_qa_report.md` |
 
 ## Resolved Issues
 
@@ -31,6 +29,7 @@ No full pipeline implementation exists yet. That is intentional.
 | --- | --- | --- |
 | 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes for all seven notebooks. |
 | 2026-05-30 | README still described Phase 1 as next work after Phase 1 QA had passed. | README now states Phase 1 complete and Phase 2 ready to start. |
+| 2026-05-30 | `pytest` and `pyarrow` were missing from the active local interpreter. | Installed locally and verified `tests/test_city_mapping.py` passes. |
 
 ## Completed Phase 1 Work
 
@@ -48,6 +47,8 @@ No full pipeline implementation exists yet. That is intentional.
 - Designed the canonical city reference schema.
 - Reviewed ADR-003 and confirmed that the city reference model decision remains
   unchanged.
+- Implemented a deterministic local city reference builder that writes ignored
+  CSV and Parquet artifacts only when explicitly called.
 
 ## Next Allowed Work
 
@@ -56,7 +57,7 @@ The next allowed work remains within Phase 2 city mapping and reference model:
 - Document EEA station-to-city mapping rules.
 - Carry forward Open-Meteo field mapping.
 - Define how Wikipedia metadata joins to cities.
-- Add validation tests for the city reference model.
+- Extend validation tests as mapping rules become more specific.
 
 ## Explicitly Not Implemented
 

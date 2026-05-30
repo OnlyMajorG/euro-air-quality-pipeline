@@ -122,3 +122,16 @@ No data pipeline logic was implemented.
   remains unchanged.
 - Did not create city reference output files, download data, call APIs, scrape
   Wikipedia, run Kafka, run Spark, or implement analytics.
+
+### Phase 2.3 Deterministic City Reference Builder Implemented
+
+- Implemented `src/city_mapping/build_city_reference.py` using local Phase 2
+  city constants only.
+- Added explicit functions to build, validate, and write
+  `data/silver/city_reference.csv` and `data/silver/city_reference.parquet`.
+- Generated the local CSV and Parquet outputs by explicitly running the module;
+  these files remain ignored by the repository data policy.
+- Added focused tests in `tests/test_city_mapping.py` for schema, identifiers,
+  coordinates, duplicate rejection, and CSV/Parquet write/read.
+- Did not call APIs, scrape Wikipedia, download EEA data, run Kafka, run Spark,
+  or implement analytics.
