@@ -27,3 +27,11 @@ No data pipeline logic was implemented.
 - Re-ran notebook JSON validation successfully.
 - Did not add notebook execution outputs or pipeline logic.
 - Phase 0 gate status changed to Approved for Phase 1.
+
+### Phase 1 Pilot Scope Defined
+
+- Documented Vienna and Berlin as the two Phase 1 pilot cities.
+- Documented PM2.5, PM10, and NO2 as the target pollutant scope.
+- Updated `docs/data_sources.md` and `notebooks/00_project_scope_and_sources.ipynb`.
+- Did not create data files, city reference outputs, station matching, or
+  ingestion logic.
