@@ -49,6 +49,9 @@ No full pipeline implementation exists yet. That is intentional.
   unchanged.
 - Implemented a deterministic local city reference builder that writes ignored
   CSV and Parquet artifacts only when explicitly called.
+- Added city reference integrity tests for schema, join keys, uniqueness,
+  country codes, normalized names, coordinates, city count, and Parquet
+  readback.
 
 ## Next Allowed Work
 
@@ -57,7 +60,8 @@ The next allowed work remains within Phase 2 city mapping and reference model:
 - Document EEA station-to-city mapping rules.
 - Carry forward Open-Meteo field mapping.
 - Define how Wikipedia metadata joins to cities.
-- Extend validation tests as mapping rules become more specific.
+- Extend validation tests as EEA, Wikipedia, and Open-Meteo mapping rules
+  become more specific.
 
 ## Explicitly Not Implemented
 
