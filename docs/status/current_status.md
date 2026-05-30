@@ -4,9 +4,9 @@ Last updated: 2026-05-30
 
 ## Status
 
-Current phase: **Phase 2 complete; Phase 3 may start**
+Current phase: **Phase 3 in progress**
 
-Decision: **Approved for Phase 3**
+Decision: **Phase 2 complete (PASS); Phase 3 started — Issue 3.1 complete**
 
 ## Summary
 
@@ -64,21 +64,34 @@ No full pipeline implementation exists yet. That is intentional.
   a local Parquet readback example.
 - Created the Phase 2 QA report and gate decision.
 
+## Completed Phase 3 Work
+
+- Created `agents/soul.md` — the AI agent operating contract for this repository.
+- Issue 3.1: Documented EEA batch source access path, raw-data policy, file
+  naming convention, git-ignore verification, and reproducibility contract.
+- Updated `docs/data_sources.md` with `Phase 3 EEA Source Access` section.
+- Updated `notebooks/02_eea_batch_ingestion.ipynb` with Phase 3 scope and
+  Issue 3.1 summary.
+
 ## Next Allowed Work
 
-The next allowed work is Phase 3 EEA Batch Ingestion:
+Phase 3 issues in order:
 
-- inspect a small controlled EEA data sample or metadata path,
-- document EEA fields and source constraints,
-- prepare reproducible EEA batch ingestion,
-- use `city_id` from `city_reference.parquet` for city joins.
+- Issue 3.2: Define EEA input schema and Silver output schema.
+- Issue 3.3: Prepare EEA station-to-city mapping table.
+- Issue 3.4: Implement EEA loader for controlled local files.
+- Issue 3.5: Add EEA data quality validation rules.
+- Issue 3.6: Build EEA city daily Silver Parquet.
+- Issue 3.7: Update notebook 02 with full Phase 3 documentation.
+- Issue 3.8: Phase 3 QA report and gate decision.
 
 ## Explicitly Not Implemented
 
-- Full EEA ingestion beyond Phase 3 scope.
+- EEA loader or ingestion implementation.
+- EEA bulk data download.
 - Wikipedia scraping.
 - Open-Meteo API client behavior.
 - Kafka producer behavior.
 - Spark Structured Streaming behavior.
-- Bronze/Silver/Gold transformations.
+- Silver/Gold transformations beyond city reference.
 - Analysis results and final visualizations.

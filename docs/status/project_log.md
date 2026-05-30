@@ -209,3 +209,40 @@ No data pipeline logic was implemented.
 - Confirmed no full EEA ingestion, production Wikipedia scraper, Open-Meteo
   client implementation, Kafka producer, Spark Structured Streaming, Gold
   tables, dashboards, or final analytics were implemented in Phase 2.
+
+### Phase 3 Agent Infrastructure — `agents/soul.md` Created
+
+- Created `agents/` directory with `soul.md` — the authoritative operating
+  contract for AI agents working on this repository.
+- The soul file documents project identity, canonical source-of-truth files,
+  absolute rules (scope discipline, gate discipline, repository hygiene,
+  `city_id` join discipline, core cities/pollutants, batch/live data separation,
+  no import side effects), architecture summary, tech stack, phase map,
+  per-phase allowed scope, source file map, notebook map, test map, issue/QA
+  conventions, and a list of common agent mistakes.
+- `agents/` is already git-ignored by repository policy.
+
+### Phase 3.1 EEA Batch Source Access And Data Policy
+
+- Added `Phase 3 EEA Source Access` section to `docs/data_sources.md`.
+- Documented accepted EEA source access paths (download web app, ArcGIS REST
+  station service, station-specific Parquet links).
+- Documented raw-data policy: large raw EEA files must not be committed; files
+  live under `data/bronze/eea/` which is git-ignored.
+- Documented naming convention for local EEA files:
+  `eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>`.
+- Documented reproducibility contract: station ID, pollutant, year range, and
+  download endpoint must be recorded in `docs/data_sources.md` so any reviewer
+  can re-download the same source files.
+- Documented git-ignore verification command and expected output.
+- Updated `notebooks/02_eea_batch_ingestion.ipynb` with Phase 3 scope
+  declaration, Issue 3.1 source access summary, and a pending-work table for
+  Issues 3.2–3.8.
+- Verified all 20 existing tests still pass.
+- Verified `git check-ignore -v data/bronze/eea/sample_test.csv` returns the
+  expected ignore rule.
+- Verified notebook 02 is valid JSON with 0 code outputs.
+- Did not download EEA data, implement the EEA loader, run Spark, create Silver
+  or Gold outputs, or implement any Wikipedia, Open-Meteo, Kafka, or streaming
+  work.
+

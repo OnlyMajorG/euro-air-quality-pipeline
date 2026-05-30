@@ -58,7 +58,42 @@ Phase 3 allowed focus:
 
 Not allowed yet:
 
+- Full EEA ingestion.
 - Production Wikipedia scraping.
 - Kafka producer implementation.
 - Spark Structured Streaming implementation.
+- Gold-layer analytics.
+
+## Phase 3 - EEA Batch Ingestion
+
+Status: **In progress**
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| EEA source access path documented | Done | `docs/data_sources.md` contains `Phase 3 EEA Source Access` section. |
+| Raw-data policy defined | Done | `docs/data_sources.md` documents that large raw EEA files must not be committed; `data/bronze/eea/` is git-ignored. |
+| File naming convention documented | Done | Pattern `eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>` documented in `docs/data_sources.md` and notebook 02. |
+| Git-ignore verification confirmed | Done | `git check-ignore -v data/bronze/eea/sample_test.csv` returns the `.gitignore` rule as expected. |
+| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issue 3.1 Markdown summary with 0 code outputs. |
+| EEA input schema defined | Pending | Issue 3.2 |
+| Station-to-city mapping table | Pending | Issue 3.3 |
+| EEA loader implementation | Pending | Issue 3.4 |
+| Data quality validation | Pending | Issue 3.5 |
+| Silver Parquet output | Pending | Issue 3.6 |
+| Notebook 02 complete | Pending | Issue 3.7 |
+| Phase 3 QA report | Pending | Issue 3.8 |
+
+Allowed focus:
+
+- Document EEA source access policy and schema contracts.
+- Implement EEA loader for controlled local files.
+- Build city/day/pollutant Silver Parquet from EEA data.
+- Keep historical EEA data strictly separated from Open-Meteo live data.
+
+Not allowed yet:
+
+- Wikipedia production scraping.
+- Open-Meteo API client implementation.
+- Kafka producer implementation.
+- Spark Structured Streaming.
 - Gold-layer analytics.
