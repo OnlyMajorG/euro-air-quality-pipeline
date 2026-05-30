@@ -529,12 +529,89 @@ the repository data policy.
 - Kafka or Spark Structured Streaming.
 - Gold tables.
 
+## Phase 4 Wikipedia City Metadata Schema
+
+Wikipedia metadata is contextual city metadata, not official ground truth.
+This schema is defined before implementation to enable testing and schema
+validation. This section extends the Phase 2 Wikipedia Metadata Join Rules
+(see above) with a concrete Silver output schema.
+
+### Wikipedia City Metadata Schema
+
+| field | type | required | nullability | rule |
+| --- | --- | --- | --- | --- |
+| `city_id` | string | yes | non-null | Join key from `city_reference.parquet`; must match exactly; must not be a free-text city name. |
+| `city_name` | string | yes | non-null | Display name from the Wikipedia page title. |
+| `population` | integer | no | nullable | Contextual value; null when not parseable; see `metadata_notes`. |
+| `area_km2` | float | no | nullable | Contextual area in km²; null when not parseable; see `metadata_notes`. |
+| `population_density` | float | no | nullable | Calculated when `population` and `area_km2` are both non-null; otherwise null. |
+| `country` | string | no | nullable | Contextual country name from infobox; null when missing or ambiguous. |
+| `wikipedia_url` | string | yes | non-null | Source URL of the scraped Wikipedia page; required for reproducibility. |
+| `scraped_at` | string | yes | non-null | ISO 8601 UTC timestamp of the scraping run. |
+| `metadata_notes` | string | yes | non-null | Documents parse failures, ambiguous values, or missing fields; `ok` when everything parsed. |
+| `source` | string | yes | non-null | Always `wikipedia`. |
+
+### city_id Join Contract
+
+- `city_id` is the sole join key between `city_metadata.parquet` and
+  `city_reference.parquet`.
+- Every row must have a non-null `city_id` matching an entry in
+  `city_reference.parquet`.
+- Page titles, URLs, and free-text names are traceability fields only;
+  they are never join keys.
+- Wikipedia values are contextual and must not override `city_reference.parquet`
+  coordinate or country code fields.
+
+### Null And Missing Field Rules
+
+- If a field cannot be parsed, set it to null and add a note in
+  `metadata_notes`.
+- Never guess or infer values from unrelated pages.
+- A city with all nullable fields null is still a valid row if `city_id`,
+  `city_name`, `wikipedia_url`, `scraped_at`, `metadata_notes`, and `source`
+  are present.
+- `population_density` is only computed when both `population` and `area_km2`
+  are non-null.
+
+### Silver Output Path
+
+```
+data/silver/city_metadata.parquet
+```
+
+Produced by Phase 4 Issue 4.6. Not yet implemented in this issue. Git-ignored.
+
+### Contextual-Only Status
+
+Wikipedia values must not be treated as official statistical ground truth,
+analytical baselines, or pipeline dependencies. EEA measurements and
+Open-Meteo data must not depend on Wikipedia values being complete.
+
+### Phase 4.2 Scope Boundary
+
+**Included in this issue (4.2):**
+
+- Wikipedia City Metadata Schema defined with all fields, types, nullability,
+  and validation rules.
+- city_id join contract documented.
+- Null and missing field rules documented.
+- Silver output path declared.
+- Contextual-only status documented.
+- Schema cells added to notebook 03.
+
+**Not included in this issue:**
+
+- Python scraper code or HTML parsing implementation.
+- Silver Parquet file generation (`city_metadata.parquet`).
+- Open-Meteo, Kafka, or Spark work.
+- Changes to `docs/data_sources.md` (updated in Issue 4.1).
+
 ## Later Data Model Work
 
 Pending:
 
 - Define Bronze schema detail per source as loaders are implemented.
 - Define Silver canonical model for city and air quality joins (Phase 3 EEA
-  schema is the first Silver definition; Wikipedia and Open-Meteo Silver
-  schemas follow in Phases 4 and 5).
+  schema is the first Silver definition; Phase 4 Wikipedia Silver schema is
+  defined in this document; Open-Meteo Silver schema follows in Phase 5).
 - Define Gold analytical tables for the project research question (Phase 8).
