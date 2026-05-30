@@ -342,3 +342,26 @@ No data pipeline logic was implemented.
 - No Gold analytics, production Wikipedia scraping, Open-Meteo client behavior,
   Kafka producer, Spark Structured Streaming, or cluster Parquet persistence was
   implemented.
+
+### Phase 3.6 EEA City Daily Silver Parquet Output
+
+- Added `write_eea_city_daily_parquet()` to `src/ingestion/eea_loader.py`.
+- Added `build_eea_city_daily_parquet()` as an explicit local end-to-end helper
+  for controlled EEA CSV/Parquet input files and station mapping data.
+- The writer validates the documented Silver schema, core pollutant scope, and
+  `source = 'eea'` before writing Parquet.
+- Added tests for Parquet write/read, aggregation math, unsupported pollutant
+  rejection, source separation, missing schema fields, and explicit end-to-end
+  generation.
+- Updated README, `docs/data_sources.md`, `docs/data_model.md`, notebook 02,
+  current status, phase gate register, and agent memory.
+- The generated `data/silver/eea_city_daily.parquet` remains ignored by Git.
+- Did not implement Gold tables, Open-Meteo merge, Kafka, Spark Structured
+  Streaming, visualization, or cluster Parquet persistence.
+
+### Current Phase 3 State After Issue 3.6
+
+- Phase 3 remains in progress.
+- Issues 3.1 through 3.6 are implemented, tested, or documented.
+- Remaining Phase 3 work is limited to Issue 3.7 notebook 02 final
+  documentation and Issue 3.8 Phase 3 QA/gate decision.
