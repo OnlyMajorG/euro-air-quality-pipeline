@@ -14,8 +14,8 @@ Jupyter notebooks, and final storytelling.
 **Current phase:** Phase 3 in progress
 
 **Latest QA decision:** Phase 2 QA approved the project for Phase 3. Phase 3 is
-limited to EEA Batch Ingestion work. Issues 3.1 through 3.4 are implemented or
-documented; Issues 3.5 through 3.8 remain open.
+limited to EEA Batch Ingestion work. Issues 3.1 through 3.5 are implemented,
+tested, or documented; Issues 3.6 through 3.8 remain open.
 
 At the current state, the repository contains the Phase 0 skeleton, Phase 1
 source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
@@ -316,12 +316,13 @@ Implemented so far:
 - Station-to-city mapping builder with selected Vienna/Berlin stations and
   unresolved placeholders for remaining starter cities.
 - EEA local-file loader for controlled CSV/Parquet files.
-- Tests for station mapping and EEA loader behavior.
+- EEA row-level data quality validation for required fields, timestamps,
+  pollutant scope, units, and invalid concentration values.
+- Tests for station mapping, EEA loader behavior, and EEA data quality rules.
 
 Remaining output:
 
 - Resolve placeholder station mappings before real ingestion.
-- Data quality documentation and validation completion.
 - Reproducible `data/silver/eea_city_daily.parquet`.
 - Phase 3 QA report and gate decision.
 

@@ -18,11 +18,13 @@ from src.ingestion.eea_loader import (
     INVALID_VALIDITY_VALUES,
     POLLUTANT_LABEL_MAP,
     RAW_COLUMNS,
+    REQUIRED_EEA_ROW_COLUMNS,
     SILVER_COLUMNS,
     aggregate_to_city_daily,
     load_and_aggregate,
     load_eea_raw,
     map_stations_to_cities,
+    validate_eea_rows,
 )
 
 
@@ -150,6 +152,16 @@ def test_silver_columns_match_documented_schema() -> None:
         "max_value", "observation_count", "unit", "source", "processing_time_utc",
     )
     assert SILVER_COLUMNS == expected
+
+
+def test_required_eea_row_columns_match_validation_contract() -> None:
+    assert REQUIRED_EEA_ROW_COLUMNS == (
+        "city_id",
+        "datetime_begin",
+        "pollutant",
+        "concentration",
+        "unit",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -470,6 +482,137 @@ def test_map_stations_to_cities_returns_empty_on_empty_input() -> None:
 # ---------------------------------------------------------------------------
 # aggregate_to_city_daily
 # ---------------------------------------------------------------------------
+
+
+def test_validate_eea_rows_accepts_valid_rows(tmp_path: Path) -> None:
+    p = _make_minimal_csv(tmp_path, _standard_rows())
+    raw = load_eea_raw(p)
+    mapped = map_stations_to_cities(raw, _minimal_station_mapping())
+
+    validated = validate_eea_rows(mapped)
+
+    assert len(validated) == 3
+    assert list(validated[list(REQUIRED_EEA_ROW_COLUMNS)].columns) == list(REQUIRED_EEA_ROW_COLUMNS)
+
+
+def test_validate_eea_rows_raises_on_missing_required_field() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "PM2.5",
+                "concentration": 10.0,
+                # unit missing
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="Missing required EEA row columns"):
+        validate_eea_rows(df)
+
+
+def test_validate_eea_rows_raises_on_null_city_id() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": None,
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "PM2.5",
+                "concentration": 10.0,
+                "unit": "µg/m³",
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="Required EEA row fields"):
+        validate_eea_rows(df)
+
+
+def test_validate_eea_rows_raises_on_invalid_date() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": "not-a-date",
+                "pollutant": "PM2.5",
+                "concentration": 10.0,
+                "unit": "µg/m³",
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="invalid or unparseable"):
+        validate_eea_rows(df)
+
+
+def test_validate_eea_rows_filters_negative_measurements() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "PM2.5",
+                "concentration": 10.0,
+                "unit": "µg/m³",
+            },
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "PM2.5",
+                "concentration": -1.0,
+                "unit": "µg/m³",
+            },
+        ]
+    )
+
+    validated = validate_eea_rows(df)
+
+    assert len(validated) == 1
+    assert (validated["concentration"] >= 0).all()
+
+
+def test_validate_eea_rows_filters_unsupported_pollutants() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "PM10",
+                "concentration": 20.0,
+                "unit": "µg/m³",
+            },
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "SO2",
+                "concentration": 5.0,
+                "unit": "µg/m³",
+            },
+        ]
+    )
+
+    validated = validate_eea_rows(df)
+
+    assert len(validated) == 1
+    assert set(validated["pollutant"]) == {"PM10"}
+
+
+def test_validate_eea_rows_raises_on_missing_unit() -> None:
+    df = pd.DataFrame(
+        [
+            {
+                "city_id": "vienna_at",
+                "datetime_begin": _FIXED_TS,
+                "pollutant": "NO2",
+                "concentration": 30.0,
+                "unit": "",
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="Required EEA row fields"):
+        validate_eea_rows(df)
 
 
 def test_aggregate_to_city_daily_returns_silver_schema(tmp_path: Path) -> None:
