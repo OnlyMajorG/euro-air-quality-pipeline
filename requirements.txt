@@ -9,4 +9,3 @@ pyspark
 kafka-python
 jupyter
 matplotlib
-pytest
