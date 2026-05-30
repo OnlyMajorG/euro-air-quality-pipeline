@@ -48,3 +48,9 @@ data/**/*.csv
 data/**/*.json
 data/**/checkpoints/**
 !**/.gitkeep
+
+# Project resources
+project-resources/*
+
+# Local AI agent working files
+agents/
