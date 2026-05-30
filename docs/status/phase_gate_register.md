@@ -9,15 +9,15 @@
 | Storage direction documented | Done | ADR-002 and data folder scaffold. |
 | City reference need documented | Done | ADR-003. |
 | QA report exists | Done | `docs/qa/phase0_qa_report.md`. |
-| Notebooks structurally valid | Blocked | All seven notebooks fail JSON validation. |
+| Notebooks structurally valid | Done | All seven notebooks pass `json.loads` validation. |
 
-Phase 0 gate decision: **Approved for Phase 1 after notebook JSON fixes**.
+Phase 0 gate decision: **Approved for Phase 1**.
 
 ## Phase 1 - Data Source Spike And Feasibility Testing
 
-Status: **Not started**
+Status: **Ready to start**
 
-Allowed only after Phase 0 notebook cleanup.
+Allowed after Phase 0 notebook cleanup.
 
 Expected focus when started:
 

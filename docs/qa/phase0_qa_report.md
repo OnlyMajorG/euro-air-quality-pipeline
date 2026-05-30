@@ -106,3 +106,21 @@ The repository is close to ready for Phase 1: Data source spike and feasibility 
 **Approved for Phase 1 after minor fixes**
 
 The notebook JSON defect must be fixed first. After that, the repository can proceed to Phase 1 data source spike and feasibility testing without expanding scope.
+
+## Resolution Addendum - 2026-05-30
+
+The major notebook JSON defect has been resolved.
+
+Validation result:
+
+- `notebooks/00_project_scope_and_sources.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/01_city_mapping.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/02_eea_batch_ingestion.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/03_wikipedia_scraping.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/04_kafka_producer_demo.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/05_spark_streaming_processing.ipynb`: valid JSON, 0 code outputs.
+- `notebooks/06_analysis_and_visualization.ipynb`: valid JSON, 0 code outputs.
+
+Updated gate decision: **Approved for Phase 1**.
+
+Remaining limitation: `python -m pytest` could not be executed in the active environment because `pytest` is not installed.
