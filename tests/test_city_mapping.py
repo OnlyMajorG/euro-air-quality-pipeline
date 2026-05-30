@@ -237,6 +237,25 @@ def test_station_mapping_pilot_cities_have_selected_station() -> None:
         assert len(selected) >= 1, f"No selected station found for {city_id}"
 
 
+def test_station_mapping_all_starter_cities_have_selected_station() -> None:
+    """After Phase 3 QA follow-up, every starter city must have a selected station."""
+    df = build_station_mapping()
+    city_ref = build_city_reference()
+
+    selected_cities = set(df.loc[df["mapping_status"] == "selected", "city_id"])
+    missing = set(city_ref["city_id"]) - selected_cities
+
+    assert not missing, f"Starter cities without selected EEA station: {missing}"
+
+
+def test_station_mapping_has_no_placeholder_station_ids() -> None:
+    df = build_station_mapping()
+
+    placeholders = df[df["eea_station_id"].astype(str).str.startswith("PLACEHOLDER")]
+
+    assert placeholders.empty
+
+
 def test_station_mapping_distances_are_computed_for_known_stations() -> None:
     """Stations with known coordinates must have a non-null distance."""
     df = build_station_mapping()

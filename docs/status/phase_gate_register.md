@@ -68,7 +68,9 @@ Not allowed yet:
 
 ## Phase 3 - EEA Batch Ingestion
 
-Status: **In progress**
+Status: **Done**
+
+Gate decision: **Approved for Phase 4 after QA follow-up corrections**
 
 | Item | Status | Evidence |
 | --- | --- | --- |
@@ -76,14 +78,14 @@ Status: **In progress**
 | Raw-data policy defined | Done | `docs/data_sources.md` documents that large raw EEA files must not be committed; `data/bronze/eea/` is git-ignored. |
 | File naming convention documented | Done | Pattern `eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>` documented in `docs/data_sources.md` and notebook 02. |
 | Git-ignore verification confirmed | Done | `git check-ignore -v data/bronze/eea/sample_test.csv` returns the `.gitignore` rule as expected. |
-| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issues 3.1-3.6 summaries with 0 code outputs. |
+| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issues 3.1-3.8 summaries with 0 code outputs. |
 | EEA input schema defined | Done | `docs/data_model.md` contains `Phase 3 EEA Batch Ingestion Data Model`. |
-| Station-to-city mapping table | Done with constraints | `src/city_mapping/build_station_mapping.py`; placeholders remain for six non-pilot cities. |
+| Station-to-city mapping table | Done | `src/city_mapping/build_station_mapping.py`; all 8 starter cities have selected EEA stations and tests reject placeholder IDs. |
 | EEA loader implementation | Done | `src/ingestion/eea_loader.py` reads controlled local CSV/Parquet files and has pytest coverage. |
 | Data quality validation | Done | `src/ingestion/eea_loader.py` exposes `validate_eea_rows`; `tests/test_eea_loader.py`, `docs/data_sources.md`, and notebook 02 document and verify behavior. |
 | Silver Parquet output | Done | `write_eea_city_daily_parquet()` and `build_eea_city_daily_parquet()` write/read local ignored Parquet output with pytest coverage. |
 | Notebook 02 complete | Done | `notebooks/02_eea_batch_ingestion.ipynb` documents source policy, schema, mapping dependency, data quality, daily aggregation, output contract, and readback pattern with 0 outputs. |
-| Phase 3 QA report | Pending | Issue 3.8 |
+| Phase 3 QA report | Done | `docs/qa/phase3_qa_report.md`; QA follow-up findings closed and Phase 4 approved. |
 
 Allowed focus:
 
@@ -100,3 +102,22 @@ Not allowed yet:
 - Spark Structured Streaming.
 - Gold-layer analytics.
 - Cluster Spark Parquet persistence unless shared storage is confirmed.
+
+## Phase 4 - Wikipedia Web Scraping And Metadata Extraction
+
+Status: **Approved, not started**
+
+Allowed focus:
+
+- Controlled Wikipedia HTML handling for the 8 starter cities.
+- Defensive parser implementation.
+- City metadata output joined through `city_id`.
+- Parser tests and notebook 03 documentation.
+
+Not allowed yet:
+
+- Open-Meteo production client implementation.
+- Kafka producer implementation.
+- Spark Structured Streaming.
+- Gold-layer analytics.
+- Dashboard or final visualization work.

@@ -11,19 +11,19 @@ Jupyter notebooks, and final storytelling.
 
 ## Current Status
 
-**Current phase:** Phase 3 in progress
+**Current phase:** Phase 4 approved, not started
 
-**Latest QA decision:** Phase 2 QA approved the project for Phase 3. Phase 3 is
-limited to EEA Batch Ingestion work. Issues 3.1 through 3.7 are implemented,
-tested, or documented; Issue 3.8 remains open.
+**Latest QA decision:** Phase 3 QA follow-up closed the original major/minor
+findings and approved the project for Phase 4. Phase 4 is limited to Wikipedia
+scraping and city metadata extraction.
 
 At the current state, the repository contains the Phase 0 skeleton, Phase 1
 source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
 2 city reference work with a PASS gate decision, and early Phase 3 EEA batch
 ingestion work. The deterministic city reference builder, validation tests,
 local CSV/Parquet outputs, station mapping structure, EEA local-file loader,
-mapping rules, and Phase 2 QA report exist. It does **not** yet contain final
-Phase 3 QA approval, production Wikipedia scraper, Open-Meteo client
+mapping rules, and Phase 3 QA report exist. It does **not** yet contain a
+production Wikipedia scraper, Open-Meteo client
 behavior, Kafka producer logic, Spark Structured Streaming, Gold tables, or
 analysis results.
 
@@ -306,15 +306,15 @@ Gate decision: **Approved for Phase 3**.
 Goal: process historical EEA file or batch data into source-aligned and cleaned
 Parquet outputs.
 
-Current status: **in progress**
+Current status: **complete with major EEA constraints**
 
 Implemented so far:
 
 - EEA source inspection.
 - EEA raw-data policy and access path documentation.
 - EEA input schema and Silver output schema documentation.
-- Station-to-city mapping builder with selected Vienna/Berlin stations and
-  unresolved placeholders for remaining starter cities.
+- Station-to-city mapping builder with selected EEA stations for all 8 starter
+  cities.
 - EEA local-file loader for controlled CSV/Parquet files.
 - EEA row-level data quality validation for required fields, timestamps,
   pollutant scope, units, and invalid concentration values.
@@ -322,11 +322,12 @@ Implemented so far:
 - Tests for station mapping, EEA loader behavior, EEA data quality rules, and
   Silver Parquet readback.
 - Notebook 02 as the readable Phase 3 documentation trail.
-
-Remaining output:
-
-- Resolve placeholder station mappings before real ingestion.
 - Phase 3 QA report and gate decision.
+
+Remaining EEA constraint:
+
+- Download and row-validate real EEA source files locally before using EEA
+  output as final Gold analysis input.
 
 Execution rule:
 
@@ -340,9 +341,13 @@ Exit criteria:
 - City mapping is used.
 - Methodological limitations are documented.
 
+Gate decision: **Approved for Phase 4 after QA follow-up corrections**.
+
 ### Phase 4 - Wikipedia Scraping And Metadata Extraction
 
 Goal: extract city metadata from Wikipedia in a controlled and documented way.
+
+Current status: **approved, not started**
 
 Planned output:
 
