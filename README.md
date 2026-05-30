@@ -11,10 +11,10 @@ Jupyter notebooks, and final storytelling.
 
 ## Current Status
 
-**Current phase:** Phase 0 - Repository initialization
+**Current phase:** Phase 0 cleanup complete; Phase 1 may start
 
-**Latest QA decision:** Phase 0 is approved for Phase 1 after fixing the
-notebook JSON issue documented in `docs/qa/phase0_qa_report.md`.
+**Latest QA decision:** Phase 0 is approved for Phase 1. The notebook JSON
+blocker from `docs/qa/phase0_qa_report.md` has been resolved.
 
 At the current state, the repository contains structure, documentation, ADRs,
 placeholder modules, placeholder tests, data folders, diagrams, and planning
