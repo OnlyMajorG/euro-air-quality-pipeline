@@ -37,7 +37,7 @@ This audit covers only Phase 0 repository initialization for `euro-air-quality-p
 | `.gitignore` | PASS | Covers caches, virtual environments, `.env`, Jupyter checkpoints, IDE files, OS files, logs, temp files, Python tool caches, Parquet/CSV/JSON under `data/`, and checkpoint paths. | `.gitkeep` is not ignored. |
 | `.env.example` | PASS | Contains safe placeholders for Open-Meteo, Kafka, timezone, data directory, checkpoint directory, and log level. Later ADR-004 adaptation changed defaults to `SPARK_MASTER_URL=local[*]` and `KAFKA_TOPIC_AIR_QUALITY_LIVE=bdeng_g1_air_quality_live`. | No secrets or personal credentials found. |
 | `requirements.txt` | PASS | Contains only the expected starter packages: pandas, numpy, requests, beautifulsoup4, lxml, python-dotenv, pyarrow, pyspark, kafka-python, jupyter, matplotlib, pytest. | No excessive production frameworks found. |
-| `docker-compose.yml` | PASS | `docker compose config` completed successfully. Services exist for Jupyter, Kafka, and Spark. | Uses `latest` images, acceptable for Phase 0 placeholder but should be pinned before reproducible implementation work. |
+| `docker-compose.yml` | PASS | `docker compose config` completed successfully. Services exist for Jupyter, Kafka, and Spark. | Phase 3 QA follow-up pinned image tags for Jupyter, Kafka, and Spark. |
 | Docs | PASS | `docs/architecture.md`, `docs/data_sources.md`, and `docs/data_model.md` exist with meaningful TODO placeholders. | Shallow by design; acceptable for Phase 0. |
 | ADRs | PASS | ADR-001, ADR-002, and ADR-003 exist and include Status, Context, Decision, and Consequences. | ADR-001 freezes scope, ADR-002 chooses Parquet, ADR-003 defines city reference model need. |
 | Notebooks | MAJOR ISSUE | All expected notebooks exist, but Python JSON validation failed for all seven with `JSONDecodeError: Extra data: line 26 column 2`. | Files contain extra literal `\n` after the closing JSON object. They will not open as valid notebooks. |
@@ -70,7 +70,7 @@ None.
 
 - `pytest` could not be run in the active environment because it is not installed. Evidence: `python -m pytest` returned `No module named pytest`. The dependency is correctly listed in `requirements.txt`, so this appears to be an unprepared local environment rather than a repository dependency omission.
 - README BDENG checklist uses `[x]` for planned capabilities. In a Phase 0 repository, this can look like implementation completion even though the surrounding text says the capabilities are planned.
-- `docker-compose.yml` uses `latest` image tags for Jupyter, Kafka, and Spark. This is acceptable as a Phase 0 baseline, but exact image tags should be pinned before reproducible pipeline implementation begins.
+- Resolved in Phase 3 QA follow-up: `docker-compose.yml` now uses pinned image tags for Jupyter, Kafka, and Spark.
 - README says a `LICENSE` file placeholder is planned, but no `LICENSE` file exists. The requested Phase 0 scope only required a license placeholder in the README, so this is not blocking.
 
 ### Positive Observations
@@ -98,7 +98,7 @@ The repository is close to ready for Phase 1: Data source spike and feasibility 
 - [ ] Fix all seven `.ipynb` files by removing the extra literal `\n` after the closing JSON object, then re-run notebook JSON validation.
 - [ ] Create and activate a local virtual environment, install `requirements.txt`, and run `pytest`.
 - [ ] Reword the README BDENG checklist to make clear that checked items represent Phase 0 scaffolding/planned coverage, not implemented pipeline functionality.
-- [ ] Pin Docker image versions before any reproducibility-sensitive implementation phase.
+- [x] Pin Docker image versions before any reproducibility-sensitive implementation phase.
 - [ ] Decide whether to add an actual `LICENSE` file or keep only the README placeholder until later.
 
 ## Final Decision

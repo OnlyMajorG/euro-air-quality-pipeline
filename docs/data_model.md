@@ -185,34 +185,31 @@ the mapping.
 - \data/silver/eea_station_city_mapping.csv- \data/silver/eea_station_city_mapping.parquet
 ### Current Mapping Status Per City
 
+The Phase 3 QA follow-up resolved the previous placeholder mappings for the six
+non-pilot cities by querying the official EEA ArcGIS station metadata layer on
+2026-05-30. Each starter city now has at least one selected station whose popup
+metadata indicates PM2.5, PM10, and NO2 availability.
+
 | city_id | Selected station | Status | Constraint |
 | --- | --- | --- | --- |
-| \ienna_at\ | \AT90TAB\ (Taborstrasse) | selected | PM2.5, PM10, NO2 from 2013-2024. Verify in Issue 3.4. |
-| \ienna_at\ | \AT90AKC\ (AKH) | candidate | Fallback covering all 3 pollutants. |
-| \ienna_at\ | \AT9STEF\ (Stephansplatz) | candidate | NO2 only; not suitable as primary. |
-| \erlin_de\ | \DEBE068\ (Berlin Mitte) | selected | NO2+PM10 from 2013-2024; PM2.5 from 2020 only. |
-| \paris_fr\ | PLACEHOLDER | candidate | Station not yet reviewed. |
-| \madrid_es\ | PLACEHOLDER | candidate | Station not yet reviewed. |
-| ome_it\ | PLACEHOLDER | candidate | Station not yet reviewed. |
-| \msterdam_nl\ | PLACEHOLDER | candidate | Station not yet reviewed. |
-| \warsaw_pl\ | PLACEHOLDER | candidate | Station not yet reviewed. |
-| \prague_cz\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| `vienna_at` | `AT90TAB` Taborstrasse | selected | PM2.5, PM10, NO2 from 2013-2024. |
+| `berlin_de` | `DEBE068` Berlin Mitte | selected | NO2+PM10 from 2013-2024; PM2.5 from 2020 only. |
+| `paris_fr` | `FR04143` PARIS Centre | selected | Real source-file row validation still required before analysis. |
+| `madrid_es` | `ES0118A` ESCUELAS AGUIRRE | selected | Real source-file row validation still required before analysis. |
+| `rome_it` | `IT1906A` ARENULA | selected | Real source-file row validation still required before analysis. |
+| `amsterdam_nl` | `NL00014` Amsterdam-Vondelpark | selected | Real source-file row validation still required before analysis. |
+| `warsaw_pl` | `PL0592A` Warszawa-Marszalkowska | selected | Real source-file row validation still required before analysis. |
+| `prague_cz` | `CZ0ARIE` Praha 2-Riegrovy sady | selected | Real source-file row validation still required before analysis. |
 
-### Unresolved Mapping Decisions
+### Mapping QA Follow-Up
 
-The 6 non-pilot cities (Paris, Madrid, Rome, Amsterdam, Warsaw, Prague) carry
-placeholder station IDs and \mapping_status = candidate\. These must be
-resolved before Issue 3.4 (EEA loader) begins:
+The previous unresolved mapping decision for Paris, Madrid, Rome, Amsterdam,
+Warsaw, and Prague is closed. The project now tests that every starter city has
+a selected station and that no station ID starts with `PLACEHOLDER`.
 
-1. Query the EEA station spatial service for each city area.
-2. Filter returned stations by PM2.5, PM10, and NO2 pollutant availability.
-3. Review distance, time coverage, and station representativeness.
-4. Replace PLACEHOLDER station IDs and coordinates with real EoI codes.
-5. Set mapping_status to selected for the primary station per city.
-6. Re-run \python -m pytest tests/test_city_mapping.py\ to verify integrity.
-
-Phase 3 ingestion (Issue 3.4) must not proceed for any city whose primary
-station is still a placeholder.
+Remaining limitation: EEA measurement files still need to be downloaded locally
+and row-validated before the EEA Silver output is treated as final analytical
+input.
 
 ### Berlin PM2.5 Coverage Constraint
 
@@ -226,15 +223,13 @@ not possible from this station alone.
 **Included in this issue (3.3):**
 
 - Station mapping structure implemented as a local Python builder.
-- Pilot city stations (Vienna \AT90TAB\, Berlin \DEBE068\) promoted to
-  \selected\ with documented rationale from Phase 1 findings.
+- All 8 starter cities have selected station mappings.
 - All 8 starter cities have at least one mapping entry.
 - Validation ensures all \city_id\ values exist in \city_reference.parquet\.
 - Tests cover structure, integrity, status values, distances, and Parquet roundtrip.
 
 **Not included in this issue:**
 
-- Real station review for Paris, Madrid, Rome, Amsterdam, Warsaw, Prague.
 - Bulk EEA station metadata download.
 - EEA loader implementation (Issue 3.4).
 - Silver Parquet output for air quality measurements (Issue 3.6).

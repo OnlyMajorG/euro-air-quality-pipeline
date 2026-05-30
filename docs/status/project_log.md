@@ -329,9 +329,9 @@ No data pipeline logic was implemented.
 - Did not implement Gold analytics, live API validation, Spark streaming, or
   causal interpretation.
 
-### Current Phase 3 State After Issue 3.5
+### Phase 3 State After Issue 3.5
 
-- Phase 3 remains in progress.
+- At that point, Phase 3 remained in progress.
 - Issues 3.1 through 3.5 are implemented, tested, or documented.
 - Issue 3.5 added EEA row-level data quality validation for required fields,
   timestamps, pollutant scope, units, and invalid concentration values.
@@ -359,9 +359,9 @@ No data pipeline logic was implemented.
 - Did not implement Gold tables, Open-Meteo merge, Kafka, Spark Structured
   Streaming, visualization, or cluster Parquet persistence.
 
-### Current Phase 3 State After Issue 3.6
+### Phase 3 State After Issue 3.6
 
-- Phase 3 remains in progress.
+- At that point, Phase 3 remained in progress.
 - Issues 3.1 through 3.6 are implemented, tested, or documented.
 - Remaining Phase 3 work is limited to Issue 3.7 notebook 02 final
   documentation and Issue 3.8 Phase 3 QA/gate decision.
@@ -380,8 +380,45 @@ No data pipeline logic was implemented.
 - Did not download data, call APIs, implement Kafka, implement Spark
   Structured Streaming, or add Gold analysis.
 
-### Current Phase 3 State After Issue 3.7
+### Phase 3 State After Issue 3.7
 
-- Phase 3 remains in progress.
+- At that point, Phase 3 remained in progress.
 - Issues 3.1 through 3.7 are implemented, tested, or documented.
 - Remaining Phase 3 work is limited to Issue 3.8 Phase 3 QA/gate decision.
+
+### Phase 3 QA Report And Gate Decision
+
+- Created `docs/qa/phase3_qa_report.md`.
+- Phase 3 initial result: PASS WITH MAJOR ISSUES.
+- Initial decision: Approved for Phase 4 only.
+- Verified P3-AC1 through P3-AC6.
+- Confirmed `eea_city_daily.parquet` can be generated and read locally through
+  the explicit writer path; the QA sample was removed after validation.
+- Confirmed no Wikipedia scraper, Open-Meteo client, Kafka producer, Spark
+  Structured Streaming, Gold tables, dashboards, or final analytics were
+  implemented in Phase 3.
+- Initial major constraints: six non-pilot station mappings remained
+  placeholders, and no real all-starter-city EEA Silver dataset existed yet.
+
+### Phase 3 QA Follow-Up Corrections
+
+- Resolved the Phase 3 station-mapping major finding by replacing the six
+  non-pilot placeholder station IDs with selected EEA station IDs from the
+  official EEA ArcGIS station metadata layer.
+- Added tests requiring every starter city to have a selected station and
+  rejecting `PLACEHOLDER` station IDs.
+- Pinned Docker Compose image tags for Jupyter, Kafka, and Spark.
+- Added `docs/qa/phase4_precheck.md`.
+- Updated README, data model, notebook 02, current status, phase gate register,
+  and Phase 3 QA report to reflect the corrected findings.
+- Did not download measurement datasets, implement Wikipedia scraping,
+  Open-Meteo client behavior, Kafka, Spark Structured Streaming, Gold tables,
+  dashboards, or final analytics.
+
+### Current Project State After Phase 3
+
+- Phase 0: complete; approved for Phase 1.
+- Phase 1: complete; approved for Phase 2.
+- Phase 2: complete; approved for Phase 3.
+- Phase 3: complete after QA follow-up corrections; approved for Phase 4.
+- Current phase: Phase 4 approved, not started.
