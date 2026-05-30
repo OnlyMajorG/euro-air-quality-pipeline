@@ -271,3 +271,26 @@ No data pipeline logic was implemented.
 - Verified notebook 02 is valid JSON with 0 code outputs.
 - Did not implement EEA loader, station matching, Spark, Silver Parquet
   output, Open-Meteo client, Kafka, or Gold tables.
+### Phase 3.3 EEA Station-To-City Mapping Table
+
+- Created src/city_mapping/build_station_mapping.py with deterministic,
+  side-effect-free builder from local constants.
+- Implemented uild_station_mapping(), alidate_station_mapping(),
+  write_station_mapping(), and _haversine_km() helper.
+- Seeded mapping from Phase 1 EEA station metadata observations:
+  - ienna_at: AT90TAB (selected), AT90AKC and AT9STEF (candidate).
+  - erlin_de: DEBE068 (selected); PM2.5 coverage constraint 2020+ documented.
+  - All 6 remaining cities: placeholder entries with candidate status and
+    explicit instructions for real station review before Issue 3.4.
+- Added 14 new station mapping tests to 	ests/test_city_mapping.py.
+  All 29 city mapping tests pass (32 total across all test files).
+- Updated docs/data_model.md with Phase 3.3 section: mapping table fields,
+  current mapping status per city, unresolved decisions, Berlin PM2.5
+  constraint, and scope boundary.
+- Updated 
+otebooks/02_eea_batch_ingestion.ipynb with Issue 3.3 Markdown
+  cell covering mapping structure, station status table, constraints, and DoD.
+- Verified: uild_station_mapping() produces 10 rows, 8 cities covered,
+  2 selected stations (AT90TAB for vienna_at, DEBE068 for berlin_de).
+- Did not download EEA station metadata, implement loader, run Spark, produce
+  Silver air quality output, implement Kafka, or build Gold tables.
