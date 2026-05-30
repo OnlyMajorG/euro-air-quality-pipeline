@@ -55,3 +55,14 @@ No data pipeline logic was implemented.
   station-to-city mapping risks, and source status in `docs/data_sources.md`.
 - Did not download full EEA historical data, implement ingestion, create
   station matching, run Spark, or write Bronze/Silver/Gold outputs.
+
+### Wikipedia Phase 1 Feasibility Checked
+
+- Fetched Wikipedia HTML for Vienna and Berlin.
+- Saved small infobox HTML evidence files under `data/bronze/wikipedia_html/`.
+- Documented parseable metadata candidates, HTML structure risks, fallback
+  strategy, and source status in `docs/data_sources.md`.
+- Added `data/**/*.html` to `.gitignore` so raw/source-spike HTML samples stay
+  local unless a later policy explicitly allows committing them.
+- Did not implement a production scraper, parser module, crawler, or metadata
+  Parquet output.

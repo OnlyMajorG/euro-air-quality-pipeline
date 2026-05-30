@@ -200,3 +200,74 @@ The project must not silently choose the nearest station without documenting:
 EEA is **usable with constraints** for the planned file/batch historical source.
 The main constraint is not basic availability; it is the station-to-city mapping
 and pollutant/time-coverage selection rule required in Phase 2.
+
+## Wikipedia Phase 1 Feasibility
+
+Status: **usable with constraints**
+
+Wikipedia city metadata feasibility was checked for the two Phase 1 pilot
+cities. Raw page HTML was fetched, and a small infobox HTML excerpt was saved
+for each city as local evidence. This was a source feasibility check only. It
+did not implement a production scraper, parser module, crawler, city metadata
+Parquet output, or automated extraction workflow.
+
+### Request Scope
+
+| city_name | country_code | source page | evidence sample | result |
+| --- | --- | --- | --- | --- |
+| Vienna | AT | `https://en.wikipedia.org/wiki/Vienna` | `data/bronze/wikipedia_html/sample_wikipedia_vienna_at.html` | HTML reachable; infobox found. |
+| Berlin | DE | `https://en.wikipedia.org/wiki/Berlin` | `data/bronze/wikipedia_html/sample_wikipedia_berlin_de.html` | HTML reachable; infobox found. |
+
+The saved evidence files are intentionally small HTML samples containing the
+raw infobox excerpt plus source metadata. They are not full Wikipedia page
+archives and are protected by `data/**/*.html` in `.gitignore`.
+
+### Metadata Candidates
+
+| Candidate field | Vienna observation | Berlin observation | Phase 1 decision |
+| --- | --- | --- | --- |
+| Country | Infobox contains country context. | Infobox contains country context. | Parseable candidate. |
+| Area | Infobox contains area-related rows. | Infobox contains area-related rows. | Parseable candidate, but labels may vary. |
+| Population | Infobox contains population-related rows. | Infobox contains population-related rows. | Parseable candidate, but date and scope labels need review. |
+| Coordinates | Page or infobox contains coordinate markup. | Page or infobox contains coordinate markup. | Parseable candidate; validate exact extraction in Phase 4. |
+| ISO/geocode context | Infobox contains ISO/geocode-like administrative identifiers. | Infobox contains ISO/geocode-like administrative identifiers. | Optional context only, not part of Phase 1 output. |
+
+### Observed Structure
+
+| Area | Observed result |
+| --- | --- |
+| HTML access | Both pilot pages returned HTML successfully. |
+| Primary table | `table.infobox` exists for both pilot pages. |
+| Parser used for spike | BeautifulSoup with Python's built-in `html.parser` in the active local environment. |
+| Preferred future parser | BeautifulSoup with `lxml` after the project environment is installed from `requirements.txt`. |
+| Sample size | Infobox excerpt only; full page HTML was not committed. |
+
+### Risks And Constraints
+
+- Wikipedia page structure is not a stable API contract. Infobox labels can
+  change across pages and over time.
+- Population and area rows may use nested labels, footnotes, dates, or different
+  administrative scopes.
+- Coordinates may appear outside the infobox or in multiple formats.
+- Values from Wikipedia should be treated as contextual metadata, not official
+  statistical ground truth.
+- Phase 4 must implement parser tests with fixed HTML fixtures before relying
+  on extracted values.
+
+### Fallback Strategy
+
+If a field is missing or inconsistent in Phase 4:
+
+- keep the raw HTML evidence,
+- set the parsed field to null,
+- add a `mapping_notes` or `metadata_notes` explanation,
+- prefer explicit manual review over silent guessing,
+- do not block the core air-quality pipeline on optional context fields such as
+  population density.
+
+### Phase 1 Decision
+
+Wikipedia is **usable with constraints** for city metadata enrichment. The
+source is suitable for contextual fields such as population, area, coordinates,
+and country context, but the final parser must be conservative, tested, and
+transparent about missing or ambiguous values.

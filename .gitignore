@@ -46,6 +46,7 @@ htmlcov/
 data/**/*.parquet
 data/**/*.csv
 data/**/*.json
+data/**/*.html
 data/**/checkpoints/**
 !**/.gitkeep
 
