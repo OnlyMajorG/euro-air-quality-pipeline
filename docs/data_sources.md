@@ -114,3 +114,89 @@ repository data ignore rules.
 
 Open-Meteo is **usable** for the planned REST API source and later Kafka path,
 subject to explicit field mapping and missing-value handling in later phases.
+
+## EEA Phase 1 Feasibility
+
+Status: **usable with constraints**
+
+EEA historical air quality data availability was checked through the EEA
+station metadata and download service for the two Phase 1 pilot cities. This
+was a metadata-level feasibility check only. It did not download full EEA time
+series data, create an EEA ingestion job, run Spark, define station-radius
+matching, or write Bronze/Silver/Gold outputs.
+
+### Access Path
+
+| Access path | Purpose | Phase 1 observation |
+| --- | --- | --- |
+| EEA station spatial service | Find monitoring stations and pollutant-specific availability near pilot cities. | ArcGIS REST layer `AirQualityDownloadServiceEUMonitoringStations/MapServer/0` is queryable and returns station metadata, coordinates, pollutant labels, year ranges, and Parquet download links in station popup metadata. |
+| EEA Air Quality Download Service | Download selected air quality measurement time series. | EEA metadata describes country/city/pollutant filtering and zipped Parquet outputs for selected time series. |
+| Station-level Parquet links | Download pollutant-specific validated E1a time series for individual stations. | Station metadata includes pollutant-specific Parquet links, but Phase 1 did not download those files. |
+
+Relevant public service references:
+
+- Station metadata REST service: `https://air.discomap.eea.europa.eu/arcgis/rest/services/AirQuality/AirQualityDownloadServiceEUMonitoringStations/MapServer`
+- Station data viewer: `https://discomap.eea.europa.eu/App/AQViewer/index.html?fqn=Airquality_Dissem.b2g.AirQualityStatistics`
+- Download web app referenced by station metadata: `https://eeadmz1-downloads-webapp.azurewebsites.net`
+
+### Metadata Query Scope
+
+The metadata query used the Phase 1 pilot city coordinates and a small bounding
+box around each city. Returned station metadata was inspected for target
+pollutants PM2.5, PM10, and NO2.
+
+| city | metadata result | target pollutant evidence | key risk | decision |
+| --- | --- | --- | --- | --- |
+| Vienna | 37 nearby station records with at least one target pollutant in the inspected bounding box. | `Taborstraße` (`AT90TAB`) reports NO2, PM2.5, and PM10 for 2013-2024; `AKH` (`AT90AKC`) reports PM2.5, PM10, and NO2; `Stephansplatz` (`AT9STEF`) reports NO2. | Need a documented rule for selecting stations and avoiding arbitrary city-center bias. | usable with constraints |
+| Berlin | 68 nearby station records with at least one target pollutant in the inspected bounding box. | `Berlin Mitte` (`DEBE068`) reports NO2 and PM10 for 2013-2024 and PM2.5 for 2020-2024; several nearby Berlin stations report NO2. | PM2.5 availability may have shorter history at some stations; station class and representativeness need review. | usable with constraints |
+
+### Observed Or Expected Fields
+
+| Field category | Observed or expected fields | Notes |
+| --- | --- | --- |
+| Station identity | `AirQualityStation`, `AirQualityStationEoICode`, `AQStationName`, `Country`, `CountryCode` | Observed in EEA station metadata. |
+| Geometry | longitude, latitude | Returned by the ArcGIS REST query with `outSR=4326`. |
+| Pollutant | PM2.5, PM10, NO2 labels in popup metadata and pollutant-specific Parquet links | Observed in station popup metadata. |
+| Unit | `ug/m3` equivalent in popup metadata | Observed for PM2.5, PM10, and NO2 links. |
+| Time coverage | pollutant-specific year ranges such as 2013-2024 or 2020-2024 | Observed in station popup metadata. |
+| Measurement timestamp | expected measurement timestamp or period field in downloaded time series | Must be verified during the EEA ingestion phase before transformation logic is written. |
+| Measurement value | expected numeric concentration value | Must be verified from a tiny controlled sample in the EEA ingestion phase. |
+| Validity or quality flags | expected in EEA time series or metadata | Must be checked before using values analytically. |
+
+### Timestamp Handling
+
+The station metadata exposes pollutant-specific year coverage. The EEA
+download documentation describes date filtering over measurement time ranges.
+Phase 1 did not inspect full time series rows, so the exact timestamp column
+name and timezone semantics must be verified before Phase 3 ingestion logic.
+
+Future EEA processing must preserve:
+
+- original measurement timestamp or period,
+- source station identifier,
+- pollutant,
+- unit,
+- measured value,
+- quality or validity indicators where available,
+- processing timestamp.
+
+### Station-To-City Mapping Risk
+
+EEA data is station-based, not city-based. Vienna and Berlin both have multiple
+nearby stations with different pollutants, year ranges, station classes, and
+representativeness. Phase 2 must define a transparent station selection rule
+before any city-level EEA aggregation is created.
+
+The project must not silently choose the nearest station without documenting:
+
+- station distance to the city reference coordinate,
+- pollutant availability,
+- time coverage,
+- station class or representativeness if available,
+- fallback behavior when PM2.5, PM10, or NO2 is missing.
+
+### Phase 1 Decision
+
+EEA is **usable with constraints** for the planned file/batch historical source.
+The main constraint is not basic availability; it is the station-to-city mapping
+and pollutant/time-coverage selection rule required in Phase 2.

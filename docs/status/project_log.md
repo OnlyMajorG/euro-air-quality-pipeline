@@ -45,3 +45,13 @@ No data pipeline logic was implemented.
   status in `docs/data_sources.md`.
 - Did not implement a reusable client, Kafka event schema, producer, scheduler,
   or streaming path.
+
+### EEA Phase 1 Feasibility Checked
+
+- Queried EEA station metadata for Vienna and Berlin pilot areas.
+- Verified metadata-level availability of at least one target pollutant for both
+  pilot cities.
+- Documented EEA access paths, expected fields, timestamp uncertainty,
+  station-to-city mapping risks, and source status in `docs/data_sources.md`.
+- Did not download full EEA historical data, implement ingestion, create
+  station matching, run Spark, or write Bronze/Silver/Gold outputs.
