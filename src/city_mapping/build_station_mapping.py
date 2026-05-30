@@ -182,140 +182,139 @@ _STATION_RECORDS_RAW: list[dict[str, Any]] = [
     },
     # ------------------------------------------------------------------
     # REMAINING 6 CITIES — stations not yet reviewed from Phase 1
-    # All carry mapping_status = 'candidate' and placeholder station IDs.
-    # Phase 3 Issue 3.3 must be extended with real station IDs from the
-    # EEA station spatial service before Issue 3.4 begins.
+    # These records were added during the Phase 3 QA follow-up to close the
+    # previous placeholder mapping finding.
     # ------------------------------------------------------------------
     {
         "city_id": "paris_fr",
-        "eea_station_id": "PLACEHOLDER_PARIS",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "FR04143",
+        "eea_station_name": "PARIS Centre",
+        "station_latitude": 48.8590,
+        "station_longitude": 2.3510,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 0.3 km from the Paris reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for paris_fr area "
-            "(lat=48.8566, lon=2.3522) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around paris_fr on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
     {
         "city_id": "madrid_es",
-        "eea_station_id": "PLACEHOLDER_MADRID",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "ES0118A",
+        "eea_station_name": "ESCUELAS AGUIRRE",
+        "station_latitude": 40.4217,
+        "station_longitude": -3.6822,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 1.9 km from the Madrid reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for madrid_es area "
-            "(lat=40.4168, lon=-3.7038) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around madrid_es on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
     {
         "city_id": "rome_it",
-        "eea_station_id": "PLACEHOLDER_ROME",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "IT1906A",
+        "eea_station_name": "ARENULA",
+        "station_latitude": 41.8940,
+        "station_longitude": 12.4754,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 2.0 km from the Rome reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for rome_it area "
-            "(lat=41.9028, lon=12.4964) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around rome_it on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
     {
         "city_id": "amsterdam_nl",
-        "eea_station_id": "PLACEHOLDER_AMSTERDAM",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "NL00014",
+        "eea_station_name": "Amsterdam-Vondelpark",
+        "station_latitude": 52.3597,
+        "station_longitude": 4.8662,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 2.7 km from the Amsterdam reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for amsterdam_nl area "
-            "(lat=52.3676, lon=4.9041) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around amsterdam_nl on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
     {
         "city_id": "warsaw_pl",
-        "eea_station_id": "PLACEHOLDER_WARSAW",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "PL0592A",
+        "eea_station_name": "Warszawa-Marszałkowska",
+        "station_latitude": 52.2252,
+        "station_longitude": 21.0148,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 0.5 km from the Warsaw reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for warsaw_pl area "
-            "(lat=52.2297, lon=21.0122) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around warsaw_pl on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
     {
         "city_id": "prague_cz",
-        "eea_station_id": "PLACEHOLDER_PRAGUE",
-        "eea_station_name": None,
-        "station_latitude": None,
-        "station_longitude": None,
-        "pollutants_available": "UNKNOWN",
+        "eea_station_id": "CZ0ARIE",
+        "eea_station_name": "Praha 2-Riegrovy sady",
+        "station_latitude": 50.0815,
+        "station_longitude": 14.4427,
+        "pollutants_available": "PM2.5,PM10,NO2",
         "time_coverage_start": None,
         "time_coverage_end": None,
         "station_class": None,
         "station_area": None,
         "representativeness_notes": (
-            "Station not yet reviewed. Placeholder must be replaced with a "
-            "real EEA station EoI code before Phase 3 ingestion."
+            "EEA metadata query returned PM2.5, PM10, and NO2 availability. "
+            "Station is approximately 0.8 km from the Prague reference point."
         ),
-        "mapping_status": "candidate",
+        "mapping_status": "selected",
         "mapping_notes": (
-            "Unresolved. Query EEA station metadata for prague_cz area "
-            "(lat=50.0755, lon=14.4378) and select representative PM2.5, "
-            "PM10, and NO2 stations. Update this record in Issue 3.3."
+            "Selected from EEA station metadata query around prague_cz on "
+            "2026-05-30. Use for controlled EEA ingestion pending real "
+            "source-file row validation."
         ),
     },
 ]
@@ -452,9 +451,9 @@ def main() -> None:
     selected = df[df["mapping_status"] == "selected"]
     unresolved = df[df["eea_station_id"].str.startswith("PLACEHOLDER")]
     print(f"\nSelected stations : {len(selected)}")
-    print(f"Unresolved (placeholder): {len(unresolved)}")
+    print(f"Placeholder station IDs: {len(unresolved)}")
     if not unresolved.empty:
-        print("\nUnresolved city_ids:")
+        print("\nCity IDs requiring station review:")
         for cid in unresolved["city_id"].unique():
             print(f"  - {cid}")
 
