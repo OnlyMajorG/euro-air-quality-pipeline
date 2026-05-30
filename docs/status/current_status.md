@@ -52,12 +52,14 @@ No full pipeline implementation exists yet. That is intentional.
 - Added city reference integrity tests for schema, join keys, uniqueness,
   country codes, normalized names, coordinates, city count, and Parquet
   readback.
+- Documented the EEA station-to-city mapping strategy, including distance,
+  pollutant coverage, time coverage, representativeness, fallback behavior, and
+  the `city_id` join rule.
 
 ## Next Allowed Work
 
 The next allowed work remains within Phase 2 city mapping and reference model:
 
-- Document EEA station-to-city mapping rules.
 - Carry forward Open-Meteo field mapping.
 - Define how Wikipedia metadata joins to cities.
 - Extend validation tests as EEA, Wikipedia, and Open-Meteo mapping rules

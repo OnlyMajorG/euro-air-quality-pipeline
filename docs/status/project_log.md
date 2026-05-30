@@ -149,3 +149,16 @@ No data pipeline logic was implemented.
   or Wikipedia HTML.
 - Did not call APIs, scrape Wikipedia, download EEA data, run Kafka, run Spark,
   or implement analytics.
+
+### Phase 2.5 EEA Station-To-City Mapping Strategy Documented
+
+- Added an EEA Station Mapping Strategy section to `docs/data_model.md`.
+- Documented candidate selection criteria: distance to city reference
+  coordinate, PM2.5/PM10/NO2 pollutant coverage, time coverage,
+  representativeness, and country/city context consistency.
+- Listed required future station mapping fields and fallback behavior.
+- Updated `notebooks/01_city_mapping.ipynb` with a concise EEA mapping summary.
+- Reinforced that downstream EEA processing must join through `city_id`, not
+  free-text city names or station names.
+- Did not download EEA files, implement station-radius matching, run Spark, or
+  aggregate measurements.
