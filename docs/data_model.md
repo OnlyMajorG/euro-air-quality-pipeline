@@ -159,6 +159,88 @@ flowchart LR
     mapping --> ingestion
 ```
 
+## Phase 3.3 EEA Station-To-City Mapping Table
+
+Phase 3 Issue 3.3 implements the station-to-city mapping structure as a
+controlled local table built from Python constants. The builder is in
+\src/city_mapping/build_station_mapping.py\. No external API calls, no EEA
+bulk downloads, and no Spark sessions are triggered by building or validating
+the mapping.
+
+### Implemented Mapping Builder
+
+\src/city_mapping/build_station_mapping.py\ provides:
+
+- \uild_station_mapping()\ — deterministic, side-effect-free builder that
+  returns a DataFrame with all columns in \STATION_MAPPING_COLUMNS\ order.
+- \alidate_station_mapping(mapping_df, city_reference_df)\ — validates that
+  all \city_id\ values exist in \city_reference.parquet\, all \mapping_status  values are from the allowed set, and required fields are non-null.
+- \write_station_mapping(output_dir)\ — writes local CSV and Parquet files
+  when explicitly called; both are git-ignored under repository data policy.
+- \_haversine_km(lat1, lon1, lat2, lon2)\ — computes great-circle distance
+  used to fill \distance_km_to_city_center\ for stations with known coordinates.
+
+**Output paths (local, git-ignored):**
+
+- \data/silver/eea_station_city_mapping.csv- \data/silver/eea_station_city_mapping.parquet
+### Current Mapping Status Per City
+
+| city_id | Selected station | Status | Constraint |
+| --- | --- | --- | --- |
+| \ienna_at\ | \AT90TAB\ (Taborstrasse) | selected | PM2.5, PM10, NO2 from 2013-2024. Verify in Issue 3.4. |
+| \ienna_at\ | \AT90AKC\ (AKH) | candidate | Fallback covering all 3 pollutants. |
+| \ienna_at\ | \AT9STEF\ (Stephansplatz) | candidate | NO2 only; not suitable as primary. |
+| \erlin_de\ | \DEBE068\ (Berlin Mitte) | selected | NO2+PM10 from 2013-2024; PM2.5 from 2020 only. |
+| \paris_fr\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| \madrid_es\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| ome_it\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| \msterdam_nl\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| \warsaw_pl\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+| \prague_cz\ | PLACEHOLDER | candidate | Station not yet reviewed. |
+
+### Unresolved Mapping Decisions
+
+The 6 non-pilot cities (Paris, Madrid, Rome, Amsterdam, Warsaw, Prague) carry
+placeholder station IDs and \mapping_status = candidate\. These must be
+resolved before Issue 3.4 (EEA loader) begins:
+
+1. Query the EEA station spatial service for each city area.
+2. Filter returned stations by PM2.5, PM10, and NO2 pollutant availability.
+3. Review distance, time coverage, and station representativeness.
+4. Replace PLACEHOLDER station IDs and coordinates with real EoI codes.
+5. Set mapping_status to selected for the primary station per city.
+6. Re-run \python -m pytest tests/test_city_mapping.py\ to verify integrity.
+
+Phase 3 ingestion (Issue 3.4) must not proceed for any city whose primary
+station is still a placeholder.
+
+### Berlin PM2.5 Coverage Constraint
+
+\DEBE068\ (Berlin Mitte) has PM2.5 measurements only from 2020 onwards. Any
+Phase 3 ingestion or Silver aggregation for \erlin_de\ PM2.5 must document
+this gap explicitly. Historical PM2.5 comparisons for Berlin before 2020 are
+not possible from this station alone.
+
+### Phase 3.3 Scope Boundary
+
+**Included in this issue (3.3):**
+
+- Station mapping structure implemented as a local Python builder.
+- Pilot city stations (Vienna \AT90TAB\, Berlin \DEBE068\) promoted to
+  \selected\ with documented rationale from Phase 1 findings.
+- All 8 starter cities have at least one mapping entry.
+- Validation ensures all \city_id\ values exist in \city_reference.parquet\.
+- Tests cover structure, integrity, status values, distances, and Parquet roundtrip.
+
+**Not included in this issue:**
+
+- Real station review for Paris, Madrid, Rome, Amsterdam, Warsaw, Prague.
+- Bulk EEA station metadata download.
+- EEA loader implementation (Issue 3.4).
+- Silver Parquet output for air quality measurements (Issue 3.6).
+- Kafka or Spark Structured Streaming.
+- Gold tables.
+
 ## Wikipedia Metadata Join Rules
 
 Wikipedia metadata is contextual city metadata, not official ground truth. Later
