@@ -32,7 +32,9 @@ Gate decision: **Approved for Phase 2**
 
 ## Phase 2 - City Mapping And Reference Model
 
-Status: **In progress**
+Status: **Done**
+
+Gate decision: **Approved for Phase 3**
 
 | Item | Status | Evidence |
 | --- | --- | --- |
@@ -45,18 +47,17 @@ Status: **In progress**
 | Open-Meteo coordinate and field mapping rules | Done | `docs/data_model.md` and notebook 01 document coordinate usage, PM2.5/PM10/NO2 field mapping, UTC assumption, and Phase 5 handoff. |
 | City reference validation tests | Done | `tests/test_city_mapping.py` validates schema, join keys, identifiers, country codes, normalized names, coordinates, duplicate rejection, minimum city count, and CSV/Parquet write/read. |
 | Notebook 01 Phase 2 documentation | Done | `notebooks/01_city_mapping.ipynb` documents city scope, schema, source mapping rules, validation, DoD, and local readback. |
+| Phase 2 QA report exists | Done | `docs/qa/phase2_qa_report.md`. |
 
-Allowed focus:
+Phase 3 allowed focus:
 
-- Define stable city identifiers.
-- Build the city reference model.
-- Document station-to-city mapping rules.
-- Document source-specific mapping rules.
-- Add validation tests for city mapping.
+- EEA batch ingestion planning and implementation.
+- Controlled EEA sample or metadata inspection.
+- EEA schema and timestamp/unit validation.
+- Joining EEA outputs through `city_id`.
 
 Not allowed yet:
 
-- Full EEA ingestion.
 - Production Wikipedia scraping.
 - Kafka producer implementation.
 - Spark Structured Streaming implementation.

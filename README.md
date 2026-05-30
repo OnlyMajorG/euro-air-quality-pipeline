@@ -11,19 +11,18 @@ Jupyter notebooks, and final storytelling.
 
 ## Current Status
 
-**Current phase:** Phase 2 in progress
+**Current phase:** Phase 2 complete; Phase 3 may start
 
-**Latest QA decision:** Phase 1 QA approved the project for Phase 2. Phase 2 is
-currently limited to City Mapping and Reference Model work; the Phase 2 gate has
-not been reviewed yet.
+**Latest QA decision:** Phase 2 QA approved the project for Phase 3. Phase 3 is
+limited to EEA Batch Ingestion work.
 
 At the current state, the repository contains the Phase 0 skeleton, Phase 1
 source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
-2 city reference work through Open-Meteo mapping documentation. The
-deterministic city reference builder and validation tests exist. It does
-**not** yet contain full EEA ingestion, a production Wikipedia scraper,
-Open-Meteo client behavior, Kafka producer logic, Spark processing, Gold tables,
-or analysis results.
+2 city reference work with a PASS gate decision. The deterministic city
+reference builder, validation tests, local CSV/Parquet outputs, mapping rules,
+and Phase 2 QA report exist. It does **not** yet contain full EEA ingestion, a
+production Wikipedia scraper, Open-Meteo client behavior, Kafka producer logic,
+Spark processing, Gold tables, or analysis results.
 
 ## Guiding Question
 
@@ -251,7 +250,7 @@ Exit criteria:
 
 Goal: create the central city reference model for joining all sources.
 
-Current status: **in progress through Open-Meteo mapping documentation**
+Current status: **complete**
 
 Implemented so far:
 
@@ -266,16 +265,15 @@ Implemented so far:
 - EEA station-to-city mapping strategy.
 - Wikipedia metadata join and null-handling rules.
 - Open-Meteo coordinate, pollutant field, and UTC timezone mapping rules.
-
-Planned remaining output:
-
-- Remaining Phase 2 QA and gate decision.
+- Phase 2 QA report in `docs/qa/phase2_qa_report.md`.
 
 Exit criteria:
 
 - City reference can be read reproducibly.
 - No downstream code joins on free-text city names.
 - Mapping assumptions are documented.
+
+Gate decision: **Approved for Phase 3**.
 
 ### Phase 3 - EEA Batch Data Processing
 
