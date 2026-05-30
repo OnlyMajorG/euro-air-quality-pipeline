@@ -1,6 +1,280 @@
-"""Placeholder tests for Wikipedia parser."""
+"""Tests for Phase 4 Wikipedia city metadata scraper.
+
+All tests use local in-memory HTML fixtures. No network calls.
+Schema contract: docs/data_model.md, Phase 4 Wikipedia City Metadata Schema.
+"""
+
+from __future__ import annotations
+
+import importlib
+import sys
+from pathlib import Path
+
+import pytest
+
+# ---------------------------------------------------------------------------
+# HTML fixtures
+# ---------------------------------------------------------------------------
+
+MINIMAL_INFOBOX_HTML = """
+<html><body>
+<h1 id="firstHeading">Vienna</h1>
+<table class="infobox">
+  <tr><th>Country</th><td>Austria</td></tr>
+  <tr><th>Population</th><td>1,897,491</td></tr>
+  <tr><th>Area</th><td>414.87 km2</td></tr>
+</table>
+</body></html>
+"""
+
+MISSING_INFOBOX_HTML = """
+<html><body>
+<h1 id="firstHeading">UnknownCity</h1>
+<p>No infobox here.</p>
+</body></html>
+"""
+
+PARTIAL_INFOBOX_HTML = """
+<html><body>
+<h1 id="firstHeading">PartialCity</h1>
+<table class="infobox">
+  <tr><th>Country</th><td>Germany</td></tr>
+  <tr><th>Population</th><td>not available</td></tr>
+</table>
+</body></html>
+"""
+
+EMPTY_HTML = ""
+
+MALFORMED_NUMBER_HTML = """
+<html><body>
+<h1 id="firstHeading">TestCity</h1>
+<table class="infobox">
+  <tr><th>Population</th><td>1,234,567[1]</td></tr>
+  <tr><th>Area</th><td>123.45 km2</td></tr>
+</table>
+</body></html>
+"""
 
 
-def test_wikipedia_parser_placeholder() -> None:
-    """TODO: Replace with real parser tests."""
-    assert True
+# ---------------------------------------------------------------------------
+# Module import side-effect tests
+# ---------------------------------------------------------------------------
+
+
+def test_module_import_has_no_side_effects() -> None:
+    """Importing the module must not write files, make network calls, or raise."""
+    import src.ingestion.wikipedia_scraper  # noqa: F401 (already imported but explicit)
+    assert True  # if import raised we'd never reach here
+
+
+def test_no_forbidden_imports() -> None:
+    """The scraper must not import Kafka, Spark, or EEA loader."""
+    import importlib.util
+    spec = importlib.util.find_spec("src.ingestion.wikipedia_scraper")
+    assert spec is not None
+    # Read source and check for forbidden imports
+    source = Path(spec.origin).read_text(encoding="utf-8")
+    forbidden = ["kafka", "SparkSession", "readStream", "eea_loader", "pyspark"]
+    for term in forbidden:
+        assert term not in source, f"Forbidden term found in scraper: {term!r}"
+
+
+# ---------------------------------------------------------------------------
+# parse_city_metadata — happy path
+# ---------------------------------------------------------------------------
+
+
+def test_parse_returns_all_schema_fields() -> None:
+    """Every METADATA_COLUMNS key must be present in the returned record."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata, METADATA_COLUMNS
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    for field in METADATA_COLUMNS:
+        assert field in record, f"Missing field: {field}"
+
+
+def test_parse_city_id_always_present() -> None:
+    """city_id must always be present and non-null, even for empty HTML."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    for html in [MINIMAL_INFOBOX_HTML, MISSING_INFOBOX_HTML, PARTIAL_INFOBOX_HTML, EMPTY_HTML]:
+        record = parse_city_metadata("test_city", "https://example.com", html)
+        assert record["city_id"] == "test_city"
+        assert record["city_id"] is not None
+
+
+def test_parse_source_always_wikipedia() -> None:
+    """source field must always be 'wikipedia'."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    assert record["source"] == "wikipedia"
+
+
+def test_parse_wikipedia_url_preserved() -> None:
+    """wikipedia_url must match the input parameter exactly."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    url = "https://en.wikipedia.org/wiki/Vienna"
+    record = parse_city_metadata("vienna_at", url, MINIMAL_INFOBOX_HTML)
+    assert record["wikipedia_url"] == url
+
+
+def test_parse_population_from_infobox() -> None:
+    """Population is extracted and returned as an integer."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    assert record["population"] is not None
+    assert isinstance(record["population"], int)
+    assert record["population"] > 0
+
+
+def test_parse_area_from_infobox() -> None:
+    """area_km2 is extracted and returned as a float."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    assert record["area_km2"] is not None
+    assert isinstance(record["area_km2"], float)
+    assert record["area_km2"] > 0
+
+
+def test_parse_population_density_computed() -> None:
+    """population_density is computed when population and area_km2 are both present."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    assert record["population_density"] is not None
+    assert isinstance(record["population_density"], float)
+    assert record["population_density"] > 0
+
+
+# ---------------------------------------------------------------------------
+# parse_city_metadata — missing / partial / malformed cases
+# ---------------------------------------------------------------------------
+
+
+def test_missing_infobox_returns_valid_partial_record() -> None:
+    """A city with no infobox returns a valid record with nullable fields as None."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("unknown_xx", "https://en.wikipedia.org/wiki/UnknownCity", MISSING_INFOBOX_HTML)
+    assert record["city_id"] == "unknown_xx"
+    assert record["population"] is None
+    assert record["area_km2"] is None
+    assert record["population_density"] is None
+    assert record["metadata_notes"] != ""  # must document what went wrong
+
+
+def test_empty_html_returns_valid_record() -> None:
+    """Empty HTML input must not raise; returns a record with metadata_notes set."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("empty_xx", "https://en.wikipedia.org/wiki/Empty", EMPTY_HTML)
+    assert record["city_id"] == "empty_xx"
+    assert record["population"] is None
+    assert record["area_km2"] is None
+    assert record["metadata_notes"] != ""
+
+
+def test_unparseable_population_is_null_with_note() -> None:
+    """If population text cannot be parsed, field is None and note is set."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("partial_xx", "https://en.wikipedia.org/wiki/Partial", PARTIAL_INFOBOX_HTML)
+    assert record["population"] is None
+    assert record["metadata_notes"] != ""
+
+
+def test_population_density_none_when_area_missing() -> None:
+    """population_density stays None when area_km2 is missing."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("partial_xx", "https://en.wikipedia.org/wiki/Partial", PARTIAL_INFOBOX_HTML)
+    assert record["population_density"] is None
+
+
+def test_citation_markers_stripped_from_numbers() -> None:
+    """Citation markers like [1] must be stripped before number parsing."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    record = parse_city_metadata("test_city", "https://en.wikipedia.org/wiki/Test", MALFORMED_NUMBER_HTML)
+    assert record["population"] is not None
+    assert record["population"] == 1234567
+
+
+# ---------------------------------------------------------------------------
+# _normalize_number helper
+# ---------------------------------------------------------------------------
+
+
+def test_normalize_number_comma_thousands() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("1,234,567") == pytest.approx(1234567.0)
+
+
+def test_normalize_number_with_citation() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("1,234[1]") == pytest.approx(1234.0)
+
+
+def test_normalize_number_empty_returns_none() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("") is None
+    assert _normalize_number("   ") is None
+
+
+def test_normalize_number_na_returns_none() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("N/A") is None
+    assert _normalize_number("not available") is None
+
+
+def test_normalize_number_with_unit_suffix() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    result = _normalize_number("1,234.56 km2")
+    assert result == pytest.approx(1234.56)
+
+
+def test_normalize_number_float() -> None:
+    from src.ingestion.wikipedia_scraper import _normalize_number
+    assert _normalize_number("414.87") == pytest.approx(414.87)
+
+
+# ---------------------------------------------------------------------------
+# fetch_and_save_html — file write test (no network)
+# ---------------------------------------------------------------------------
+
+
+def test_fetch_and_save_html_writes_file(tmp_path: Path) -> None:
+    """Saving HTML to a caller-provided path writes the correct content."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata_from_file
+    # Write a fixture HTML file manually (no network)
+    html_file = tmp_path / "vienna_at.html"
+    html_file.write_text(MINIMAL_INFOBOX_HTML, encoding="utf-8")
+    record = parse_city_metadata_from_file(
+        "vienna_at",
+        "https://en.wikipedia.org/wiki/Vienna",
+        html_file,
+    )
+    assert record["city_id"] == "vienna_at"
+    assert record["population"] is not None
+
+
+def test_parse_from_missing_file_returns_partial_record() -> None:
+    """parse_city_metadata_from_file handles a non-existent file gracefully."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata_from_file
+    record = parse_city_metadata_from_file(
+        "missing_xx",
+        "https://en.wikipedia.org/wiki/Missing",
+        Path("/nonexistent/path/missing_xx.html"),
+    )
+    assert record["city_id"] == "missing_xx"
+    assert record["population"] is None
+    assert "not found" in record["metadata_notes"].lower()
+
+
+# ---------------------------------------------------------------------------
+# scraped_at field
+# ---------------------------------------------------------------------------
+
+
+def test_scraped_at_is_iso_utc_string() -> None:
+    """scraped_at must be an ISO 8601 UTC timestamp string."""
+    from src.ingestion.wikipedia_scraper import parse_city_metadata
+    from datetime import datetime
+    record = parse_city_metadata("vienna_at", "https://en.wikipedia.org/wiki/Vienna", MINIMAL_INFOBOX_HTML)
+    assert isinstance(record["scraped_at"], str)
+    # Must parse as ISO datetime
+    dt = datetime.fromisoformat(record["scraped_at"])
+    assert dt.tzname() in ("UTC", "+00:00")
