@@ -35,7 +35,7 @@ This audit covers only Phase 0 repository initialization for `euro-air-quality-p
 | README | PASS WITH MINOR ISSUES | README includes title, summary, research question, scope, non-goals, data sources, stack, architecture, layers, structure, notebook order, BDENG checklist, setup, status, limitations, and license placeholder. | BDENG checklist uses checked boxes for planned requirements, which could be read as completed implementation. |
 | Scope consistency | PASS | Search found no PostgreSQL, Airflow, dbt, dashboard framework, cloud deployment, ML model, hardcoded credentials, copied raw data, or finished-pipeline claims. | Optional technologies appear only as non-goals. |
 | `.gitignore` | PASS | Covers caches, virtual environments, `.env`, Jupyter checkpoints, IDE files, OS files, logs, temp files, Python tool caches, Parquet/CSV/JSON under `data/`, and checkpoint paths. | `.gitkeep` is not ignored. |
-| `.env.example` | PASS | Contains `OPEN_METEO_BASE_URL=`, `KAFKA_BOOTSTRAP_SERVERS=localhost:9092`, `KAFKA_TOPIC_AIR_QUALITY_LIVE=air_quality_live`, `PROJECT_TIMEZONE=UTC`, `DATA_DIR=data`, `LOG_LEVEL=INFO`. | No secrets or machine-specific paths found. |
+| `.env.example` | PASS | Contains safe placeholders for Open-Meteo, Kafka, timezone, data directory, checkpoint directory, and log level. Later ADR-004 adaptation changed defaults to `SPARK_MASTER_URL=local[*]` and `KAFKA_TOPIC_AIR_QUALITY_LIVE=bdeng_g1_air_quality_live`. | No secrets or personal credentials found. |
 | `requirements.txt` | PASS | Contains only the expected starter packages: pandas, numpy, requests, beautifulsoup4, lxml, python-dotenv, pyarrow, pyspark, kafka-python, jupyter, matplotlib, pytest. | No excessive production frameworks found. |
 | `docker-compose.yml` | PASS | `docker compose config` completed successfully. Services exist for Jupyter, Kafka, and Spark. | Uses `latest` images, acceptable for Phase 0 placeholder but should be pinned before reproducible implementation work. |
 | Docs | PASS | `docs/architecture.md`, `docs/data_sources.md`, and `docs/data_model.md` exist with meaningful TODO placeholders. | Shallow by design; acceptable for Phase 0. |
@@ -124,3 +124,19 @@ Validation result:
 Updated gate decision: **Approved for Phase 1**.
 
 Remaining limitation: `python -m pytest` could not be executed in the active environment because `pytest` is not installed.
+
+## Configuration Adaptation Addendum - 2026-05-30
+
+After FH/BDENG cluster smoke tests, the project configuration was updated to
+match ADR-004:
+
+- `.env.example` now uses `EXECUTION_ENV=local_project`.
+- `SPARK_MASTER_URL=local[*]` is the default for Parquet-producing runs.
+- `KAFKA_TOPIC_AIR_QUALITY_LIVE=bdeng_g1_air_quality_live` is the group-specific
+  later-phase Kafka topic.
+- `.env.cluster.example` was added with placeholders for a confirmed shared
+  storage path.
+
+This does not change the Phase 0 gate result. It updates the baseline
+configuration to reflect the approved execution environment and storage
+strategy.
