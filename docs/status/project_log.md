@@ -246,3 +246,28 @@ No data pipeline logic was implemented.
   or Gold outputs, or implement any Wikipedia, Open-Meteo, Kafka, or streaming
   work.
 
+### Phase 3.2 EEA Input Schema And Silver Output Schema
+
+- Added `Phase 3 EEA Batch Ingestion Data Model` section to `docs/data_model.md`.
+- Documented EEA source input field expectations: station identity
+  (`AirQualityStation`, `AirQualityStationEoICode`), measurement timestamp
+  (`DatetimeBegin`, `DatetimeEnd`), pollutant label (`AirPollutant`),
+  measured value (`Concentration`), unit (`Unit`), validity flag (`Validity`),
+  and station coordinates (for mapping review only).
+- Documented pollutant normalisation table: source labels for PM2.5, PM10,
+  and NO2 mapped to canonical internal names; all other pollutants excluded.
+- Documented Silver output schema for `data/silver/eea_city_daily.parquet`
+  with 10 fields: `city_id`, `date`, `pollutant`, `mean_value`, `min_value`,
+  `max_value`, `observation_count`, `unit`, `source`, `processing_time_utc`.
+- Documented schema constraints and validation rules (non-negative values,
+  `city_id` must exist in `city_reference.parquet`, `source = 'eea'` always).
+- Added Mermaid data-flow diagram for the EEA Bronze → Silver transformation.
+- Documented historical vs. live data separation table and prohibition on
+  mixing EEA Silver with Open-Meteo Silver in Phase 3.
+- Updated `notebooks/02_eea_batch_ingestion.ipynb` with Issue 3.2 Markdown
+  cell covering input fields, pollutant normalisation, Silver schema, and
+  separation rule.
+- Verified all 20 existing tests still pass.
+- Verified notebook 02 is valid JSON with 0 code outputs.
+- Did not implement EEA loader, station matching, Spark, Silver Parquet
+  output, Open-Meteo client, Kafka, or Gold tables.
