@@ -39,6 +39,19 @@ How do PM2.5, PM10, and NO2 air-quality patterns differ across selected European
 | 07 | `notebooks/07_gold_layer_and_data_quality.ipynb` | Gold tables and cross-table quality checks |
 | 08 | `notebooks/08_analysis_visualization_and_storytelling.ipynb` | Visualizations, figures, interpretation, and final story |
 
+## Current Implementation Status
+
+| Phase | Status | Evidence |
+| --- | --- | --- |
+| Phase 0: Notebook-only refactor | Complete | Target structure, ADRs, README, `.env` templates, `.gitignore`, archive notes |
+| Phase 1: Source spike and cluster check | Implemented as guarded notebook | `01_source_spike_and_cluster_check.ipynb` contains Open-Meteo, Wikipedia, EEA and cluster checks |
+| Phase 2: City reference model | Implemented | `02_city_reference_model.ipynb` builds, validates and writes `city_reference.csv` and `city_reference.parquet` |
+| Phase 3: EEA batch ingestion | Implemented with local-file path and controlled fallback sample | `03_eea_batch_ingestion.ipynb` loads file data, normalizes, maps, aggregates and writes `eea_city_daily.parquet` |
+| Phase 4: Wikipedia web scraping | Implemented as notebook workflow | `04_wikipedia_web_scraping.ipynb` fetches raw HTML when enabled, parses metadata and writes `city_metadata.parquet` |
+| Phase 5 onward | Planned | Notebooks `05` to `08` contain the planned continuation and must be completed in later phases |
+
+Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 4 outputs locally, run notebooks `02`, `03`, and `04` in order.
+
 ## Data Sources
 
 | Source | Type | Role |
@@ -78,6 +91,8 @@ Use a group-specific Kafka topic, for example `bdeng_g1_air_quality_live`. Do no
 
 Generated CSV, JSON, HTML, Parquet, and Spark checkpoint files under `data/` are ignored. `.gitkeep` files preserve the required folder structure. Secrets and local `.env` files are ignored; only safe examples are committed.
 
+`project-resources/` is local course/reference material and is ignored by Git. It may exist on a developer machine for reference, but it is not part of the public repository deliverable.
+
 ## Limitations
 
 This is a university project, not a production platform. The dataset may not be truly large, the analysis is exploratory rather than causal, Wikipedia metadata is fragile, and FH cluster storage is not assumed until proven.
@@ -85,3 +100,7 @@ This is a university project, not a production platform. The dataset may not be 
 ## Presentation Notes
 
 Final figures are saved to `presentation/figures/`. The storyline and presentation outline live in `presentation/final_storyline.md` and `presentation/presentation_outline.md`.
+
+## Course Reference Material
+
+The local folder `project-resources/bwi-big-data-engineering-main/` may contain course reference notebooks for pandas file loading, requests/JSON, BeautifulSoup web scraping, Parquet, Spark DataFrames, Kafka producer/consumer examples, and Spark streaming patterns. These files are reference material only, are ignored by Git, and must not be deleted by agents.
