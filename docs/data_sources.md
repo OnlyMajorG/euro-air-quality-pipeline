@@ -60,6 +60,55 @@ Not allowed in this issue:
 - Spark processing logic.
 - Full ingestion jobs.
 
+## Phase 1 Source Feasibility Matrix
+
+This matrix consolidates the three Phase 1 source spikes. It is evidence for
+source feasibility only. It does not mean ingestion, parsing, Kafka publishing,
+Spark processing, or analytical outputs are implemented.
+
+| Source | Status | Format | Key Fields | Risks | Decision |
+| --- | --- | --- | --- | --- | --- |
+| Open-Meteo Air Quality API | usable | JSON | `hourly.time`, `pm2_5`, `pm10`, `nitrogen_dioxide`, `hourly_units`, `latitude`, `longitude`, `timezone`, `utc_offset_seconds` | API field names differ from display labels; missing values must still be handled; short-window sample is not evidence of long-term completeness. | Use as REST API source and later Kafka input path after schema and missing-value handling are defined in Phase 5. |
+| EEA historical air quality data | usable with constraints | Station metadata plus pollutant-specific Parquet/download exports | `AirQualityStation`, `AirQualityStationEoICode`, `AQStationName`, station coordinates, pollutant, unit, year coverage; future time series must expose timestamp/period and value fields. | EEA is station-based, not city-based; station selection and pollutant/time coverage differ by city; timestamp field semantics still need row-level verification before Phase 3. | Proceed to Phase 2 city/station mapping before any EEA aggregation or ingestion implementation. |
+| Wikipedia city pages | usable with constraints | HTML infobox/page markup | country context, population candidates, area candidates, coordinate candidates, administrative identifiers | Infobox labels are not stable; values can include footnotes, dates, nested labels, and varying administrative scopes; context fields are not official statistical ground truth. | Use as web scraping source in Phase 4 with raw HTML preservation, conservative parser tests, null handling, and metadata notes. |
+
+### Phase 1 Source Flow
+
+```mermaid
+flowchart LR
+    OM["Open-Meteo API\nJSON feasibility: usable"] --> P2["Phase 2 readiness decision"]
+    EEA["EEA station/download metadata\nusable with constraints"] --> P2
+    WIKI["Wikipedia HTML infoboxes\nusable with constraints"] --> P2
+    P2 --> NEXT["Proceed to Phase 2:\nCity mapping and reference model"]
+```
+
+### Phase 2 Readiness Decision
+
+**Go for Phase 2 with constraints.**
+
+All three required source categories are technically feasible for the approved
+project scope:
+
+- Open-Meteo can provide PM2.5, PM10, and NO2-equivalent API fields for the
+  pilot cities.
+- EEA has station-level historical air quality metadata and target pollutant
+  coverage near both pilot cities, but requires explicit station-to-city
+  mapping.
+- Wikipedia exposes city metadata candidates through parseable infobox HTML,
+  but requires conservative parser design and fallback handling.
+
+Phase 2 may start only as city mapping and reference-model work. It must not
+skip directly into full ingestion, Kafka, Spark, or Gold-layer implementation.
+
+### Required Fields For Future Phases
+
+| Future phase | Required fields or decisions |
+| --- | --- |
+| Phase 2 city reference | stable `city_id`, city name, country code, latitude, longitude, source-specific notes, station mapping notes. |
+| Phase 3 EEA batch work | station identifier, pollutant, timestamp or period, value, unit, quality or validity fields, station-to-city rule. |
+| Phase 4 Wikipedia scraping | raw HTML path, country, population, area, coordinates, parser notes, missing-field behavior. |
+| Phase 5 Open-Meteo client/schema | event time, ingestion time, city identifier, coordinates, `pm2_5`, `pm10`, `nitrogen_dioxide`, units, schema version. |
+
 ## Phase 1 Sample Data Hygiene Policy
 
 Phase 1 may create tiny local source-spike samples only when they are needed to
