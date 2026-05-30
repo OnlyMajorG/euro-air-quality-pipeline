@@ -16,6 +16,7 @@ Thumbs.db
 *.log
 tmp/
 temp/
+project-resources/
 data/**/*.parquet
 data/**/*.csv
 data/**/*.json
