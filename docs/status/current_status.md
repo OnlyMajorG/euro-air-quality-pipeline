@@ -59,6 +59,9 @@ No full pipeline implementation exists yet. That is intentional.
   contextual-only rules.
 - Documented Open-Meteo coordinate, pollutant field, UTC timezone, and Phase 5
   handoff rules.
+- Updated notebook 01 as the readable Phase 2 city mapping documentation trail,
+  including deliverables, schema, source mapping rules, validation checks, and
+  a local Parquet readback example.
 
 ## Next Allowed Work
 

@@ -187,3 +187,14 @@ No data pipeline logic was implemented.
 - Updated `notebooks/01_city_mapping.ipynb` with a concise summary.
 - Did not implement an API client, event schema, Kafka producer, Spark
   streaming job, or API calls.
+
+### Phase 2.8 City Mapping Notebook Updated
+
+- Reworked `notebooks/01_city_mapping.ipynb` into a readable Phase 2
+  documentation trail.
+- Added sections for Phase 2 scope, deliverables, city reference scope,
+  canonical schema, EEA/Wikipedia/Open-Meteo mapping rules, validation
+  approach, Phase 2 Definition of Done, and local Parquet readback.
+- Kept notebook outputs empty.
+- Did not call external services, implement ingestion, run Kafka, run Spark, or
+  add large outputs.
