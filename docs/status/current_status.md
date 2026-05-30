@@ -4,9 +4,9 @@ Last updated: 2026-05-30
 
 ## Status
 
-Current phase: **Phase 0 cleanup complete; Phase 1 may start**
+Current phase: **Phase 1 complete; Phase 2 may start**
 
-Decision: **Approved for Phase 1**
+Decision: **Approved for Phase 2**
 
 ## Summary
 
@@ -15,7 +15,7 @@ Engineering project. It defines documentation placeholders, ADRs, diagram
 placeholders, source package placeholders, placeholder tests, data folder
 scaffolding, and a Phase 0 Docker Compose baseline.
 
-No real pipeline implementation exists yet. That is intentional.
+No full pipeline implementation exists yet. That is intentional.
 
 ## Current Known Issues
 
@@ -24,6 +24,7 @@ No real pipeline implementation exists yet. That is intentional.
 | Minor | `pytest` is listed in requirements but is not installed in the active local interpreter used during QA. | `docs/qa/phase0_qa_report.md` |
 | Minor | README BDENG checklist may read as completed capability rather than planned scaffolding. | `docs/qa/phase0_qa_report.md` |
 | Minor | Docker Compose uses `latest` image tags. | `docs/qa/phase0_qa_report.md` |
+| Minor | `pytest` could not be run during Phase 1 QA because it is not installed in the active interpreter. | `docs/qa/phase1_qa_report.md` |
 
 ## Resolved Issues
 
@@ -31,15 +32,25 @@ No real pipeline implementation exists yet. That is intentional.
 | --- | --- | --- |
 | 2026-05-30 | All seven notebooks were invalid JSON because they contained extra literal text after the closing JSON object. | Notebook JSON validation now passes for all seven notebooks. |
 
+## Completed Phase 1 Work
+
+- Defined Vienna and Berlin as pilot cities.
+- Checked Open-Meteo API feasibility.
+- Checked EEA metadata availability and station-based risk.
+- Checked Wikipedia HTML/infobox feasibility.
+- Documented sample data hygiene rules.
+- Created the Phase 1 source feasibility matrix.
+- Created the Phase 1 QA report.
+
 ## Next Allowed Work
 
-The next allowed work is Phase 1 source spike and feasibility testing:
+The next allowed work is Phase 2 city mapping and reference model:
 
-- Define two pilot cities and the target pollutant scope.
-- Validate Open-Meteo API feasibility for pilot cities.
-- Validate EEA data availability for pilot cities.
-- Validate Wikipedia HTML feasibility for pilot cities.
-- Document risks and a source feasibility matrix.
+- Define stable `city_id` values.
+- Decide the pilot-to-final city list.
+- Document EEA station-to-city mapping rules.
+- Carry forward Open-Meteo field mapping.
+- Define how Wikipedia metadata joins to cities.
 
 ## Explicitly Not Implemented
 
