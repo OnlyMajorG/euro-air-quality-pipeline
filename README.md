@@ -1,650 +1,87 @@
-﻿# euro-air-quality-pipeline
+# euro-air-quality-pipeline
 
-Reproducible Big Data Engineering project for analyzing air quality patterns
-across selected European cities.
+## Executive Summary
 
-This repository is built as a university Big Data Engineering project. The
-focus is not a production platform or a machine learning model. The focus is a
-clear, testable, documented data engineering pipeline that combines batch data,
-web metadata, REST API data, Kafka, Spark Structured Streaming, Parquet storage,
-Jupyter notebooks, and final storytelling.
+This repository contains a notebook-only Big Data Engineering project about European air quality patterns across selected cities. The project combines one file/batch source, one web scraping source, and one REST API source, then uses Kafka and Spark Structured Streaming to demonstrate a full data-flow from source acquisition to Parquet outputs and final storytelling.
 
-## Current Status
-
-**Current phase:** Phase 4 approved, not started
-
-**Latest QA decision:** Phase 3 QA follow-up closed the original major/minor
-findings and approved the project for Phase 4. Phase 4 is limited to Wikipedia
-scraping and city metadata extraction.
-
-At the current state, the repository contains the Phase 0 skeleton, Phase 1
-source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
-2 city reference work with a PASS gate decision, and early Phase 3 EEA batch
-ingestion work. The deterministic city reference builder, validation tests,
-local CSV/Parquet outputs, station mapping structure, EEA local-file loader,
-mapping rules, and Phase 3 QA report exist. It does **not** yet contain a
-production Wikipedia scraper, Open-Meteo client
-behavior, Kafka producer logic, Spark Structured Streaming, Gold tables, or
-analysis results.
+The implementation deliverables are ordered Jupyter notebooks. Supporting documentation, Mermaid diagrams, data folders, and presentation notes remain in the repository, but `src/` and `tests/` are intentionally not used as the primary implementation and QA layers.
 
 ## Guiding Question
 
-Which air quality patterns can be identified across selected European cities
-when historical air quality data, current API data, and urban context metadata
-are combined in a reproducible Big Data Engineering pipeline?
+How do PM2.5, PM10, and NO2 air-quality patterns differ across selected European cities, and what context can city metadata add to the interpretation?
 
-## Core Scope
+## Official Requirement Mapping
 
-The approved core scope combines:
-
-| Requirement | Project implementation |
+| Course requirement | Planned implementation |
 | --- | --- |
-| File or batch source | EEA historical air quality data |
-| Web scraping source | Wikipedia city pages and city metadata |
-| REST API source | Open-Meteo Air Quality API |
-| Message broker | Kafka topic for Open-Meteo live or near-live data; preferred FH topic `bdeng_g1_air_quality_live` |
-| Stream processing | Spark Structured Streaming reads from Kafka; Parquet-producing runs use reliable execution mode |
-| Persistent storage | Parquet in Bronze, Silver, and Gold layers |
-| Documentation and exploration | Ordered Jupyter notebooks |
-| Final output | Visualizations and storytelling |
+| At least three data sources | EEA file/batch, Wikipedia web scraping, Open-Meteo REST API |
+| File or database source | `03_eea_batch_ingestion.ipynb` |
+| Web scraping source | `04_wikipedia_web_scraping.ipynb` |
+| REST API source | `05_open_meteo_api_and_kafka_producer.ipynb` |
+| Kafka producer and topic | `05_open_meteo_api_and_kafka_producer.ipynb` |
+| Spark reads from Kafka | `06_spark_structured_streaming_kafka_to_parquet.ipynb` |
+| Store transformed results | Silver and Gold Parquet files under `data/` |
+| Visualize data flow | `docs/diagrams/` and `08_analysis_visualization_and_storytelling.ipynb` |
+| Tell a coherent story | `08_analysis_visualization_and_storytelling.ipynb` and `presentation/` |
+| Document each step in notebooks | Notebooks `00` through `08` |
 
-Core pollutants are limited to future PM2.5, PM10, and NO2 scope unless a later
-approved decision changes that.
+## Notebook Execution Order
 
-## Non-Goals
+| Order | Notebook | Purpose |
+| ---: | --- | --- |
+| 00 | `notebooks/00_project_scope_and_requirements.ipynb` | Scope, requirements, non-goals, and full pipeline overview |
+| 01 | `notebooks/01_source_spike_and_cluster_check.ipynb` | Source feasibility and FH cluster connectivity notes |
+| 02 | `notebooks/02_city_reference_model.ipynb` | Stable city IDs and city reference Parquet |
+| 03 | `notebooks/03_eea_batch_ingestion.ipynb` | Historical EEA batch normalization and daily Silver Parquet |
+| 04 | `notebooks/04_wikipedia_web_scraping.ipynb` | Wikipedia HTML fetch, parsing, and city metadata Parquet |
+| 05 | `notebooks/05_open_meteo_api_and_kafka_producer.ipynb` | Open-Meteo API events and Kafka producer |
+| 06 | `notebooks/06_spark_structured_streaming_kafka_to_parquet.ipynb` | Spark Structured Streaming from Kafka to Parquet |
+| 07 | `notebooks/07_gold_layer_and_data_quality.ipynb` | Gold tables and cross-table quality checks |
+| 08 | `notebooks/08_analysis_visualization_and_storytelling.ipynb` | Visualizations, figures, interpretation, and final story |
 
-The following are intentionally out of scope unless the core project is complete
-and a later decision explicitly approves them:
+## Data Sources
 
-- PostgreSQL
-- Airflow
-- dbt
-- Cloud deployment
-- CI/CD platform work
-- Dashboard frameworks
-- Machine learning models
-- Causal analysis
-- Extra pollutants beyond the approved core pollutants
-- Production-grade streaming infrastructure
+| Source | Type | Role |
+| --- | --- | --- |
+| EEA historical air quality data | File/batch | Historical PM2.5, PM10, and NO2 measurements |
+| Wikipedia city pages | Web scraping | Contextual city metadata such as population and area |
+| Open-Meteo Air Quality API | REST API | Current or near-current air-quality observations for Kafka path |
 
-## Target Architecture
+## Technology Stack
 
-```mermaid
-flowchart TD
-    EEA["EEA historical air quality files"] --> EEA_Bronze["Bronze: raw EEA files"]
-    Wiki["Wikipedia city pages"] --> Wiki_Bronze["Bronze: raw Wikipedia HTML"]
-    OpenMeteo["Open-Meteo Air Quality API"] --> API_Bronze["Bronze: raw API samples"]
-
-    OpenMeteo --> Kafka["Kafka topic: bdeng_g1_air_quality_live"]
-    Kafka --> SparkStream["Spark Structured Streaming\nstandard Parquet mode: local[*]"]
-
-    EEA_Bronze --> BatchProcessing["Batch processing"]
-    Wiki_Bronze --> WikiParsing["HTML parsing"]
-    API_Bronze --> SourceProfiling["Source profiling"]
-
-    BatchProcessing --> Silver["Silver: cleaned and join-ready data"]
-    WikiParsing --> Silver
-    SparkStream --> Silver
-    SourceProfiling --> Docs["Source feasibility documentation"]
-
-    Silver --> Gold["Gold: analysis-ready Parquet tables"]
-    Gold --> Notebooks["Jupyter analysis notebooks"]
-    Notebooks --> Story["Final visualizations and storytelling"]
-```
+Python, Jupyter Notebook, Pandas, Requests, BeautifulSoup, Kafka, Spark Structured Streaming, Parquet, Matplotlib, and Mermaid diagrams.
 
 ## Execution Modes
 
-The project supports a cluster-aware but reproducible execution strategy.
-
-| Mode | Purpose | Spark master | Storage | Status |
-| --- | --- | --- | --- | --- |
-| `local_project` | Standard for reproducible Parquet-producing pipeline runs. | `local[*]` | `data/` in the project folder | Recommended |
-| `fh_cluster_connectivity` | FH Spark cluster connectivity and compute evidence. | `spark://172.29.16.102:7077` | No final project storage | Documented |
-| `fh_cluster_shared_storage` | Optional cluster end-to-end mode. | FH Spark master | Confirmed shared storage path | Only if provided |
-
-FH Spark cluster connectivity and basic compute were tested successfully, but
-HDFS/shared storage was not confirmed. Therefore cluster-based Parquet writes
-to local project paths are not the primary persistence strategy. Parquet
-outputs are produced with Spark `local[*]` or local pandas/pyarrow workflows
-unless a confirmed shared storage path is provided.
-
-## Data Layer Design
-
-```mermaid
-flowchart LR
-    Bronze["Bronze layer\nRaw or source-aligned data"] --> Silver["Silver layer\nCleaned, standardized, join-ready data"]
-    Silver --> Gold["Gold layer\nAnalysis-ready tables"]
-    Gold --> Presentation["Notebook charts and final story"]
-```
-
-| Layer | Purpose | Examples |
+| Mode | Configuration | Use |
 | --- | --- | --- |
-| Bronze | Preserve source-aligned raw data and source evidence. | EEA raw samples, Wikipedia HTML, Open-Meteo raw JSON |
-| Silver | Normalize fields and prepare reliable joins. | city reference, city metadata, cleaned source tables |
-| Gold | Provide reproducible analysis datasets. | rankings, daily summaries, latest live air quality table |
+| `local_project` | `SPARK_MASTER_URL=local[*]` | Standard reliable notebook execution and Parquet output |
+| `fh_cluster_connectivity` | `CLUSTER_SPARK_MASTER_URL=spark://<fh-spark-master>:7077` | Spark connectivity and compute smoke test only |
+| `fh_cluster_shared_storage` | confirmed shared path required | Optional future mode for cluster Parquet output |
 
-## Repository Structure
+The FH Spark cluster was tested successfully for basic Spark connectivity and compute. HDFS/shared storage was not confirmed. Therefore, the standard Parquet-producing pipeline uses Spark `local[*]` unless a lecturer or administrator confirms a shared storage path.
 
-```text
-euro-air-quality-pipeline/
-|-- README.md
-|-- docker-compose.yml
-|-- requirements.txt
-|-- .env.example
-|-- .env.cluster.example
-|-- .gitignore
-|-- docs/
-|   |-- architecture.md
-|   |-- cluster_setup.md
-|   |-- data_sources.md
-|   |-- data_model.md
-|   |-- decisions/
-|   |-- diagrams/
-|   |-- implementation/
-|   |-- qa/
-|   `-- status/
-|-- notebooks/
-|-- src/
-|-- tests/
-|-- data/
-`-- presentation/
-```
-
-### Important Folders
-
-| Folder | Purpose |
-| --- | --- |
-| `docs/` | Architecture, source documentation, data model, ADRs, QA reports, status, and implementation notes. |
-| `docs/cluster_setup.md` | Execution-mode and FH cluster/storage limitation documentation. |
-| `notebooks/` | Ordered phase documentation and exploration notebooks. |
-| `src/` | Python package structure with implemented city reference, station mapping, EEA loader, and placeholders for later phases. |
-| `tests/` | Regression tests for city mapping and EEA loader plus placeholders for later parser/schema phases. |
-| `data/` | Bronze/Silver/Gold/checkpoint scaffold. Generated local data is ignored; `.gitkeep` preserves folders. |
-| `presentation/` | Final storyline and figure output location for later phases. |
-| `project-resources/` | Local planning and course resources. Ignored by git. |
-| `agents/` | Local AI-agent working instructions and memory. Ignored by git. |
-
-## Notebook Guide
-
-The notebooks are the main readable execution trail. Each notebook has a
-specific role and must stay aligned with the project phase.
-
-| Order | Notebook | Phase | Purpose |
-| ---: | --- | --- | --- |
-| 00 | `notebooks/00_project_scope_and_sources.ipynb` | Phase 0-1 | Project scope, source overview, pilot source feasibility checks. |
-| 01 | `notebooks/01_city_mapping.ipynb` | Phase 2 | City reference model, `city_id`, coordinates, and source join strategy. |
-| 02 | `notebooks/02_eea_batch_ingestion.ipynb` | Phase 3 | EEA batch data inspection and later batch ingestion documentation. |
-| 03 | `notebooks/03_wikipedia_scraping.ipynb` | Phase 4 | Wikipedia HTML inspection, parsing strategy, and metadata extraction notes. |
-| 04 | `notebooks/04_kafka_producer_demo.ipynb` | Phase 5-6 | Open-Meteo event schema and Kafka producer demonstration once those phases are active. |
-| 05 | `notebooks/05_spark_streaming_processing.ipynb` | Phase 7 | Spark Structured Streaming from Kafka to Parquet. |
-| 06 | `notebooks/06_analysis_and_visualization.ipynb` | Phase 8-9 | Gold table analysis, visualizations, and final storytelling. |
-
-Notebook rules:
-
-- Do not commit large outputs.
-- Do not store secrets in notebooks.
-- Do not use notebooks to hide unreviewed pipeline logic.
-- Each notebook must explain inputs, outputs, assumptions, and limitations.
-- A notebook may only implement work for its active phase.
-
-## Phase Plan
-
-```mermaid
-flowchart TD
-    P0["Phase 0\nRepository initialization"] --> G0{"Gate 0\nPhase 0 QA"}
-    G0 --> P1["Phase 1\nSource spike and feasibility"]
-    P1 --> G1{"Gate 1\nAll 3 sources usable?"}
-    G1 --> P2["Phase 2\nCity mapping and reference model"]
-    P2 --> G2{"Gate 2\ncity_reference stable?"}
-    G2 --> P3["Phase 3\nEEA batch processing"]
-    G2 --> P4["Phase 4\nWikipedia scraping"]
-    P3 --> P5["Phase 5\nOpen-Meteo client and event schema"]
-    P4 --> P5
-    P5 --> G3{"Gate 3\nEvent schema stable?"}
-    G3 --> P6["Phase 6\nKafka producer"]
-    P6 --> G4{"Gate 4\nKafka events readable?"}
-    G4 --> P7["Phase 7\nSpark streaming Kafka to Parquet"]
-    P7 --> G5{"Gate 5\nSpark writes Parquet?"}
-    G5 --> P8["Phase 8\nGold tables"]
-    P8 --> G6{"Gate 6\nGold reproducible?"}
-    G6 --> P9["Phase 9\nVisualization and storytelling"]
-    P9 --> P10["Phase 10\nFinal QA and submission"]
-```
-
-### Phase 0 - Repository Initialization And Scope Freeze
-
-Goal: create a clean professional project skeleton.
-
-Allowed work:
-
-- Repository structure.
-- README, docs, ADRs, diagrams.
-- Placeholder notebooks, source modules, and tests.
-- Empty data folder scaffold.
-- `.gitignore`, `.env.example`, `requirements.txt`, and Docker Compose baseline.
-
-Not allowed:
-
-- Real data ingestion.
-- API calls.
-- Web scraping.
-- Kafka producer implementation.
-- Spark business logic.
-
-Exit criteria:
-
-- Phase 0 QA report exists.
-- No critical findings.
-- Notebook files are structurally valid.
-- Repository still contains no real data or secrets.
-
-### Phase 1 - Source Spike And Feasibility Check
-
-Status: **complete**
-
-Goal: prove that all three planned data sources are technically usable before
-building the pipeline and record infrastructure feasibility for later Spark
-and Kafka phases.
-
-Planned checks:
-
-- Test Open-Meteo API for two pilot cities.
-- Check EEA availability for two pilot cities and at least one pollutant.
-- Fetch and inspect Wikipedia HTML for two pilot cities.
-- Document formats, fields, timestamps, risks, and decisions.
-- Record FH Spark cluster connectivity and storage feasibility.
-
-Completed deliverables:
-
-- Updated `notebooks/00_project_scope_and_sources.ipynb`.
-- Updated `docs/data_sources.md`.
-- Local ignored Open-Meteo JSON evidence samples.
-- Local ignored Wikipedia HTML infobox evidence samples.
-- EEA metadata-level feasibility notes.
-- Cluster connectivity/storage notes in `docs/qa/cluster_connectivity_check.md`.
-- Storage strategy ADR in `docs/decisions/ADR-004-execution-environment-and-storage-strategy.md`.
-- Phase 1 QA report in `docs/qa/phase1_qa_report.md`.
-
-Exit criteria:
-
-- Every source is classified as `usable`, `usable with constraints`, or
-  `not usable`.
-- Risks are documented.
-- No full ingestion pipeline exists yet.
-
-### Phase 2 - City Mapping And Reference Model
-
-Goal: create the central city reference model for joining all sources.
-
-Current status: **complete**
-
-Implemented so far:
-
-- Exactly 8 starter cities.
-- Canonical city reference schema.
-- Deterministic local city reference builder.
-- Local generated `data/silver/city_reference.csv` and
-  `data/silver/city_reference.parquet` when explicitly called; both remain
-  ignored by Git.
-- Validation tests for required fields, join keys, normalized names, country
-  codes, coordinates, duplicate IDs, minimum city count, and Parquet readback.
-- EEA station-to-city mapping strategy.
-- Wikipedia metadata join and null-handling rules.
-- Open-Meteo coordinate, pollutant field, and UTC timezone mapping rules.
-- Phase 2 QA report in `docs/qa/phase2_qa_report.md`.
-
-Exit criteria:
-
-- City reference can be read reproducibly.
-- No downstream code joins on free-text city names.
-- Mapping assumptions are documented.
-
-Gate decision: **Approved for Phase 3**.
-
-### Phase 3 - EEA Batch Data Processing
-
-Goal: process historical EEA file or batch data into source-aligned and cleaned
-Parquet outputs.
-
-Current status: **complete with major EEA constraints**
-
-Implemented so far:
-
-- EEA source inspection.
-- EEA raw-data policy and access path documentation.
-- EEA input schema and Silver output schema documentation.
-- Station-to-city mapping builder with selected EEA stations for all 8 starter
-  cities.
-- EEA local-file loader for controlled CSV/Parquet files.
-- EEA row-level data quality validation for required fields, timestamps,
-  pollutant scope, units, and invalid concentration values.
-- Explicit local writer for `data/silver/eea_city_daily.parquet`.
-- Tests for station mapping, EEA loader behavior, EEA data quality rules, and
-  Silver Parquet readback.
-- Notebook 02 as the readable Phase 3 documentation trail.
-- Phase 3 QA report and gate decision.
-
-Remaining EEA constraint:
-
-- Download and row-validate real EEA source files locally before using EEA
-  output as final Gold analysis input.
-
-Execution rule:
-
-- Parquet-producing Phase 3 work uses Spark `local[*]` or pandas/pyarrow in the
-  project path. FH cluster Parquet writes are not used unless shared storage is
-  confirmed.
-
-Exit criteria:
-
-- EEA processing is reproducible.
-- City mapping is used.
-- Methodological limitations are documented.
-
-Gate decision: **Approved for Phase 4 after QA follow-up corrections**.
-
-### Phase 4 - Wikipedia Scraping And Metadata Extraction
-
-Goal: extract city metadata from Wikipedia in a controlled and documented way.
-
-Current status: **approved, not started**
-
-Planned output:
-
-- Raw HTML handling.
-- Parser for selected metadata fields.
-- Silver city metadata.
-- Parser tests.
-
-Exit criteria:
-
-- Raw HTML is preserved or reproducibly fetchable according to data policy.
-- Parser behavior is tested.
-- Missing or inconsistent fields are handled explicitly.
-
-### Phase 5 - Open-Meteo Client And Event Schema
-
-Goal: build the Open-Meteo API client and define a stable event schema before
-Kafka is introduced.
-
-Planned output:
-
-- Open-Meteo request logic.
-- Schema for PM2.5, PM10, and NO2 events.
-- Validation tests for required fields and value types.
-
-Exit criteria:
-
-- Event schema is documented.
-- Client does not perform network calls on import.
-- Tests cover normal and missing-value cases.
-
-### Phase 6 - Kafka Producer
-
-Goal: publish valid Open-Meteo events to Kafka.
-
-Planned output:
-
-- Kafka topic `bdeng_g1_air_quality_live`.
-- Minimal Open-Meteo live producer.
-- Producer demonstration notebook.
-- Evidence that messages can be consumed.
-
-Exit criteria:
-
-- Producer writes schema-valid events.
-- Kafka topic is documented.
-- Rate limits and failure behavior are controlled.
-
-### Phase 7 - Spark Structured Streaming From Kafka To Parquet
-
-Goal: make Spark read Kafka data, parse JSON, transform it, and write Parquet.
-
-Planned output:
-
-- Spark Structured Streaming job.
-- Explicit schema parsing.
-- Join with city metadata.
-- Checkpointed Parquet output.
-
-Exit criteria:
-
-- Spark actually reads from Kafka.
-- Processing is more than copy-through.
-- Output and checkpoint locations are documented.
-
-### Phase 8 - Gold Layer And Analysis Datasets
-
-Goal: build analysis-ready datasets from Silver and streaming outputs.
-
-Planned output:
-
-- Reproducible Gold table builder.
-- Gold datasets for city summaries, pollutant rankings, and context joins.
-- Documentation of historical versus current data context.
-
-Exit criteria:
-
-- Gold tables are reproducible.
-- Charts can be generated from Gold or clearly documented Silver data.
-- No unsupported causal claims are introduced.
-
-### Phase 9 - Visualization And Storytelling
-
-Goal: create a clear final story that connects pipeline design with air quality
-patterns.
-
-Planned output:
-
-- 4-5 core charts.
-- Final storyline.
-- Figures under `presentation/figures/`.
-- Notebook-based reproduction.
-
-Exit criteria:
-
-- Visualizations are based on reproducible datasets.
-- Claims are descriptive, not causal.
-- The story is explainable in a short presentation.
-
-### Phase 10 - Final Documentation, QA And Submission Readiness
-
-Goal: make the repository reviewable, reproducible, and submission-ready.
-
-Planned output:
-
-- Final README.
-- Final QA report.
-- Final notebooks.
-- Final diagrams.
-- Final presentation storyline.
-
-Exit criteria:
-
-- A fresh reviewer can understand the project within minutes.
-- Setup instructions are tested.
-- All BDENG requirements are traceable to artifacts.
-- No large data files, secrets, or optional-scope dependencies are required.
-
-## BDENG Requirement Mapping
-
-| BDENG requirement | Evidence or planned artifact |
-| --- | --- |
-| At least three data sources | EEA, Wikipedia, and Open-Meteo feasibility documented in `docs/data_sources.md`. |
-| File or database source | EEA historical source validated at metadata level in Phase 1; batch implementation planned for Phase 3. |
-| Web scraping source | Wikipedia HTML feasibility validated in Phase 1; production parser planned for Phase 4. |
-| REST API source | Open-Meteo API feasibility validated in Phase 1; reusable client and event schema planned for Phase 5. |
-| Kafka producer and topic | Phase 6 producer and group-specific topic `bdeng_g1_air_quality_live` |
-| Spark reads from Kafka | Phase 7 Spark Structured Streaming job using reliable Parquet execution mode |
-| Persistent transformed output | Parquet Bronze/Silver/Gold |
-| Data flow visualization | Mermaid diagrams in README and `docs/diagrams/` |
-| Jupyter documentation | Ordered notebooks 00-06 |
-| Final visualization and storytelling | Notebook 06 and `presentation/final_storyline.md` |
-
-## Documentation And QA Model
-
-```mermaid
-flowchart LR
-    Work["Implementation work"] --> Docs["Docs updated"]
-    Docs --> Tests["Tests or validation commands"]
-    Tests --> QA["QA report"]
-    QA --> Gate{"Phase gate decision"}
-    Gate -->|Approved| Next["Next phase"]
-    Gate -->|Blocked| Fix["Fix findings"]
-    Fix --> Tests
-```
-
-Documentation locations:
-
-| Path | Role |
-| --- | --- |
-| `docs/architecture.md` | Architecture notes and decisions. |
-| `docs/cluster_setup.md` | Execution modes, FH cluster evidence boundary, and storage rules. |
-| `docs/data_sources.md` | Source feasibility, fields, risks, and decisions. |
-| `docs/data_model.md` | City reference, source schemas, and Gold table design. |
-| `docs/decisions/` | ADRs for durable technical decisions. |
-| `docs/diagrams/` | Mermaid diagram files. |
-| `docs/implementation/` | Step-by-step implementation notes. |
-| `docs/qa/` | Phase QA reports and readiness checks. |
-| `docs/status/` | Current status, phase gates, and project log. |
-
-## Local Setup And Inbetriebnahme
-
-Use this sequence for a clean local setup. The commands prepare the repository
-for validation and notebook work. They do not start the pipeline and do not
-download project datasets.
-
-### 1. Clone Repository
-
-```bash
-git clone <repo-url>
-cd euro-air-quality-pipeline
-```
-
-### 2. Create Virtual Environment
-
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-```
-
-Linux/macOS:
+## Setup
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+.venv\Scripts\activate
 python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+copy .env.example .env
+jupyter notebook
 ```
 
-### 3. Install Python Dependencies
+Use a group-specific Kafka topic, for example `bdeng_g1_air_quality_live`. Do not hardcode credentials or use a generic shared topic.
 
-```bash
-pip install -r requirements.txt
-```
+## What Is Not Committed
 
-### 4. Create Local Environment File
+Generated CSV, JSON, HTML, Parquet, and Spark checkpoint files under `data/` are ignored. `.gitkeep` files preserve the required folder structure. Secrets and local `.env` files are ignored; only safe examples are committed.
 
-Windows PowerShell:
+## Limitations
 
-```powershell
-Copy-Item .env.example .env
-```
+This is a university project, not a production platform. The dataset may not be truly large, the analysis is exploratory rather than causal, Wikipedia metadata is fragile, and FH cluster storage is not assumed until proven.
 
-Linux/macOS:
+## Presentation Notes
 
-```bash
-cp .env.example .env
-```
-
-The `.env` file is local only and must not be committed.
-
-Default `.env.example` settings use:
-
-```text
-EXECUTION_ENV=local_project
-SPARK_MASTER_URL=local[*]
-KAFKA_TOPIC_AIR_QUALITY_LIVE=bdeng_g1_air_quality_live
-```
-
-Use `.env.cluster.example` only if a confirmed shared storage path is provided.
-
-### 5. Validate Repository Without Starting Services
-
-```bash
-python -m pytest
-docker compose config
-```
-
-If `python -m pytest` fails with `No module named pytest`, the active virtual
-environment is not prepared correctly or dependencies were not installed into
-the active interpreter.
-
-### 6. Start Jupyter Only When Needed
-
-The notebook server is useful for documentation and source-spike work:
-
-```bash
-docker compose up jupyter
-```
-
-Then open the URL printed by Jupyter in the terminal. Stop the service with
-`Ctrl+C` when done.
-
-### 7. Kafka And Spark Services
-
-Kafka and Spark are part of the planned core project, but they should only be
-started when the active phase requires them.
-
-Allowed later-phase command pattern:
-
-```bash
-docker compose up kafka spark
-```
-
-Do not start Kafka or Spark during Phase 0 cleanup, Phase 1 source feasibility,
-or Phase 2 city mapping unless an issue explicitly requires a Docker service
-check.
-
-### 8. Current Phase 3 Workflow
-
-For the current Phase 3 state, the expected local workflow is:
-
-```bash
-python -m pytest
-python -m src.city_mapping.build_city_reference
-python -m src.city_mapping.build_station_mapping
-docker compose config
-jupyter notebook notebooks/02_eea_batch_ingestion.ipynb
-```
-
-Phase 3 may implement controlled EEA batch ingestion only. It must not
-implement the production Wikipedia scraper, Open-Meteo client behavior, Kafka,
-Spark Structured Streaming, Gold tables, dashboards, or final analytics.
-
-## Data And Secret Hygiene
-
-- Do not commit `.env`.
-- Do not commit API tokens, credentials, or personal machine paths.
-- Do not commit large raw datasets.
-- Do not commit generated Parquet, CSV, JSON, HTML, or checkpoint files unless a
-  later documented data policy explicitly allows a tiny evidence sample.
-- Keep empty data folders with `.gitkeep`.
-- Keep notebook outputs small.
-
-## Review Expectations
-
-A reviewer should be able to verify:
-
-1. The active phase is clear.
-2. Documentation matches the repository state.
-3. No future-phase work is presented as completed.
-4. All data sources and technologies map to BDENG requirements.
-5. Scope creep is rejected or explicitly deferred.
-6. Every phase has evidence, tests, and a gate decision before the next phase.
-
-## License
-
-License to be defined.
+Final figures are saved to `presentation/figures/`. The storyline and presentation outline live in `presentation/final_storyline.md` and `presentation/presentation_outline.md`.
