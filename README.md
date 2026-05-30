@@ -14,8 +14,8 @@ Jupyter notebooks, and final storytelling.
 **Current phase:** Phase 3 in progress
 
 **Latest QA decision:** Phase 2 QA approved the project for Phase 3. Phase 3 is
-limited to EEA Batch Ingestion work. Issues 3.1 through 3.6 are implemented,
-tested, or documented; Issues 3.7 through 3.8 remain open.
+limited to EEA Batch Ingestion work. Issues 3.1 through 3.7 are implemented,
+tested, or documented; Issue 3.8 remains open.
 
 At the current state, the repository contains the Phase 0 skeleton, Phase 1
 source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
@@ -321,11 +321,11 @@ Implemented so far:
 - Explicit local writer for `data/silver/eea_city_daily.parquet`.
 - Tests for station mapping, EEA loader behavior, EEA data quality rules, and
   Silver Parquet readback.
+- Notebook 02 as the readable Phase 3 documentation trail.
 
 Remaining output:
 
 - Resolve placeholder station mappings before real ingestion.
-- Notebook 02 final Phase 3 documentation.
 - Phase 3 QA report and gate decision.
 
 Execution rule:

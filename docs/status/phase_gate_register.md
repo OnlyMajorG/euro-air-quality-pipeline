@@ -82,7 +82,7 @@ Status: **In progress**
 | EEA loader implementation | Done | `src/ingestion/eea_loader.py` reads controlled local CSV/Parquet files and has pytest coverage. |
 | Data quality validation | Done | `src/ingestion/eea_loader.py` exposes `validate_eea_rows`; `tests/test_eea_loader.py`, `docs/data_sources.md`, and notebook 02 document and verify behavior. |
 | Silver Parquet output | Done | `write_eea_city_daily_parquet()` and `build_eea_city_daily_parquet()` write/read local ignored Parquet output with pytest coverage. |
-| Notebook 02 complete | Pending | Issue 3.7 |
+| Notebook 02 complete | Done | `notebooks/02_eea_batch_ingestion.ipynb` documents source policy, schema, mapping dependency, data quality, daily aggregation, output contract, and readback pattern with 0 outputs. |
 | Phase 3 QA report | Pending | Issue 3.8 |
 
 Allowed focus:
