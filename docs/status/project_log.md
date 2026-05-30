@@ -112,3 +112,13 @@ No data pipeline logic was implemented.
   `docs/data_model.md` and `notebooks/01_city_mapping.ipynb`.
 - Did not create city reference output files, download data, call APIs, scrape
   Wikipedia, run Kafka, run Spark, or implement analytics.
+
+### Phase 2.2 City Reference Schema Designed
+
+- Documented the canonical city reference schema in `docs/data_model.md`.
+- Defined required and optional fields, data types, nullability, identifier
+  convention, and validation constraints for later tests.
+- Reviewed `docs/decisions/ADR-003-city-reference-model.md`; the ADR decision
+  remains unchanged.
+- Did not create city reference output files, download data, call APIs, scrape
+  Wikipedia, run Kafka, run Spark, or implement analytics.

@@ -4,9 +4,9 @@ Last updated: 2026-05-30
 
 ## Status
 
-Current phase: **Phase 1 complete; Phase 2 may start**
+Current phase: **Phase 2 in progress**
 
-Decision: **Approved for Phase 2**
+Decision: **Phase 2.1 and Phase 2.2 completed; Phase 2 gate not yet reviewed**
 
 ## Summary
 
@@ -42,15 +42,21 @@ No full pipeline implementation exists yet. That is intentional.
 - Created the Phase 1 source feasibility matrix.
 - Created the Phase 1 QA report.
 
+## Completed Phase 2 Work
+
+- Defined exactly 8 starter cities for the city reference model.
+- Designed the canonical city reference schema.
+- Reviewed ADR-003 and confirmed that the city reference model decision remains
+  unchanged.
+
 ## Next Allowed Work
 
-The next allowed work is Phase 2 city mapping and reference model:
+The next allowed work remains within Phase 2 city mapping and reference model:
 
-- Define stable `city_id` values.
-- Decide the pilot-to-final city list.
 - Document EEA station-to-city mapping rules.
 - Carry forward Open-Meteo field mapping.
 - Define how Wikipedia metadata joins to cities.
+- Add validation tests for the city reference model.
 
 ## Explicitly Not Implemented
 

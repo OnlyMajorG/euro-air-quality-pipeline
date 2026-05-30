@@ -22,6 +22,65 @@ categories were feasible for them.
 | warsaw_pl | Warsaw | PL | 52.2297 | 21.0122 | Major Central/Eastern European capital for regional diversity. |
 | prague_cz | Prague | CZ | 50.0755 | 14.4378 | Central European capital with expected source coverage and manageable scope. |
 
+## Canonical City Reference Schema
+
+The city reference table is the controlled join surface for later phases. It
+does not prove that downstream EEA, Wikipedia, Open-Meteo, Kafka, Spark, or
+analytics outputs already exist. It only defines the stable city-level fields
+that later source-specific work must map to.
+
+### Identifier Convention
+
+`city_id` is the stable technical identifier for joins. It uses lowercase
+ASCII text in the pattern `<normalized_city_name>_<country_code_lower>`.
+Spaces and punctuation are replaced or removed during normalization. The
+country code suffix uses ISO 3166-1 alpha-2 in lowercase form.
+
+Examples:
+
+- `vienna_at`
+- `berlin_de`
+- `amsterdam_nl`
+
+Once a `city_id` is used by downstream data, it should not be renamed without a
+documented migration note. Downstream jobs should join on `city_id`, not on free
+text city names.
+
+### Schema
+
+| field | type | required | nullability | rule |
+| --- | --- | --- | --- | --- |
+| city_id | string | yes | non-null | Unique stable key using lowercase `<normalized_city_name>_<country_code_lower>`. |
+| city_name | string | yes | non-null | Human-readable display name, for example `Vienna`. |
+| city_name_normalized | string | yes | non-null | Lowercase normalized city name used to derive `city_id`. |
+| country_code | string | yes | non-null | ISO 3166-1 alpha-2 country code in uppercase, for example `AT`. |
+| latitude | float | yes | non-null | WGS84 city coordinate used for Open-Meteo feasibility and later source alignment; must be between -90 and 90. |
+| longitude | float | yes | non-null | WGS84 city coordinate used for Open-Meteo feasibility and later source alignment; must be between -180 and 180. |
+| population | integer | no | nullable | Future contextual metadata, expected from Wikipedia or another documented reference source. |
+| area_km2 | float | no | nullable | Future contextual metadata, expected from Wikipedia or another documented reference source. |
+| population_density | float | no | nullable | Future contextual or derived metadata; may stay null if population or area is unavailable. |
+| mapping_notes | string | yes | non-null | Short explanation of why the city belongs in the controlled starter scope and how source alignment should be interpreted. |
+| eea_station_selection_notes | string | yes | non-null | Notes for future EEA station-to-city matching; this is not an implemented station mapping. |
+| wikipedia_page_title | string | no | nullable | Planned Wikipedia page title used for metadata linkage. |
+| wikipedia_url | string | no | nullable | Planned Wikipedia page URL used for traceability. |
+| wikipedia_metadata_notes | string | no | nullable | Notes about expected Wikipedia metadata fields, ambiguity, or fallback handling. |
+| open_meteo_coordinate_notes | string | no | nullable | Notes about coordinate assumptions for future Open-Meteo API checks. |
+
+### Constraints And Validation Rules
+
+- `city_id` must be unique across the city reference table.
+- Required fields must not be null or empty.
+- `country_code` must be exactly two uppercase letters.
+- `latitude` and `longitude` must be numeric and within WGS84 ranges.
+- Optional metadata fields may be null during Phase 2 and must not block city
+  reference creation.
+- EEA station mapping remains a documented mapping decision until later
+  ingestion phases; Phase 2 must not download or process full EEA datasets.
+- Wikipedia fields are linkage metadata only in Phase 2; production scraping
+  and parser implementation remain out of scope.
+- The schema is intentionally small enough to support focused tests in
+  `tests/test_city_mapping.py`.
+
 ## Phase 2 Scope Boundary
 
 Allowed in Phase 2:
@@ -49,7 +108,6 @@ Not allowed in Phase 2:
 
 TODO:
 
-- Define the full city reference schema.
 - Define Bronze schemas per source.
 - Define Silver canonical model for city and air quality joins.
 - Define Gold analytical tables for the project research question.
