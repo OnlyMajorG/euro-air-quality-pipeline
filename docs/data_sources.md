@@ -60,6 +60,52 @@ Not allowed in this issue:
 - Spark processing logic.
 - Full ingestion jobs.
 
+## Phase 1 Sample Data Hygiene Policy
+
+Phase 1 may create tiny local source-spike samples only when they are needed to
+prove feasibility. These samples are evidence for manual review, not project
+datasets and not pipeline outputs.
+
+### Allowed Local Samples
+
+| Sample type | Allowed location | Naming pattern | Size expectation | Git policy |
+| --- | --- | --- | --- | --- |
+| Open-Meteo JSON evidence | `data/bronze/open_meteo_raw/` | `sample_open_meteo_<city>_<country>.json` | Tiny response sample, preferably one short request window. | Ignored by `data/**/*.json`. |
+| Wikipedia HTML evidence | `data/bronze/wikipedia_html/` | `sample_wikipedia_<city>_<country>.html` | Tiny HTML excerpt such as an infobox, not a full page archive unless explicitly justified. | Ignored by `data/**/*.html`. |
+| EEA metadata notes | `docs/data_sources.md` | Markdown tables and notes. | Prefer documentation over raw EEA files in Phase 1. | Tracked as documentation. |
+
+### Not Allowed In Git
+
+- Secrets, API keys, tokens, credentials, cookies, or personal identifiers.
+- `.env` files.
+- Large raw data files.
+- Full uncontrolled raw datasets.
+- Generated Parquet, CSV, JSON, HTML, ZIP, or checkpoint outputs.
+- Local absolute machine paths.
+- Notebook outputs containing large embedded source data.
+
+### Required Hygiene Rules
+
+- Keep source samples small and source-specific.
+- Keep `.gitkeep` files trackable so empty folder structure remains visible.
+- Treat all `data/` files except `.gitkeep` as local/generated unless a later
+  documented policy explicitly allows committing a tiny fixture.
+- Document the evidence path and decision in Markdown instead of relying on
+  raw files as the only proof.
+- Never put secrets or credentials in notebooks, Markdown, `.env.example`, or
+  sample files.
+
+The repository `.gitignore` must protect:
+
+```gitignore
+data/**/*.parquet
+data/**/*.csv
+data/**/*.json
+data/**/*.html
+data/**/checkpoints/**
+!**/.gitkeep
+```
+
 ## Open-Meteo Phase 1 Feasibility
 
 Status: **usable**
