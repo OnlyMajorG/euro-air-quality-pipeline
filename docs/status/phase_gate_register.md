@@ -76,12 +76,12 @@ Status: **In progress**
 | Raw-data policy defined | Done | `docs/data_sources.md` documents that large raw EEA files must not be committed; `data/bronze/eea/` is git-ignored. |
 | File naming convention documented | Done | Pattern `eea_<station_id>_<pollutant_key>_<year_start>_<year_end>.<ext>` documented in `docs/data_sources.md` and notebook 02. |
 | Git-ignore verification confirmed | Done | `git check-ignore -v data/bronze/eea/sample_test.csv` returns the `.gitignore` rule as expected. |
-| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issues 3.1-3.4 summaries with 0 code outputs. |
+| Notebook 02 updated | Done | `notebooks/02_eea_batch_ingestion.ipynb` contains Phase 3 scope and Issues 3.1-3.6 summaries with 0 code outputs. |
 | EEA input schema defined | Done | `docs/data_model.md` contains `Phase 3 EEA Batch Ingestion Data Model`. |
 | Station-to-city mapping table | Done with constraints | `src/city_mapping/build_station_mapping.py`; placeholders remain for six non-pilot cities. |
 | EEA loader implementation | Done | `src/ingestion/eea_loader.py` reads controlled local CSV/Parquet files and has pytest coverage. |
 | Data quality validation | Done | `src/ingestion/eea_loader.py` exposes `validate_eea_rows`; `tests/test_eea_loader.py`, `docs/data_sources.md`, and notebook 02 document and verify behavior. |
-| Silver Parquet output | Pending | Issue 3.6 |
+| Silver Parquet output | Done | `write_eea_city_daily_parquet()` and `build_eea_city_daily_parquet()` write/read local ignored Parquet output with pytest coverage. |
 | Notebook 02 complete | Pending | Issue 3.7 |
 | Phase 3 QA report | Pending | Issue 3.8 |
 
