@@ -59,3 +59,58 @@ Not allowed in this issue:
 - Kafka producer logic.
 - Spark processing logic.
 - Full ingestion jobs.
+
+## Open-Meteo Phase 1 Feasibility
+
+Status: **usable**
+
+Open-Meteo Air Quality API access was tested for the two Phase 1 pilot cities
+with a deliberately small one-day hourly request. This was a source feasibility
+check only. It did not create a reusable API client, Kafka event schema,
+producer, scheduler, or streaming path.
+
+### Request Scope
+
+| city_name | country_code | latitude | longitude | request scope | evidence |
+| --- | --- | ---: | ---: | --- | --- |
+| Vienna | AT | 48.2082 | 16.3738 | `forecast_days=1`, hourly `pm10,pm2_5,nitrogen_dioxide`, `timezone=UTC` | `data/bronze/open_meteo_raw/sample_open_meteo_vienna_at.json` |
+| Berlin | DE | 52.5200 | 13.4050 | `forecast_days=1`, hourly `pm10,pm2_5,nitrogen_dioxide`, `timezone=UTC` | `data/bronze/open_meteo_raw/sample_open_meteo_berlin_de.json` |
+
+The evidence JSON files are intentionally small local source-spike samples.
+They are stored under `data/bronze/open_meteo_raw/` and protected by the
+repository data ignore rules.
+
+### Observed Response Structure
+
+| Area | Observed result |
+| --- | --- |
+| Top-level fields | `latitude`, `longitude`, `elevation`, `timezone`, `timezone_abbreviation`, `utc_offset_seconds`, `hourly_units`, `hourly` |
+| Hourly fields | `time`, `pm10`, `pm2_5`, `nitrogen_dioxide` |
+| Timestamp format | `hourly.time` values are ISO-8601-like hourly strings. Requests used `timezone=UTC`; response `utc_offset_seconds` was `0`. |
+| Units | `hourly_units` reports pollutant units as micrograms per cubic meter (`ug/m3` equivalent). |
+| Sample size | 24 hourly records per pilot city. |
+| Missing values in sample | No missing values were observed for `pm10`, `pm2_5`, or `nitrogen_dioxide` in the two saved samples. |
+
+### Pollutant Mapping
+
+| Approved pollutant | Open-Meteo field observed | Phase 1 decision |
+| --- | --- | --- |
+| PM2.5 | `pm2_5` | Usable; field name differs from display label. |
+| PM10 | `pm10` | Usable. |
+| NO2 | `nitrogen_dioxide` | Usable with field-name mapping; do not expect an `no2` field. |
+
+### Risks And Constraints
+
+- Open-Meteo uses API field names rather than presentation labels. Future code
+  must map NO2 to `nitrogen_dioxide` and PM2.5 to `pm2_5`.
+- The Phase 1 sample proves short-window reachability only. It is not evidence
+  for long-term availability or historical completeness.
+- Future ingestion must handle missing values even though the two source-spike
+  samples did not contain missing pollutant values.
+- Open-Meteo current or forecast data must not be treated as directly
+  equivalent to historical EEA measurements without clear context fields.
+
+### Phase 1 Decision
+
+Open-Meteo is **usable** for the planned REST API source and later Kafka path,
+subject to explicit field mapping and missing-value handling in later phases.
