@@ -1,4 +1,4 @@
-# euro-air-quality-pipeline
+﻿# euro-air-quality-pipeline
 
 Reproducible Big Data Engineering project for analyzing air quality patterns
 across selected European cities.
@@ -11,15 +11,16 @@ Jupyter notebooks, and final storytelling.
 
 ## Current Status
 
-**Current phase:** Phase 0 cleanup complete; Phase 1 may start
+**Current phase:** Phase 1 complete; Phase 2 may start
 
-**Latest QA decision:** Phase 0 is approved for Phase 1. The notebook JSON
-blocker from `docs/qa/phase0_qa_report.md` has been resolved.
+**Latest QA decision:** Phase 1 QA approved the project for Phase 2. Phase 2
+is limited to City Mapping and Reference Model work.
 
-At the current state, the repository contains structure, documentation, ADRs,
-placeholder modules, placeholder tests, data folders, diagrams, and planning
-documents. It does **not** yet contain real ingestion, scraping, Kafka producer
-logic, Spark processing, Gold tables, or analysis results.
+At the current state, the repository contains the Phase 0 skeleton and Phase 1
+source feasibility documentation for Open-Meteo, EEA, and Wikipedia. Source
+modules and tests are still placeholders. It does **not** yet contain full
+ingestion, a production scraper/client, Kafka producer logic, Spark processing,
+Gold tables, or analysis results.
 
 ## Guiding Question
 
@@ -105,25 +106,25 @@ flowchart LR
 
 ```text
 euro-air-quality-pipeline/
-├── README.md
-├── docker-compose.yml
-├── requirements.txt
-├── .env.example
-├── .gitignore
-├── docs/
-│   ├── architecture.md
-│   ├── data_sources.md
-│   ├── data_model.md
-│   ├── decisions/
-│   ├── diagrams/
-│   ├── implementation/
-│   ├── qa/
-│   └── status/
-├── notebooks/
-├── src/
-├── tests/
-├── data/
-└── presentation/
+|-- README.md
+|-- docker-compose.yml
+|-- requirements.txt
+|-- .env.example
+|-- .gitignore
+|-- docs/
+|   |-- architecture.md
+|   |-- data_sources.md
+|   |-- data_model.md
+|   |-- decisions/
+|   |-- diagrams/
+|   |-- implementation/
+|   |-- qa/
+|   `-- status/
+|-- notebooks/
+|-- src/
+|-- tests/
+|-- data/
+`-- presentation/
 ```
 
 ### Important Folders
@@ -215,6 +216,8 @@ Exit criteria:
 
 ### Phase 1 - Source Spike And Feasibility Check
 
+Status: **complete**
+
 Goal: prove that all three planned data sources are technically usable before
 building the pipeline.
 
@@ -225,12 +228,14 @@ Planned checks:
 - Fetch and inspect Wikipedia HTML for two pilot cities.
 - Document formats, fields, timestamps, risks, and decisions.
 
-Deliverables:
+Completed deliverables:
 
 - Updated `notebooks/00_project_scope_and_sources.ipynb`.
 - Updated `docs/data_sources.md`.
-- Optional tiny source samples, only if allowed by data hygiene rules.
-- Phase 1 QA report.
+- Local ignored Open-Meteo JSON evidence samples.
+- Local ignored Wikipedia HTML infobox evidence samples.
+- EEA metadata-level feasibility notes.
+- Phase 1 QA report in `docs/qa/phase1_qa_report.md`.
 
 Exit criteria:
 
@@ -397,12 +402,12 @@ Exit criteria:
 
 ## BDENG Requirement Mapping
 
-| BDENG requirement | Planned evidence |
+| BDENG requirement | Evidence or planned artifact |
 | --- | --- |
-| At least three data sources | EEA, Wikipedia, Open-Meteo documented in `docs/data_sources.md` |
-| File or database source | EEA batch/file source in Notebook 02 |
-| Web scraping source | Wikipedia source in Notebook 03 |
-| REST API source | Open-Meteo source in Notebook 00 and later Notebook 04 |
+| At least three data sources | EEA, Wikipedia, and Open-Meteo feasibility documented in `docs/data_sources.md`. |
+| File or database source | EEA historical source validated at metadata level in Phase 1; batch implementation planned for Phase 3. |
+| Web scraping source | Wikipedia HTML feasibility validated in Phase 1; production parser planned for Phase 4. |
+| REST API source | Open-Meteo API feasibility validated in Phase 1; reusable client and event schema planned for Phase 5. |
 | Kafka producer and topic | Phase 6 producer and `air_quality_live` topic |
 | Spark reads from Kafka | Phase 7 Spark Structured Streaming job |
 | Persistent transformed output | Parquet Bronze/Silver/Gold |
@@ -522,21 +527,23 @@ Allowed later-phase command pattern:
 docker compose up kafka spark
 ```
 
-Do not start Kafka or Spark during Phase 0 cleanup or Phase 1 source
-feasibility work unless an issue explicitly requires a Docker service check.
+Do not start Kafka or Spark during Phase 0 cleanup, Phase 1 source feasibility,
+or Phase 2 city mapping unless an issue explicitly requires a Docker service
+check.
 
-### 8. Current Phase 1 Workflow
+### 8. Current Phase 2 Workflow
 
-For Phase 1, the expected local workflow is:
+For Phase 2, the expected local workflow is:
 
 ```bash
 python -m pytest
 docker compose config
-jupyter notebook notebooks/00_project_scope_and_sources.ipynb
+jupyter notebook notebooks/01_city_mapping.ipynb
 ```
 
-Phase 1 may perform controlled source-spike requests, but it must not implement
-the full data pipeline.
+Phase 2 may build the city reference model and related validation tests. It
+must not implement full EEA ingestion, the production Wikipedia scraper, Kafka,
+Spark, Gold tables, or final analytics.
 
 ## Data And Secret Hygiene
 
