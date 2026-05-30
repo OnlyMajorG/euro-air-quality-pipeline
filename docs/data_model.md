@@ -94,6 +94,71 @@ called:
 Both generated files are ignored by `.gitignore` under the repository data
 policy. They are local Phase 2 deliverables, not committed source data.
 
+## EEA Station Mapping Strategy
+
+EEA measurements are station-based, while the project analysis is city-based.
+Phase 2 therefore documents how future EEA station records should be associated
+with the canonical `city_id`. This is a mapping strategy only; it does not
+download EEA data, implement station-radius matching, run Spark, or aggregate
+measurements.
+
+For each city, candidate EEA stations must be reviewed by:
+
+1. distance to the city reference coordinate,
+2. pollutant coverage for PM2.5, PM10, and NO2,
+3. time coverage overlap with the planned analysis period,
+4. station class, station area, or representativeness where available,
+5. country and city context consistency.
+
+Downstream EEA processing must join through `city_id`. Free-text city names,
+station names, or manually typed labels must not be used as downstream city
+join keys.
+
+### Required Station Mapping Fields
+
+| field | type | required | purpose |
+| --- | --- | --- | --- |
+| city_id | string | yes | Canonical city join key from the city reference table. |
+| eea_station_id | string | yes | Stable EEA station identifier from future EEA metadata. |
+| eea_station_name | string | no | Human-readable station name for review only. |
+| station_latitude | float | yes | Station WGS84 latitude used for distance review. |
+| station_longitude | float | yes | Station WGS84 longitude used for distance review. |
+| distance_km_to_city_center | float | yes | Distance from station to city reference coordinate. |
+| pollutants_available | string/list | yes | Target pollutant coverage observed for PM2.5, PM10, and NO2. |
+| time_coverage_start | date/string | no | Earliest observed or documented measurement date. |
+| time_coverage_end | date/string | no | Latest observed or documented measurement date. |
+| station_class | string | no | Station class where EEA metadata provides it. |
+| station_area | string | no | Urban/suburban/rural or equivalent area context where available. |
+| representativeness_notes | string | yes | Reviewer note explaining whether the station is appropriate for the city. |
+| mapping_status | string | yes | One of `selected`, `candidate`, `fallback`, or `rejected`. |
+| mapping_notes | string | yes | Transparent rationale for the station-to-city decision. |
+
+### Fallback Rules
+
+- If no nearby station covers all target pollutants, select the best documented
+  candidate per pollutant and mark the mapping as constrained.
+- If pollutant coverage is partial, preserve the city in the reference model
+  but document unavailable pollutants before Phase 3 ingestion.
+- If time coverage is too short for the planned analysis period, keep the
+  station as `candidate` or `fallback` until reviewed.
+- If station representativeness is unclear, do not promote the station to
+  `selected` without a manual note.
+- The station mapping must be reviewed before Phase 3 ingestion starts.
+
+```mermaid
+flowchart LR
+    city["city_reference.city_id"]
+    candidates["EEA station metadata candidates"]
+    review["Review distance, pollutant coverage, time coverage, representativeness"]
+    mapping["station_city_mapping"]
+    ingestion["Phase 3 EEA ingestion"]
+
+    city --> review
+    candidates --> review
+    review --> mapping
+    mapping --> ingestion
+```
+
 ## Phase 2 Scope Boundary
 
 Allowed in Phase 2:
