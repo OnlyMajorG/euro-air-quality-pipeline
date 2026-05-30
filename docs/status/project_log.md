@@ -75,3 +75,12 @@ No data pipeline logic was implemented.
   artifacts while preserving `.gitkeep`.
 - Did not perform new source requests, downloads, scraping, or pipeline code
   changes.
+
+### Phase 1 Source Feasibility Matrix Created
+
+- Consolidated Open-Meteo, EEA, and Wikipedia findings into one feasibility
+  matrix in `docs/data_sources.md`.
+- Recorded source formats, key fields, risks, decisions, and Phase 2 readiness.
+- Added a small Mermaid source-flow diagram.
+- Did not implement city reference data, parser/client code, Kafka, Spark, or
+  analytics logic.
