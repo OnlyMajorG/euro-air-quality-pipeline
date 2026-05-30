@@ -66,3 +66,12 @@ No data pipeline logic was implemented.
   local unless a later policy explicitly allows committing them.
 - Did not implement a production scraper, parser module, crawler, or metadata
   Parquet output.
+
+### Phase 1 Sample Data Hygiene Policy Defined
+
+- Documented allowed local sample types, naming patterns, size expectations,
+  and Git policy in `docs/data_sources.md`.
+- Verified `.gitignore` protects JSON, HTML, Parquet, CSV, and checkpoint data
+  artifacts while preserving `.gitkeep`.
+- Did not perform new source requests, downloads, scraping, or pipeline code
+  changes.
