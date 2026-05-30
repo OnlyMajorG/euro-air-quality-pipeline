@@ -11,16 +11,19 @@ Jupyter notebooks, and final storytelling.
 
 ## Current Status
 
-**Current phase:** Phase 1 complete; Phase 2 may start
+**Current phase:** Phase 2 in progress
 
-**Latest QA decision:** Phase 1 QA approved the project for Phase 2. Phase 2
-is limited to City Mapping and Reference Model work.
+**Latest QA decision:** Phase 1 QA approved the project for Phase 2. Phase 2 is
+currently limited to City Mapping and Reference Model work; the Phase 2 gate has
+not been reviewed yet.
 
-At the current state, the repository contains the Phase 0 skeleton and Phase 1
-source feasibility documentation for Open-Meteo, EEA, and Wikipedia. Source
-modules and tests are still placeholders. It does **not** yet contain full
-ingestion, a production scraper/client, Kafka producer logic, Spark processing,
-Gold tables, or analysis results.
+At the current state, the repository contains the Phase 0 skeleton, Phase 1
+source feasibility documentation for Open-Meteo, EEA, and Wikipedia, and Phase
+2 city reference work through Open-Meteo mapping documentation. The
+deterministic city reference builder and validation tests exist. It does
+**not** yet contain full EEA ingestion, a production Wikipedia scraper,
+Open-Meteo client behavior, Kafka producer logic, Spark processing, Gold tables,
+or analysis results.
 
 ## Guiding Question
 
@@ -248,12 +251,25 @@ Exit criteria:
 
 Goal: create the central city reference model for joining all sources.
 
-Planned output:
+Current status: **in progress through Open-Meteo mapping documentation**
 
-- Stable `city_id`.
-- City name, country code, latitude, longitude.
-- Mapping notes for EEA stations and Wikipedia metadata.
-- Tests for uniqueness and required fields.
+Implemented so far:
+
+- Exactly 8 starter cities.
+- Canonical city reference schema.
+- Deterministic local city reference builder.
+- Local generated `data/silver/city_reference.csv` and
+  `data/silver/city_reference.parquet` when explicitly called; both remain
+  ignored by Git.
+- Validation tests for required fields, join keys, normalized names, country
+  codes, coordinates, duplicate IDs, minimum city count, and Parquet readback.
+- EEA station-to-city mapping strategy.
+- Wikipedia metadata join and null-handling rules.
+- Open-Meteo coordinate, pollutant field, and UTC timezone mapping rules.
+
+Planned remaining output:
+
+- Remaining Phase 2 QA and gate decision.
 
 Exit criteria:
 
@@ -537,6 +553,7 @@ For Phase 2, the expected local workflow is:
 
 ```bash
 python -m pytest
+python -m src.city_mapping.build_city_reference
 docker compose config
 jupyter notebook notebooks/01_city_mapping.ipynb
 ```
