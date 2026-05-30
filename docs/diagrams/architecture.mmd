@@ -1,0 +1,9 @@
+graph TD
+    EEA[EEA Historical Data] --> Bronze[Bronze Parquet]
+    Wiki[Wikipedia City Metadata] --> Bronze
+    OpenMeteo[Open-Meteo API] --> Kafka[Kafka]
+    Kafka --> Spark[Spark Structured Streaming]
+    Spark --> Bronze
+    Bronze --> Silver[Silver Parquet]
+    Silver --> Gold[Gold Parquet]
+    Gold --> Jupyter[Jupyter Notebooks]
