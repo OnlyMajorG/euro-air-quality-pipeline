@@ -1,5 +1,7 @@
 flowchart TD
-    Sources["EEA files + Wikipedia HTML + Open-Meteo API"] --> Bronze["Bronze: source-shaped local evidence"]
+    Sources["EEA files + Wikipedia HTML + Open-Meteo API"] --> Bronze["Bronze: source-shaped local evidence + Open-Meteo JSONL events"]
+    Bronze --> Broker["Kafka topic or explicit local mock broker"]
+    Broker --> Evidence["Bounded consumer evidence"]
     Bronze --> Silver["Silver: normalized city, metadata, EEA daily, streaming outputs"]
     Silver --> Gold["Gold: analysis-ready tables"]
     Gold --> Viz["Visualizations and final story"]
