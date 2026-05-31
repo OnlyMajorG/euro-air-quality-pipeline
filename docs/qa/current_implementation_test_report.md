@@ -2,7 +2,7 @@
 
 ## Scope
 
-This report covers the currently implemented notebook-only project state through Phase 4 and smoke-checks the planned notebooks through Phase 8 where they are safe to execute without external services.
+This report covers the currently implemented notebook-only project state through Phase 5 and smoke-checks the planned notebooks through Phase 8 where they are safe to execute without external services.
 
 ## Commands And Checks
 
@@ -17,6 +17,8 @@ This report covers the currently implemented notebook-only project state through
 | City reference output | PASS | `data/silver/city_reference.parquet` readable, 8 rows. |
 | EEA Silver output | PASS | `data/silver/eea_city_daily.parquet` readable, 24 controlled-sample rows. |
 | Wikipedia metadata output | PASS | `data/silver/city_metadata.parquet` readable, 8 rows. |
+| Phase 5 Open-Meteo event batch | PASS | 8 default events, latest hour per city, with provenance labels. |
+| Phase 5 Kafka producer and consumer | LOCAL MOCK PASS; FH RUN REQUIRED | strict Kafka and transparent local mock modes exist; broker-backed evidence must run on FH JupyterHub. |
 | Generated data hygiene | PASS | generated Parquet, CSV, JSON and HTML files under `data/` are ignored. |
 | Course notebook reference review | PASS | all 18 notebooks under `project-resources/bwi-big-data-engineering-main/notebooks/` were inspected as JSON and compared against the project notebooks. |
 | Wikipedia parser semantic validation | PASS | `city_metadata.parquet` contains plausible population, area and density values for all 8 cities after the parser correction. |
@@ -34,7 +36,8 @@ None.
 ### Minor
 
 - Phase 3 currently passes using a controlled sample when no real EEA extract exists. This is valid for implementation testing but must be replaced by a real EEA local extract before final analytical storytelling.
-- Notebooks `05` and `06` are safe smoke-tested only. They intentionally do not start Kafka or Spark streaming services until the corresponding implementation phases are active.
+- Notebook `05` is implemented and locally validated with the explicit mock broker. Kafka broker-backed delivery remains an FH JupyterHub evidence run.
+- Notebook `06` is safe smoke-tested only. It intentionally does not start Spark streaming until the Phase-6 implementation and dependencies are active.
 - The current notebook files do not contain nbformat cell IDs. Current tooling accepts them with a warning, but a future notebook-format cleanup should add IDs in a dedicated mechanical change.
 
 ## Corrected Issue
@@ -58,4 +61,4 @@ No dashboard, ML model, Airflow, dbt, PostgreSQL core, cloud deployment, or prod
 
 ## Final Decision
 
-Current implementation through Phase 4 passes QA. Phase 5 may start.
+Current implementation through Phase 5 passes local QA. A strict FH Kafka producer/consumer run remains required before claiming external Phase-5 completion. Phase 6 implementation may start against the documented event contract.

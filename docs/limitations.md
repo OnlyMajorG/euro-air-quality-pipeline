@@ -13,3 +13,9 @@
 - Phase 3 can use a controlled sample when no local EEA extract is available. That sample proves transformation mechanics but is not analytical evidence.
 - Phase 3 EEA station mapping is simplified and must be reviewed against real station metadata before drawing conclusions.
 - Phase 4 Wikipedia parsing is heuristic. Missing or ambiguous population, area, or density fields remain nullable and are documented with `parse_status` and `parse_notes`.
+- Phase 5 REST API values are current or near-current context. They are not historical EEA measurements and must remain labeled separately.
+- Phase 5 controlled Open-Meteo fallback rows are mechanics-only test data. Final API claims require a successful run with `status=fetched_api`.
+- Phase 5 Kafka publishing requires a reachable external broker and a real group-specific topic. A local JSONL event batch proves event generation, but it does not prove Kafka delivery.
+- Phase 5 local mock-broker delivery proves producer/consumer mechanics only. The FH Kafka claim requires `KAFKA_MODE=kafka`, disabled mock fallback and a successful bounded consumer smoke test.
+- Kafka delivery is at least once. Phase 6 must deduplicate by deterministic `event_id`.
+- MongoDB and a Vienna-only weather collection are intentionally not introduced: they are not available artifacts and would conflict with the frozen EEA/Wikipedia/Open-Meteo/Kafka/Spark scope.

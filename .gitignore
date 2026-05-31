@@ -20,6 +20,7 @@ project-resources/
 data/**/*.parquet
 data/**/*.csv
 data/**/*.json
+data/**/*.jsonl
 data/**/*.html
 data/checkpoints/
 data/**/checkpoints/
