@@ -1,64 +1,57 @@
-# Current Implementation Test Report
+# Aktueller Implementierungs- und Testbericht
 
-## Scope
+## Gesamtstatus
 
-This report covers the currently implemented notebook-only project state through Phase 5 and smoke-checks the planned notebooks through Phase 8 where they are safe to execute without external services.
+LOKAL REPRODUZIERBAR, BEDINGT BEREIT FÜR DEN FH-NACHWEISLAUF
 
-## Commands And Checks
+Die Notebooks `00` bis `08` bestehen den lokalen Test nach Kernel-Neustart und vollständiger Ausführung. Der lokale Rechner besitzt kein PySpark. Deshalb verwendet Notebook `06` den explizit gekennzeichneten Modus `pandas_mock_no_pyspark`. Dieser Modus prüft Verträge, Qualitätsregeln, Joins und Parquet-Übergaben, ist aber weder ein Spark- noch ein Kafka-Nachweis.
 
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Git tracking for `project-resources/` | PASS | `git ls-files project-resources` returns no tracked files after `git rm --cached`. |
-| `.gitignore` for `project-resources/` | PASS | `project-resources/` is ignored and still exists locally. |
-| Notebook JSON and required section headers | PASS | all notebooks `00` to `08` are valid and have required sections. |
-| Notebook saved outputs | PASS | all notebooks have zero saved code outputs. |
-| Phase 1 source spike | PASS | `RUN_SOURCE_SPIKES=true` executed notebook `01`; Open-Meteo and Wikipedia samples were created locally. |
-| Full safe notebook execution | PASS | notebooks `00` to `08` executed with safe defaults; no Kafka or Spark services were started. |
-| City reference output | PASS | `data/silver/city_reference.parquet` readable, 8 rows. |
-| EEA Silver output | PASS | `data/silver/eea_city_daily.parquet` readable, 24 controlled-sample rows. |
-| Wikipedia metadata output | PASS | `data/silver/city_metadata.parquet` readable, 8 rows. |
-| Phase 5 Open-Meteo event batch | PASS | 8 default events, latest hour per city, with provenance labels. |
-| Phase 5 Kafka producer and consumer | LOCAL MOCK PASS; FH RUN REQUIRED | strict Kafka and transparent local mock modes exist; broker-backed evidence must run on FH JupyterHub. |
-| Generated data hygiene | PASS | generated Parquet, CSV, JSON and HTML files under `data/` are ignored. |
-| Course notebook reference review | PASS | all 18 notebooks under `project-resources/bwi-big-data-engineering-main/notebooks/` were inspected as JSON and compared against the project notebooks. |
-| Wikipedia parser semantic validation | PASS | `city_metadata.parquet` contains plausible population, area and density values for all 8 cities after the parser correction. |
+## Anforderungsmatrix
 
-## Findings
+| Anforderung | Umsetzung | Lokales Ergebnis | Offener Nachweis |
+| --- | --- | --- | --- |
+| Datei- oder Batch-Quelle | EEA in Notebook `03` | mit kontrolliertem Sample bestanden | realen EEA-Extrakt bereitstellen |
+| Web-Scraping | Wikipedia in Notebook `04` | bestanden | vor Abgabe erneut prüfen |
+| REST-API | Open-Meteo in Notebook `05` | mit sichtbarer Herkunft bestanden | strikten FH-Lauf ausführen |
+| Kafka-Produzent | Notebook `05` | lokaler JSONL-Mock bestanden | FH-Broker und Gruppen-Topic verwenden |
+| Spark liest Kafka | Notebook `06` | Implementierung vorhanden; Strukturtest bestanden | strikten FH-Spark-Kafka-Lauf ausführen |
+| Persistenz | Bronze, Silver und Gold | bestanden | kein lokaler Punkt offen |
+| Datenflussvisualisierung | Mermaid-Diagramme | bestanden | kein Punkt offen |
+| Storytelling | Notebook `08` und Präsentationsdateien | mit Sample-Hinweis bestanden | mit realen EEA-Daten neu erzeugen |
+| Öffentliches Repository | `https://github.com/OnlyMajorG/euro-air-quality-pipeline` | öffentliche Sichtbarkeit bestätigt | lokale Änderungen pushen |
 
-### Critical
+## Durchgeführte Prüfungen
 
-None.
+| Prüfung | Ergebnis |
+| --- | --- |
+| Kernel-Neustart und vollständige Ausführung für `00` bis `08` | bestanden |
+| Notebook-JSON, eindeutige Zell-IDs und Python-Syntax | bestanden |
+| Erklärende Markdown-Zelle vor jeder Code-Zelle | bestanden |
+| Gespeicherte Notebook-Ausgaben entfernt | bestanden |
+| Git-Diff-Prüfung | bestanden |
+| Laufzeitdaten unter `data/` ignoriert | bestanden |
+| Secret-Scan versionierter Textdateien | bestanden |
+| Sechs PNG-Abbildungen erzeugt und visuell geprüft | bestanden |
+| Unsichere Kafka-Placeholder-Konfiguration | korrekt abgelehnt |
+| Strikter Spark-Modus ohne PySpark | korrekt abgelehnt |
+| Reset-Notebook im Standard-Dry-Run | verändert keine Daten |
+| Reset-Versuch gegen Dateisystemwurzel | korrekt abgelehnt |
 
-### Major
+## Lokale Pipeline-Werte
 
-None.
+| Artefakt | Ergebnis |
+| --- | --- |
+| Phase-6-Modus | `pandas_mock_no_pyspark` |
+| Bronze-Zeilen | `192` |
+| Silver-Zeilen | `192` |
+| Reject-Zeilen | `0` |
+| Live-Snapshot-Zeilen | `8` |
+| Historische Gold-Tageswerte | `720` |
+| Schadstoff-Rangfolgen | `24` |
+| Stadtkontext-Zeilen | `24` |
+| Abbildungen | `6` |
+| Finale historische Aussagen lokal erlaubt | `False` |
 
-### Minor
+## Fazit
 
-- Phase 3 currently passes using a controlled sample when no real EEA extract exists. This is valid for implementation testing but must be replaced by a real EEA local extract before final analytical storytelling.
-- Notebook `05` is implemented and locally validated with the explicit mock broker. Kafka broker-backed delivery remains an FH JupyterHub evidence run.
-- Notebook `06` is safe smoke-tested only. It intentionally does not start Spark streaming until the Phase-6 implementation and dependencies are active.
-- The current notebook files do not contain nbformat cell IDs. Current tooling accepts them with a warning, but a future notebook-format cleanup should add IDs in a dedicated mechanical change.
-
-## Corrected Issue
-
-The original Wikipedia parser used broad substring matching against infobox labels. For several cities it selected unrelated rows such as area codes or heritage-site areas. Notebook `04` now reads city-level values from the relevant infobox sections and uses a compact-infobox fallback for Paris. Positive-value checks were added for population, area and density.
-
-## Phase 5 To 8 Planning Files
-
-Implementation issues were added locally under `project-resources/`:
-
-- `phase_5_github_issues_open_meteo_kafka_producer.md`
-- `phase_6_github_issues_spark_streaming_kafka_to_parquet.md`
-- `phase_7_github_issues_gold_layer_data_quality.md`
-- `phase_8_github_issues_analysis_visualization_storytelling.md`
-
-These files explicitly separate safe notebook smoke tests from the required real Kafka and Spark end-to-end evidence.
-
-## Scope Assessment
-
-No dashboard, ML model, Airflow, dbt, PostgreSQL core, cloud deployment, or production platform work was added. The notebook-only architecture remains aligned with the updated implementation plan.
-
-## Final Decision
-
-Current implementation through Phase 5 passes local QA. A strict FH Kafka producer/consumer run remains required before claiming external Phase-5 completion. Phase 6 implementation may start against the documented event contract.
+Die lokale Implementierung ist konsistent und reproduzierbar. Die finale Abnahme bleibt vom strikten FH-Kafka-zu-Spark-Lauf und einem Analyselauf mit realen EEA-Daten abhängig.

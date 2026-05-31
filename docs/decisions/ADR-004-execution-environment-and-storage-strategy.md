@@ -1,17 +1,13 @@
-# ADR-004: Execution Environment and Storage Strategy
+# ADR-004: Ausführungsumgebung und Speicherstrategie
 
 ## Status
 
-Accepted
+Akzeptiert
 
-## Context
+## Kontext
 
-The FH Spark cluster was reachable and could execute basic compute, but shared storage was not confirmed.
+Der FH-Spark-Cluster war erreichbar, gemeinsamer Speicher ist jedoch nicht bestätigt.
 
-## Decision
+## Entscheidung
 
-Use `local_project` with `SPARK_MASTER_URL=local[*]` for reliable Parquet-producing pipeline notebooks. Use the FH Spark cluster for connectivity and compute smoke tests only. Use `fh_cluster_shared_storage` only if a real shared path is confirmed.
-
-## Consequences
-
-The repository must not claim cluster Spark writes Parquet into the local project `data/` folder unless this is proven.
+Lokale Parquet-Ausgaben verwenden `SPARK_MASTER_URL=local[*]`. Der FH-Cluster dient dem strikten Kafka-zu-Spark-Nachweis. Cluster-Speicher wird erst nach erfolgreicher Schreib- und Leseprüfung verwendet.

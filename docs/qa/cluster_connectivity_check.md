@@ -1,14 +1,12 @@
-# Cluster Connectivity Check
+# Prüfung der Cluster-Erreichbarkeit
 
-## Summary
+## Ergebnis
 
-Known findings:
+- Spark-Master erreichbar
+- grundlegende Spark-Berechnung möglich
+- gemeinsamer Speicher nicht bestätigt
+- lokale Jupyter-Pfade nicht automatisch für Cluster-Executors sichtbar
 
-- Spark master reachable.
-- Basic DataFrame action works.
-- HDFS/shared storage not available or not confirmed.
-- Local Jupyter path is not shared with cluster executors.
+## Entscheidung
 
-## Decision
-
-Use Spark `local[*]` for reliable Parquet-producing pipeline notebooks. Use FH cluster mode only for connectivity and compute smoke tests unless shared storage is confirmed.
+Lokale Parquet-Ausgaben verwenden Spark `local[*]`. Der FH-Cluster wird für den strikten Kafka-zu-Spark-Nachweis genutzt. Aussagen über Cluster-Speicher erfordern einen erfolgreichen Schreib- und Lesetest.
