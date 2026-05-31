@@ -1,24 +1,22 @@
-# Cluster Setup
+# Cluster-Konfiguration
 
-## Assumptions
+## Annahmen
 
-The FH environment may require VPN, JupyterHub access, a Spark master URL, and a Kafka broker URL. Credentials and private hostnames must not be committed.
+Die FH-Umgebung kann VPN-Zugriff, JupyterHub, eine Spark-Master-URL und einen Kafka-Broker erfordern. Zugangsdaten und private Hostnamen dürfen nicht versioniert werden.
 
-## Known Spark Cluster Findings
+## Bekannte Erkenntnisse
 
-- Spark master connectivity was tested successfully.
-- A basic Spark DataFrame action worked.
-- HDFS/shared storage was not confirmed.
-- Local Jupyter paths are not automatically shared with cluster executors.
+- Der Spark-Master war erreichbar.
+- Eine grundlegende Spark-Berechnung war möglich.
+- Gemeinsamer Speicher für Spark-Worker ist noch nicht bestätigt.
+- Lokale Jupyter-Pfade sind nicht automatisch für Cluster-Executors sichtbar.
 
-## Decision
+## Entscheidung
 
-Use Spark `local[*]` for reliable Parquet-producing notebook runs. Use the FH Spark cluster only for connectivity and compute smoke tests unless a confirmed shared storage path is provided.
+Für reproduzierbare lokale Parquet-Ausgaben wird `SPARK_MASTER_URL=local[*]` verwendet. Der FH-Cluster dient für den strikten Kafka-zu-Spark-Nachweis. Gemeinsamer Cluster-Speicher darf erst nach einem erfolgreichen Schreib- und Lesetest behauptet werden.
 
-Notebook `07` adds an explicit optional shared-storage probe:
+Notebook `07` bietet dafür den optionalen Schalter:
 
 ```env
 RUN_PHASE7_SPARK_STORAGE_PROBE=true
 ```
-
-Only a successful Spark-worker write and readback under the configured `DATA_DIR` permits a cluster-storage claim. Gold production itself remains driver-local and reproducible.

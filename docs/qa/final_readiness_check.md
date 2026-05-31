@@ -1,30 +1,28 @@
-# Final Readiness Check
+# Abschließende Bereitschaftsprüfung
 
-## Checklist
+## Checkliste
 
-- [ ] All notebooks execute in order from `00` to `08`.
-- [ ] No secrets or credentials are committed.
-- [ ] Generated data remains ignored by Git.
-- [ ] Kafka topic is group-specific.
-- [ ] Spark Structured Streaming reads from Kafka and writes Parquet.
-- [ ] Gold tables and figures are generated.
-- [ ] Limitations and non-causal interpretation are documented.
-- [ ] Presentation storyline is complete.
+- [x] Notebooks `00` bis `08` laufen lokal in Reihenfolge durch.
+- [x] Keine Geheimnisse oder Zugangsdaten sind versioniert.
+- [x] Laufzeitdaten unter `data/` bleiben ignoriert.
+- [ ] Gruppenspezifisches Kafka-Topic ist in der nicht versionierten FH-`.env` eingetragen.
+- [ ] Spark Structured Streaming liest in der FH-Umgebung aus Kafka und schreibt Parquet.
+- [x] Der reduzierte lokale Strukturtest schreibt kompatible Parquet-Übergaben.
+- [x] Gold-Datensätze und sechs Abbildungen werden lokal erzeugt.
+- [x] Einschränkungen und nicht kausale Interpretation sind dokumentiert.
+- [x] Die Storyline ist vollständig.
 
-## Current Phase Gate Notes
+## Offene FH-Nachweise
 
-| Phase | Current status | Gate note |
-| --- | --- | --- |
-| 0 | complete | Notebook-only repository structure is in place. |
-| 1 | complete | Source and cluster checks are implemented; local QA executed the guarded Open-Meteo and Wikipedia source spikes successfully. |
-| 2 | complete | City reference notebook writes CSV and Parquet locally. |
-| 3 | complete with data note | EEA batch notebook works with local EEA files or controlled sample fallback. Real EEA data is needed for final analysis. |
-| 4 | complete | Wikipedia scraping notebook implements Bronze HTML, parser and Silver metadata output; local validation produced readable `city_metadata.parquet`. |
-| 5 | implemented; local mock pass; FH evidence pending | Open-Meteo Bronze JSON, manifest, latest-hour JSONL events, Kafka producer, bounded consumer and mock broker are implemented. Strict FH Kafka delivery remains required. |
-| 6-8 | pending | Spark streaming, Gold layer and storytelling remain to be completed. |
+1. Gruppenspezifisches Kafka-Topic konfigurieren.
+2. Reale EEA-Daten für Notebook `03` bereitstellen.
+3. Notebook `05` im strikten Kafka-Modus ausführen.
+4. Notebook `06` im strikten Spark-Kafka-Modus ausführen.
+5. Notebooks `07` und `08` erneut ausführen und die Abbildungen prüfen.
 
-## Git Hygiene
+## Git-Hygiene
 
-- `project-resources/` is ignored by Git and removed from tracking with `git rm --cached`.
-- Generated local files under `data/` remain ignored.
-- The project repository deliverable is the notebook-only structure, docs, diagrams, configuration examples and presentation placeholders.
+- Laufzeitdaten bleiben lokal.
+- Unter `data/` werden nur `.gitkeep`-Dateien versioniert.
+- Lokale `.env`-Dateien bleiben ignoriert.
+- Das öffentliche Repository ist erreichbar: `https://github.com/OnlyMajorG/euro-air-quality-pipeline`.
