@@ -30,6 +30,8 @@ By default, Phase 5 publishes the latest complete pollutant hour per city. `OPEN
 
 Generated data under `data/` is local and ignored by Git. Tiny samples may be created during notebook execution, but large raw files, secrets, credentials, and uncontrolled generated data must not be committed.
 
+Phase 3 persists `data_status=real_eea_file` or `data_status=controlled_sample_fallback` into Silver and Gold Parquet. Phase 7 therefore prevents a controlled EEA sample from being mistaken for empirical evidence.
+
 ## Phase 0 to 4 Implementation Notes
 
 | Phase | Source or artifact | Notebook | Status | Notes |
@@ -42,6 +44,18 @@ Generated data under `data/` is local and ignored by Git. Tiny samples may be cr
 | Phase 4 | Wikipedia scraping | `04_wikipedia_web_scraping.ipynb` | implemented | Fetches raw HTML when enabled and writes `data/silver/city_metadata.parquet`. |
 | Phase 5 | Open-Meteo REST API | `05_open_meteo_api_and_kafka_producer.ipynb` | implemented with controlled fallback | Fetches cities, stores Bronze JSON and writes provenance-labeled local JSONL events. |
 | Phase 5 | Kafka producer and consumer evidence | `05_open_meteo_api_and_kafka_producer.ipynb` | implemented with strict FH and local mock modes | Set `KAFKA_MODE=kafka` and `RUN_OPEN_METEO_KAFKA_PRODUCER=true` for the FH evidence run. |
+| Phase 6 | Spark Kafka processing | `06_spark_structured_streaming_kafka_to_parquet.ipynb` | implemented with strict FH and Spark file-stream fallback modes | Final evidence requires `selected_source_mode=kafka`. |
+| Phase 7 | Gold layer and data quality | `07_gold_layer_and_data_quality.ipynb` | implemented | Creates five Gold Parquets and records historical/live fallback provenance. |
+
+## Gold Output Contracts
+
+| Dataset | Context | Purpose |
+| --- | --- | --- |
+| `city_air_quality_daily_summary.parquet` | `eea_historical` | Historical daily city/pollutant values |
+| `pollutant_ranking_by_city.parquet` | `eea_historical` | Pollutant-specific city rankings |
+| `city_context_air_quality.parquet` | `eea_historical` | Ranking values joined with Wikipedia context |
+| `live_air_quality_latest.parquet` | `open_meteo_live` | Separate latest API/Kafka snapshot |
+| `data_quality_summary.parquet` | quality metadata | Row counts, duplicates, missing values, coverage and provenance |
 
 ## Open-Meteo Kafka Event Contract
 
@@ -74,6 +88,7 @@ Generated data under `data/` is local and ignored by Git. Tiny samples may be cr
 | `unit` | source measurement unit |
 | `source` | `eea` |
 | `processing_time_utc` | notebook processing timestamp |
+| `data_status` | `real_eea_file` or `controlled_sample_fallback` provenance marker |
 
 ## Wikipedia Silver Output Contract
 

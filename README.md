@@ -81,7 +81,8 @@ flowchart TD
 | Phase 4: Wikipedia web scraping | Implemented as notebook workflow | `04_wikipedia_web_scraping.ipynb` fetches raw HTML when enabled, parses metadata and writes `city_metadata.parquet` |
 | Phase 5: Open-Meteo API and Kafka producer | Implemented; local mock pass; FH evidence run required | `05_open_meteo_api_and_kafka_producer.ipynb` fetches REST API data, stores Bronze JSON plus a manifest, publishes latest-hour events and proves delivery with a bounded Kafka consumer or explicit local mock |
 | Phase 6: Spark Structured Streaming | Implemented; local contract and Spark compute checks passed; FH Kafka evidence run required | `06_spark_structured_streaming_kafka_to_parquet.ipynb` prefers Spark `readStream.format("kafka")`, falls back transparently to a local Spark file stream when allowed, validates and enriches events, writes Parquet and creates a latest snapshot. Native Windows file-stream execution additionally requires the documented Hadoop binaries. |
-| Phase 7 onward | Planned | Notebooks `07` and `08` contain the planned continuation and must be completed in later phases |
+| Phase 7: Gold layer and data quality | Implemented; local fallback run passed; FH evidence run required | `07_gold_layer_and_data_quality.ipynb` checks FH endpoints, validates Silver contracts, creates five Gold Parquets, profiles quality and marks fallback provenance explicitly |
+| Phase 8: Analysis and storytelling | Planned | `08_analysis_visualization_and_storytelling.ipynb` must consume Gold outputs only |
 
 Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 5 outputs locally, run notebooks `02`, `03`, `04`, and `05` in order.
 
@@ -96,6 +97,16 @@ Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 5
 ## Technology Stack
 
 Python, Jupyter Notebook, Pandas, Requests, BeautifulSoup, Kafka, Spark Structured Streaming, Parquet, Matplotlib, and Mermaid diagrams.
+
+## Repository Structure
+
+```text
+notebooks/          ordered executable project documentation
+data/               local runtime data; only .gitkeep files are versioned
+docs/               architecture, decisions, limitations and QA evidence
+presentation/       storyline, outline and generated figures
+project-resources/  local course reference material; not committed
+```
 
 ## Execution Modes
 
@@ -144,6 +155,7 @@ ALLOW_KAFKA_MOCK_FALLBACK=true
 SPARK_KAFKA_MODE=auto
 ALLOW_SPARK_KAFKA_MOCK_FALLBACK=true
 SPARK_KAFKA_CONNECTOR_PACKAGE=
+RUN_PHASE7_SPARK_STORAGE_PROBE=false
 KAFKA_CONSUMER_TIMEOUT_MS=10000
 KAFKA_CONSUMER_MAX_MESSAGES=8
 RUN_OPEN_METEO_API_FETCH=true
@@ -168,6 +180,8 @@ With `KAFKA_MODE=auto`, an unavailable Kafka broker falls back to the local mock
 
 Notebook `06` uses the same strategy independently for Spark. With `SPARK_KAFKA_MODE=auto`, it tries the configured Kafka broker and Spark Kafka connector first. If either is unavailable and `ALLOW_SPARK_KAFKA_MOCK_FALLBACK=true`, it reads the Phase-5 JSONL batch through a local Spark Structured Streaming file source. For the strict FH evidence run, set `SPARK_KAFKA_MODE=kafka` and `ALLOW_SPARK_KAFKA_MOCK_FALLBACK=false`. If the JupyterHub Spark installation requires an explicit connector package, set `SPARK_KAFKA_CONNECTOR_PACKAGE` to the package matching its Spark and Scala versions.
 
+Notebook `07` creates driver-local Gold Parquets so results remain reproducible without unverified FH shared storage. It always checks the configured FH Kafka broker and Spark master. Set `RUN_PHASE7_SPARK_STORAGE_PROBE=true` on JupyterHub to verify Spark-worker write/readback access before making any cluster-storage claim. If Phase-6 Silver streaming output is unavailable locally, notebook `07` reconstructs the live snapshot from Phase-5 JSONL events and records `live_input_mode=phase5_jsonl_mock_reconstruction`.
+
 ## Execution Plan
 
 1. Run notebooks `00` and `01` to review scope, sources and infrastructure assumptions.
@@ -176,7 +190,12 @@ Notebook `06` uses the same strategy independently for Spark. With `SPARK_KAFKA_
 4. Run notebook `04` to fetch and parse Wikipedia context.
 5. Run notebook `05` to fetch Open-Meteo data, build validated events, publish them to Kafka and verify delivery with a bounded consumer. Use strict Kafka mode for the FH evidence run.
 6. Run notebook `06` so Spark reads those events from Kafka and writes Parquet. Use strict Spark Kafka mode on FH JupyterHub; use the documented Spark file-stream mock only for local reproducibility.
-7. Complete notebooks `07` and `08` for Gold tables, visualizations and storytelling.
+7. Run notebook `07` to create Gold tables and the cross-table quality report. Controlled EEA samples and reconstructed live snapshots remain visibly marked.
+8. Complete notebook `08` for visualizations and storytelling using Gold outputs only.
+
+## Intended Story
+
+The final presentation compares historical PM2.5, PM10 and NO2 patterns across eight European cities, highlights pollutant-specific city rankings, and explores whether contextual metadata such as population density helps frame observed differences. A separate Open-Meteo snapshot demonstrates the live Kafka/Spark path without mixing current API values into historical EEA conclusions. The story is descriptive and exploratory, not causal.
 
 ## What Is Not Committed
 
