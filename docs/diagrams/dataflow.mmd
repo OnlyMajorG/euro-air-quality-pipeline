@@ -1,11 +1,11 @@
 flowchart TD
-    Sources["EEA files + Wikipedia HTML + Open-Meteo API"] --> Bronze["Bronze: source-shaped local evidence + Open-Meteo JSONL events"]
-    Bronze --> Broker["Kafka topic or explicit local mock broker"]
-    Broker --> Evidence["Bounded producer consumer evidence"]
-    Broker --> Spark["06 Spark Structured Streaming parse validate join"]
-    Bronze -. "local Spark file-stream fallback" .-> Spark
-    Bronze --> Silver["Silver: normalized city, metadata, EEA daily, streaming outputs"]
+    Quellen["EEA-Dateien, Wikipedia-HTML und Open-Meteo-API"] --> Bronze["Bronze: quellnahe lokale Daten und JSONL-Ereignisse"]
+    Bronze --> Broker["Kafka-Topic oder lokaler Mock-Broker"]
+    Broker --> Nachweis["Begrenzter Produzenten- und Consumer-Test"]
+    Broker --> Spark["06 Spark: lesen, parsen, validieren und verknüpfen"]
+    Bronze -. "lokaler Fallback" .-> Spark
+    Bronze --> Silver["Silver: normalisierte und verknüpfbare Daten"]
     Spark --> Silver
-    Silver --> Gold["Gold: analysis-ready tables"]
-    Gold --> Quality["07 cross-table quality report"]
-    Gold --> Viz["Visualizations and final story"]
+    Silver --> Gold["Gold: analysebereite Tabellen"]
+    Gold --> Qualität["07 Qualitätsbericht"]
+    Gold --> Analyse["08 Visualisierung und Storytelling"]

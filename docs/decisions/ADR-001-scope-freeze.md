@@ -1,17 +1,15 @@
-# ADR-001: Scope Freeze
+# ADR-001: Eingefrorener Projektumfang
 
 ## Status
 
-Accepted
+Akzeptiert
 
-## Context
+## Kontext
 
-The project must satisfy course requirements without uncontrolled scope expansion.
+Das Projekt soll die geforderten Data-Engineering-Schritte erfüllen, ohne unkontrolliert erweitert zu werden.
 
-## Decision
+## Entscheidung
 
-The frozen scope is European air quality patterns across selected cities using EEA historical files, Wikipedia web scraping, Open-Meteo REST API, Kafka, Spark Structured Streaming, Parquet, Jupyter notebooks, Matplotlib, and Mermaid diagrams. Non-goals are dashboards, ML models, Airflow, dbt, PostgreSQL as a core component, cloud deployment, and production operations.
+Der Umfang umfasst europäische Luftqualitätsmuster, EEA-Dateien, Wikipedia-Web-Scraping, die Open-Meteo-REST-API, Kafka, Spark Structured Streaming, Parquet, Jupyter Notebooks, Matplotlib und Mermaid-Diagramme.
 
-## Consequences
-
-Work should stay aligned with the notebook order and course requirements. Optional technologies may be mentioned only as non-goals or future extensions.
+Nicht vorgesehen sind Dashboards, ML-Modelle, Airflow, dbt, Cloud-Bereitstellung und Produktionsbetrieb.

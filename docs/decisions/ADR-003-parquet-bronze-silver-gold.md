@@ -1,17 +1,9 @@
-# ADR-003: Parquet Bronze/Silver/Gold Storage
+# ADR-003: Bronze-, Silver- und Gold-Schichten mit Parquet
 
 ## Status
 
-Accepted
+Akzeptiert
 
-## Context
+## Entscheidung
 
-The project needs a reproducible flat-file storage layout for raw, normalized, and analysis-ready datasets.
-
-## Decision
-
-Use Parquet as the primary transformed-data format and organize outputs into Bronze, Silver, and Gold layers under `data/`.
-
-## Consequences
-
-Generated data remains local and ignored by Git. Bronze stores source-shaped evidence, Silver stores normalized joinable datasets, and Gold stores analysis-ready outputs.
+Parquet ist das primäre Format für transformierte Daten. Bronze enthält quellnahe Daten, Silver normalisierte und verknüpfbare Daten, Gold analysebereite Ergebnisse. Erzeugte Dateien bleiben lokal unter `data/`.

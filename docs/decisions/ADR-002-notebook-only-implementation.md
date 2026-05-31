@@ -1,17 +1,13 @@
-# ADR-002: Notebook-Only Implementation
+# ADR-002: Notebook-basierte Umsetzung
 
 ## Status
 
-Accepted
+Akzeptiert
 
-## Context
+## Kontext
 
-The course requires each implementation step to be documented in Jupyter notebooks and the public GitHub repository is expected to share the notebooks.
+Die Arbeitsschritte sollen nachvollziehbar in Jupyter Notebooks dokumentiert werden.
 
-## Decision
+## Entscheidung
 
-All implementation logic will live in ordered notebooks. `src/` and `tests/` are not used as the primary implementation or QA layer. Useful legacy logic was migrated into the notebooks and documented in `docs/archive/legacy_src_notes.md`.
-
-## Consequences
-
-The notebooks are the main executable deliverable. Validation code appears inside notebooks and QA Markdown files rather than in a separate production test suite.
+Die Implementierungslogik liegt in geordneten Notebooks. Validierungen stehen direkt in den Notebooks und in QA-Dokumenten. Separate `src/`- und `tests/`-Ordner sind nicht die primäre Umsetzungsebene.
