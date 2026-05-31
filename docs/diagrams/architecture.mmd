@@ -13,5 +13,6 @@ flowchart LR
     N04 --> PARQUET
     N06 --> PARQUET
     PARQUET --> N07["07 Gold and data quality notebook"]
+    RAW -. "explicit local live reconstruction fallback" .-> N07
     N07 --> N08["08 Analysis and storytelling notebook"]
     N08 --> PRES["Presentation figures and storyline"]

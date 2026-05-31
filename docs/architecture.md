@@ -10,7 +10,8 @@ The project uses a notebook-only implementation model. Each implementation step 
 4. Open-Meteo raw JSON and validated JSONL event batches are stored locally as Bronze evidence.
 5. When a reachable broker is configured, Open-Meteo events are written to a group-specific Kafka topic and verified with a bounded consumer smoke test.
 6. Spark Structured Streaming reads Kafka events, validates the explicit schema, joins city context, and writes Parquet.
-7. Silver and Gold Parquet datasets support visual analysis and storytelling.
+7. Phase 7 validates Silver contracts, creates historical Gold tables, keeps the live snapshot separate, and writes a cross-table quality report.
+8. Gold Parquet datasets support visual analysis and storytelling.
 
 ## Phase 5 Event Contract
 
@@ -29,6 +30,12 @@ Notebook `05_open_meteo_api_and_kafka_producer.ipynb` emits flat JSON events wit
 - `SPARK_KAFKA_MODE=mock`: local reproducibility mode. Spark Structured Streaming reads Phase-5 JSONL events via `readStream.text()`, then executes the same parsing, validation, joins, checkpoints and Parquet read-back.
 
 The local Spark file-stream mock is a functional fallback, not proof that Spark read Kafka. The final FH evidence run must report `selected_source_mode=kafka`.
+
+## Gold Layer Strategy
+
+Notebook `07_gold_layer_and_data_quality.ipynb` writes driver-local Gold Parquet files for reproducibility. It checks configured Kafka and Spark endpoints and can execute a Spark-worker storage write/readback probe with `RUN_PHASE7_SPARK_STORAGE_PROBE=true`. Until that probe succeeds on FH JupyterHub, cluster shared storage is not claimed.
+
+The live snapshot prefers Phase-6 Silver streaming Parquet. If it is absent locally, Phase-7 reconstruction from Phase-5 JSONL is allowed only as an explicit functional fallback with `live_input_mode=phase5_jsonl_mock_reconstruction`.
 
 ## Notebook-Only Implementation
 
