@@ -21,4 +21,7 @@
 - Spark Kafka connector packages must match the Spark and Scala versions installed on JupyterHub. Configure `SPARK_KAFKA_CONNECTOR_PACKAGE` only when the environment does not already provide the connector.
 - Native Windows Spark file reads and Parquet writes require compatible Hadoop Windows binaries (`winutils.exe` and `hadoop.dll`) through `HADOOP_HOME`, or a Linux-based runtime. Use Java 17 or 21; Java 25 is not suitable for the current Hadoop filesystem dependency.
 - Kafka delivery is at least once. Phase 6 must deduplicate by deterministic `event_id`.
+- Phase 7 writes Gold Parquet driver-locally until FH shared storage is proven by `RUN_PHASE7_SPARK_STORAGE_PROBE=true`.
+- If Phase-6 Silver streaming output is unavailable, Phase 7 may reconstruct a live snapshot from Phase-5 JSONL events. The output records `live_input_mode=phase5_jsonl_mock_reconstruction`; this is not Kafka-to-Spark evidence.
+- Historical Gold tables preserve `data_status`. Controlled EEA sample data blocks final analytical claims and may demonstrate pipeline mechanics only.
 - MongoDB and a Vienna-only weather collection are intentionally not introduced: they are not available artifacts and would conflict with the frozen EEA/Wikipedia/Open-Meteo/Kafka/Spark scope.

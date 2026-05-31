@@ -14,3 +14,11 @@ The FH environment may require VPN, JupyterHub access, a Spark master URL, and a
 ## Decision
 
 Use Spark `local[*]` for reliable Parquet-producing notebook runs. Use the FH Spark cluster only for connectivity and compute smoke tests unless a confirmed shared storage path is provided.
+
+Notebook `07` adds an explicit optional shared-storage probe:
+
+```env
+RUN_PHASE7_SPARK_STORAGE_PROBE=true
+```
+
+Only a successful Spark-worker write and readback under the configured `DATA_DIR` permits a cluster-storage claim. Gold production itself remains driver-local and reproducible.

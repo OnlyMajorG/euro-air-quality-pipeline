@@ -7,4 +7,5 @@ flowchart TD
     Bronze --> Silver["Silver: normalized city, metadata, EEA daily, streaming outputs"]
     Spark --> Silver
     Silver --> Gold["Gold: analysis-ready tables"]
+    Gold --> Quality["07 cross-table quality report"]
     Gold --> Viz["Visualizations and final story"]
