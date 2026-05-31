@@ -80,7 +80,8 @@ flowchart TD
 | Phase 3: EEA batch ingestion | Implemented with local-file path and controlled fallback sample | `03_eea_batch_ingestion.ipynb` loads file data, normalizes, maps, aggregates and writes `eea_city_daily.parquet` |
 | Phase 4: Wikipedia web scraping | Implemented as notebook workflow | `04_wikipedia_web_scraping.ipynb` fetches raw HTML when enabled, parses metadata and writes `city_metadata.parquet` |
 | Phase 5: Open-Meteo API and Kafka producer | Implemented; local mock pass; FH evidence run required | `05_open_meteo_api_and_kafka_producer.ipynb` fetches REST API data, stores Bronze JSON plus a manifest, publishes latest-hour events and proves delivery with a bounded Kafka consumer or explicit local mock |
-| Phase 6 onward | Planned | Notebooks `06` to `08` contain the planned continuation and must be completed in later phases |
+| Phase 6: Spark Structured Streaming | Implemented; local contract and Spark compute checks passed; FH Kafka evidence run required | `06_spark_structured_streaming_kafka_to_parquet.ipynb` prefers Spark `readStream.format("kafka")`, falls back transparently to a local Spark file stream when allowed, validates and enriches events, writes Parquet and creates a latest snapshot. Native Windows file-stream execution additionally requires the documented Hadoop binaries. |
+| Phase 7 onward | Planned | Notebooks `07` and `08` contain the planned continuation and must be completed in later phases |
 
 Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 5 outputs locally, run notebooks `02`, `03`, `04`, and `05` in order.
 
@@ -111,12 +112,14 @@ The FH Spark cluster was tested successfully for basic Spark connectivity and co
 ### Prerequisites
 
 - Python 3.11 or 3.12 recommended
-- Java runtime for PySpark in Phase 6
+- Java 17 or 21 runtime for PySpark in Phase 6. Avoid Java 25 with Hadoop-based local file access.
 - Jupyter Notebook or JupyterLab
 - Network access for Open-Meteo and Wikipedia
 - Kafka broker access for the real Phase-5 producer run and Phase-6 Spark streaming run
 
 Docker Compose is optional. This repository does not assume a local Docker stack because the course environment may provide Kafka and Spark externally.
+
+For native Windows execution of Spark file reads and Parquet writes, configure `HADOOP_HOME` with compatible Windows Hadoop binaries (`winutils.exe` and `hadoop.dll`) or run the notebooks in Linux, WSL, Docker, or the FH JupyterHub environment. A basic Spark compute action may work on Windows without those binaries while local Hadoop filesystem operations still fail.
 
 ### Windows PowerShell
 
@@ -138,6 +141,9 @@ KAFKA_BOOTSTRAP_SERVERS=<fh-kafka-broker-host>:9092
 KAFKA_TOPIC_AIR_QUALITY_LIVE=LIVE-bdeng_gXX_air_quality_live
 KAFKA_MODE=auto
 ALLOW_KAFKA_MOCK_FALLBACK=true
+SPARK_KAFKA_MODE=auto
+ALLOW_SPARK_KAFKA_MOCK_FALLBACK=true
+SPARK_KAFKA_CONNECTOR_PACKAGE=
 KAFKA_CONSUMER_TIMEOUT_MS=10000
 KAFKA_CONSUMER_MAX_MESSAGES=8
 RUN_OPEN_METEO_API_FETCH=true
@@ -160,6 +166,8 @@ RUN_OPEN_METEO_KAFKA_PRODUCER=true
 
 With `KAFKA_MODE=auto`, an unavailable Kafka broker falls back to the local mock only when `ALLOW_KAFKA_MOCK_FALLBACK=true`. Controlled Open-Meteo fallback and mock-broker data are reproducibility aids, not analytical evidence.
 
+Notebook `06` uses the same strategy independently for Spark. With `SPARK_KAFKA_MODE=auto`, it tries the configured Kafka broker and Spark Kafka connector first. If either is unavailable and `ALLOW_SPARK_KAFKA_MOCK_FALLBACK=true`, it reads the Phase-5 JSONL batch through a local Spark Structured Streaming file source. For the strict FH evidence run, set `SPARK_KAFKA_MODE=kafka` and `ALLOW_SPARK_KAFKA_MOCK_FALLBACK=false`. If the JupyterHub Spark installation requires an explicit connector package, set `SPARK_KAFKA_CONNECTOR_PACKAGE` to the package matching its Spark and Scala versions.
+
 ## Execution Plan
 
 1. Run notebooks `00` and `01` to review scope, sources and infrastructure assumptions.
@@ -167,7 +175,7 @@ With `KAFKA_MODE=auto`, an unavailable Kafka broker falls back to the local mock
 3. Run notebook `03` with a real EEA extract before final analytical claims. The controlled sample is only a reproducibility fallback.
 4. Run notebook `04` to fetch and parse Wikipedia context.
 5. Run notebook `05` to fetch Open-Meteo data, build validated events, publish them to Kafka and verify delivery with a bounded consumer. Use strict Kafka mode for the FH evidence run.
-6. Complete and run notebook `06` so Spark reads those events from Kafka and writes Parquet.
+6. Run notebook `06` so Spark reads those events from Kafka and writes Parquet. Use strict Spark Kafka mode on FH JupyterHub; use the documented Spark file-stream mock only for local reproducibility.
 7. Complete notebooks `07` and `08` for Gold tables, visualizations and storytelling.
 
 ## What Is Not Committed
