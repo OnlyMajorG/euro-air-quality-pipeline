@@ -8,6 +8,7 @@ flowchart LR
     KAFKA --> EVIDENCE["Bounded consumer smoke test"]
     MOCK --> EVIDENCE
     KAFKA --> N06["06 Spark Structured Streaming notebook"]
+    RAW -. "local Spark file-stream fallback" .-> N06
     N03 --> PARQUET["Parquet Bronze/Silver/Gold"]
     N04 --> PARQUET
     N06 --> PARQUET
