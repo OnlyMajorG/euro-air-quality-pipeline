@@ -9,7 +9,7 @@ The project uses a notebook-only implementation model. Each implementation step 
 3. Open-Meteo Air Quality API responses are converted into events.
 4. Open-Meteo raw JSON and validated JSONL event batches are stored locally as Bronze evidence.
 5. When a reachable broker is configured, Open-Meteo events are written to a group-specific Kafka topic and verified with a bounded consumer smoke test.
-6. Spark Structured Streaming reads Kafka events and writes Parquet.
+6. Spark Structured Streaming reads Kafka events, validates the explicit schema, joins city context, and writes Parquet.
 7. Silver and Gold Parquet datasets support visual analysis and storytelling.
 
 ## Phase 5 Event Contract
@@ -21,6 +21,14 @@ Notebook `05_open_meteo_api_and_kafka_producer.ipynb` emits flat JSON events wit
 - `KAFKA_MODE=kafka`: strict FH evidence mode. Broker errors fail the notebook.
 - `KAFKA_MODE=auto`: try Kafka and use the mock only when `ALLOW_KAFKA_MOCK_FALLBACK=true`.
 - `KAFKA_MODE=mock`: local JSONL mock broker for reproducible offline producer/consumer mechanics.
+
+## Spark Kafka Execution Modes
+
+- `SPARK_KAFKA_MODE=kafka`: strict FH evidence mode. Spark must initialize `readStream.format("kafka")`; broker or connector errors fail the notebook.
+- `SPARK_KAFKA_MODE=auto`: try the configured Kafka broker and Spark Kafka connector first, then use the local Spark file-stream mock only when `ALLOW_SPARK_KAFKA_MOCK_FALLBACK=true`.
+- `SPARK_KAFKA_MODE=mock`: local reproducibility mode. Spark Structured Streaming reads Phase-5 JSONL events via `readStream.text()`, then executes the same parsing, validation, joins, checkpoints and Parquet read-back.
+
+The local Spark file-stream mock is a functional fallback, not proof that Spark read Kafka. The final FH evidence run must report `selected_source_mode=kafka`.
 
 ## Notebook-Only Implementation
 
