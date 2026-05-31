@@ -39,6 +39,37 @@ How do PM2.5, PM10, and NO2 air-quality patterns differ across selected European
 | 07 | `notebooks/07_gold_layer_and_data_quality.ipynb` | Gold tables and cross-table quality checks |
 | 08 | `notebooks/08_analysis_visualization_and_storytelling.ipynb` | Visualizations, figures, interpretation, and final story |
 
+## Architecture
+
+```mermaid
+flowchart LR
+    EEA["EEA historical files"] --> N03["03 EEA batch ingestion"]
+    WIKI["Wikipedia city pages"] --> N04["04 Wikipedia scraping"]
+    API["Open-Meteo REST API"] --> N05["05 API event producer"]
+    N05 --> RAW["Bronze JSON + validated JSONL events"]
+    N05 -. "RUN_OPEN_METEO_KAFKA_PRODUCER=true" .-> KAFKA["Kafka topic: LIVE-bdeng_gXX_air_quality_live"]
+    KAFKA --> N06["06 Spark Structured Streaming"]
+    N03 --> SILVER["Silver Parquet"]
+    N04 --> SILVER
+    N06 --> SILVER
+    SILVER --> N07["07 Gold layer and data quality"]
+    N07 --> GOLD["Gold Parquet"]
+    GOLD --> N08["08 Analysis and storytelling"]
+    N08 --> FIG["Figures and presentation"]
+```
+
+```mermaid
+flowchart TD
+    P0["Phase 0: scope and notebook-only structure"] --> P1["Phase 1: source and cluster spike"]
+    P1 --> P2["Phase 2: city reference"]
+    P2 --> P3["Phase 3: EEA batch source"]
+    P3 --> P4["Phase 4: Wikipedia web scraping"]
+    P4 --> P5["Phase 5: Open-Meteo REST API and Kafka producer"]
+    P5 --> P6["Phase 6: Spark reads Kafka and writes Parquet"]
+    P6 --> P7["Phase 7: Gold tables and data quality"]
+    P7 --> P8["Phase 8: visual analysis and story"]
+```
+
 ## Current Implementation Status
 
 | Phase | Status | Evidence |
@@ -48,9 +79,10 @@ How do PM2.5, PM10, and NO2 air-quality patterns differ across selected European
 | Phase 2: City reference model | Implemented | `02_city_reference_model.ipynb` builds, validates and writes `city_reference.csv` and `city_reference.parquet` |
 | Phase 3: EEA batch ingestion | Implemented with local-file path and controlled fallback sample | `03_eea_batch_ingestion.ipynb` loads file data, normalizes, maps, aggregates and writes `eea_city_daily.parquet` |
 | Phase 4: Wikipedia web scraping | Implemented as notebook workflow | `04_wikipedia_web_scraping.ipynb` fetches raw HTML when enabled, parses metadata and writes `city_metadata.parquet` |
-| Phase 5 onward | Planned | Notebooks `05` to `08` contain the planned continuation and must be completed in later phases |
+| Phase 5: Open-Meteo API and Kafka producer | Implemented; local mock pass; FH evidence run required | `05_open_meteo_api_and_kafka_producer.ipynb` fetches REST API data, stores Bronze JSON plus a manifest, publishes latest-hour events and proves delivery with a bounded Kafka consumer or explicit local mock |
+| Phase 6 onward | Planned | Notebooks `06` to `08` contain the planned continuation and must be completed in later phases |
 
-Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 4 outputs locally, run notebooks `02`, `03`, and `04` in order.
+Generated data files are intentionally ignored by Git. To reproduce Phase 2 to 5 outputs locally, run notebooks `02`, `03`, `04`, and `05` in order.
 
 ## Data Sources
 
@@ -74,18 +106,69 @@ Python, Jupyter Notebook, Pandas, Requests, BeautifulSoup, Kafka, Spark Structur
 
 The FH Spark cluster was tested successfully for basic Spark connectivity and compute. HDFS/shared storage was not confirmed. Therefore, the standard Parquet-producing pipeline uses Spark `local[*]` unless a lecturer or administrator confirms a shared storage path.
 
-## Setup
+## Installation
 
-```bash
+### Prerequisites
+
+- Python 3.11 or 3.12 recommended
+- Java runtime for PySpark in Phase 6
+- Jupyter Notebook or JupyterLab
+- Network access for Open-Meteo and Wikipedia
+- Kafka broker access for the real Phase-5 producer run and Phase-6 Spark streaming run
+
+Docker Compose is optional. This repository does not assume a local Docker stack because the course environment may provide Kafka and Spark externally.
+
+### Windows PowerShell
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-copy .env.example .env
+Copy-Item .env.example .env
 jupyter notebook
 ```
 
-Use a group-specific Kafka topic, for example `bdeng_g1_air_quality_live`. Do not hardcode credentials or use a generic shared topic.
+### Configuration
+
+Edit `.env` before a real Kafka producer run:
+
+```env
+KAFKA_BOOTSTRAP_SERVERS=<fh-kafka-broker-host>:9092
+KAFKA_TOPIC_AIR_QUALITY_LIVE=LIVE-bdeng_gXX_air_quality_live
+KAFKA_MODE=auto
+ALLOW_KAFKA_MOCK_FALLBACK=true
+KAFKA_CONSUMER_TIMEOUT_MS=10000
+KAFKA_CONSUMER_MAX_MESSAGES=8
+RUN_OPEN_METEO_API_FETCH=true
+ALLOW_CONTROLLED_OPEN_METEO_FALLBACK=true
+RUN_OPEN_METEO_KAFKA_PRODUCER=false
+OPEN_METEO_REQUEST_TIMEOUT_SECONDS=20
+OPEN_METEO_MAX_HOURS_TO_SEND=1
+```
+
+Use the FH-provided broker address and group-specific topic from the non-versioned JupyterHub `.env`, for example `LIVE-bdeng_gXX_air_quality_live` with `XX` replaced by the real group number. Keep `RUN_OPEN_METEO_KAFKA_PRODUCER=false` for local runs. In that mode the notebook uses a transparent JSONL mock broker and still executes producer/consumer mechanics.
+
+For the strict FH JupyterHub evidence run, set:
+
+```env
+KAFKA_MODE=kafka
+ALLOW_KAFKA_MOCK_FALLBACK=false
+ALLOW_CONTROLLED_OPEN_METEO_FALLBACK=false
+RUN_OPEN_METEO_KAFKA_PRODUCER=true
+```
+
+With `KAFKA_MODE=auto`, an unavailable Kafka broker falls back to the local mock only when `ALLOW_KAFKA_MOCK_FALLBACK=true`. Controlled Open-Meteo fallback and mock-broker data are reproducibility aids, not analytical evidence.
+
+## Execution Plan
+
+1. Run notebooks `00` and `01` to review scope, sources and infrastructure assumptions.
+2. Run notebook `02` to create the city reference.
+3. Run notebook `03` with a real EEA extract before final analytical claims. The controlled sample is only a reproducibility fallback.
+4. Run notebook `04` to fetch and parse Wikipedia context.
+5. Run notebook `05` to fetch Open-Meteo data, build validated events, publish them to Kafka and verify delivery with a bounded consumer. Use strict Kafka mode for the FH evidence run.
+6. Complete and run notebook `06` so Spark reads those events from Kafka and writes Parquet.
+7. Complete notebooks `07` and `08` for Gold tables, visualizations and storytelling.
 
 ## What Is Not Committed
 
@@ -95,7 +178,7 @@ Generated CSV, JSON, HTML, Parquet, and Spark checkpoint files under `data/` are
 
 ## Limitations
 
-This is a university project, not a production platform. The dataset may not be truly large, the analysis is exploratory rather than causal, Wikipedia metadata is fragile, and FH cluster storage is not assumed until proven.
+This is a university project, not a production platform. The dataset may not be truly large, the analysis is exploratory rather than causal, Wikipedia metadata is fragile, and FH cluster storage is not assumed until proven. Kafka delivery is an external integration result and must only be claimed after a broker-backed notebook run.
 
 ## Presentation Notes
 
