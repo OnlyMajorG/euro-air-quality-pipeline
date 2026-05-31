@@ -2,7 +2,11 @@ flowchart LR
     EEA["EEA historical files"] --> N03["03 EEA batch notebook"]
     WIKI["Wikipedia city pages"] --> N04["04 web scraping notebook"]
     API["Open-Meteo REST API"] --> N05["05 API and Kafka producer notebook"]
-    N05 --> KAFKA["Kafka topic: bdeng_gXX_air_quality_live"]
+    N05 --> RAW["Bronze JSON + validated JSONL events"]
+    N05 --> KAFKA["Kafka topic: LIVE-bdeng_gXX_air_quality_live"]
+    N05 -. "local fallback" .-> MOCK["JSONL mock broker"]
+    KAFKA --> EVIDENCE["Bounded consumer smoke test"]
+    MOCK --> EVIDENCE
     KAFKA --> N06["06 Spark Structured Streaming notebook"]
     N03 --> PARQUET["Parquet Bronze/Silver/Gold"]
     N04 --> PARQUET

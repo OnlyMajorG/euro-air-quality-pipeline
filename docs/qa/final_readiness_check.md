@@ -20,7 +20,8 @@
 | 2 | complete | City reference notebook writes CSV and Parquet locally. |
 | 3 | complete with data note | EEA batch notebook works with local EEA files or controlled sample fallback. Real EEA data is needed for final analysis. |
 | 4 | complete | Wikipedia scraping notebook implements Bronze HTML, parser and Silver metadata output; local validation produced readable `city_metadata.parquet`. |
-| 5-8 | pending | Open-Meteo Kafka, Spark streaming, Gold layer and storytelling remain to be completed. |
+| 5 | implemented; local mock pass; FH evidence pending | Open-Meteo Bronze JSON, manifest, latest-hour JSONL events, Kafka producer, bounded consumer and mock broker are implemented. Strict FH Kafka delivery remains required. |
+| 6-8 | pending | Spark streaming, Gold layer and storytelling remain to be completed. |
 
 ## Git Hygiene
 
