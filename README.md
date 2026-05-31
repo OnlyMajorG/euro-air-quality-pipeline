@@ -62,7 +62,7 @@ flowchart LR
     N06 --> SILVER
     SILVER --> N07["07 Gold-Schicht und Datenqualität"]
     N07 --> GOLD["Gold-Parquet"]
-    GOLD --> N08["08 Analyse und Storytelling"]
+    GOLD --> N08["08 Analyse und Ergebnisgeschichte"]
     N08 --> FIG["Abbildungen und Präsentation"]
 ```
 
@@ -160,7 +160,7 @@ Notebook `07` schreibt Gold-Parquet-Dateien lokal und hält die Herkunft des Liv
 5. Notebook `05` für Open-Meteo-Ereignisse und den Kafka-Produzenten ausführen.
 6. Notebook `06` für den Spark-Kafka-Pfad ausführen.
 7. Notebook `07` für Gold-Datensätze und Qualitätsbericht ausführen.
-8. Notebook `08` für Analyse, Diagramme und Storytelling ausführen.
+8. Notebook `08` für Analyse, Diagramme und Ergebnisgeschichte ausführen.
 
 Notebook `09` ist optional. Standardmäßig gilt `DRY_RUN=true`. Eine Löschung erfordert `DRY_RUN=false`. Für externe Datenpfade ist zusätzlich `ALLOW_EXTERNAL_DATA_RESET=true` notwendig.
 
