@@ -328,6 +328,8 @@ http://localhost:8888 öffnen
 
 Notebook 00 dort erneut ausführen. Die Ausgabe zeigt `selected_environment: docker`. Danach Notebooks 01 bis 09 der Reihe nach ausführen.
 
+**Wichtig:** Für den vollständigen lokalen Kafka-zu-Spark-Nachweis Notebook `06` im Docker-Jupyter unter `http://localhost:8888` ausführen. Ein direkt auf dem Host gestarteter Bootstrap-Kernel besitzt den Spark-Kafka-Connector nicht zwingend und verwendet deshalb nur den transparent gekennzeichneten lokalen Dateistream-Fallback.
+
 **Dienste und Ports:**
 
 | Dienst | Port | Zweck |
