@@ -22,3 +22,5 @@ Notebook `05_open_meteo_api_and_kafka_producer.ipynb` lädt Open-Meteo-Daten, sp
 ## Strikter Nachweis
 
 Notebook `05` wurde lokal mit Docker Desktop, erreichbarem Broker, realem Topic, `KAFKA_MODE=kafka`, deaktiviertem Mock-Fallback und aktivem Produzenten ausgeführt. Der Lauf sendete und konsumierte acht Ereignisse. Ein zusätzlicher FH-Lauf mit gruppenspezifischem Topic bleibt möglich.
+
+Zusätzlich wurde der Fehlerpfad mit einem absichtlich unerreichbaren Broker geprüft. Der TCP-Preflight bricht kontrolliert mit `ConnectionError` ab. Kafka-Metadatenabfragen, Zustellungen und Consumer-Abfragen besitzen explizite Zeitlimits, damit der FH-Nachweislauf bei Netzwerk- oder advertised-listener-Problemen nicht unbegrenzt blockiert.

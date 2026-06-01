@@ -437,6 +437,8 @@ Alle Konfigurationswerte werden über eine nicht versionierte `.env` gesetzt. Dr
 | `SPARK_KAFKA_MODE` | `kafka` | `kafka` = strikt, `auto` = bevorzugt Kafka mit Fallback, `mock` = lokal |
 | `ALLOW_SPARK_KAFKA_MOCK_FALLBACK` | `false` | Fallback auf lokalen Dateistream erlauben |
 | `RUN_OPEN_METEO_KAFKA_PRODUCER` | `false` | Kafka-Produzent aktivieren (nur für Nachweislauf) |
+| `KAFKA_CONNECTION_TIMEOUT_SECONDS` | `5` | Kurzer TCP-Preflight für FH-Kafka |
+| `KAFKA_OPERATION_TIMEOUT_MS` | `15000` | Grenze für Kafka-Metadaten, Zustellung und Client-Anfragen |
 | `RESET_PHASE6_CHECKPOINTS` | `false` | Spark-Streaming-Checkpoints vor NB 06 löschen |
 | `ALLOW_SHARED_SPARK_STORAGE` | `true` | Gemeinsamen Storage für Driver und Worker bestätigt |
 | `DATA_DIR` | `data` | Relativer oder absoluter Pfad zum Dateiverzeichnis |
