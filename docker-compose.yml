@@ -1,6 +1,24 @@
 name: euro-air-quality-pipeline
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: euro_air_quality
+      POSTGRES_USER: euro_air_quality
+      POSTGRES_PASSWORD: euro_air_quality
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U euro_air_quality -d euro_air_quality" ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
   kafka:
     image: apache/kafka:3.9.2
     hostname: kafka
@@ -74,6 +92,8 @@ services:
       dockerfile: docker/jupyter.Dockerfile
     hostname: jupyter
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
         condition: service_healthy
       spark-master:
@@ -101,5 +121,6 @@ services:
     command: [ "sleep 2; docker compose down --remove-orphans; docker rm -f $$HOSTNAME" ]
 
 volumes:
+  postgres-data:
   spark-ivy-cache:
   spark-checkpoints:

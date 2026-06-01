@@ -2,7 +2,7 @@
 
 ## Ergebnis
 
-Status: LOKAL BESTANDEN, REALE EEA-DATEN FÜR FINALE AUSSAGEN ERFORDERLICH
+Status: LOKAL BESTANDEN, ERWEITERTER EEA-API-ZEITRAUM FÜR FINALE AUSSAGEN ERFORDERLICH
 
 Notebook `08_analysis_visualization_and_storytelling.ipynb` verwendet ausschließlich Gold-Datensätze und erzeugt eine deutschsprachige Ergebnisgeschichte.
 
@@ -12,7 +12,9 @@ Notebook `08_analysis_visualization_and_storytelling.ipynb` verwendet ausschlie�
 - PM2.5, PM10 und NO2 werden getrennt interpretiert
 - Ausreißer bleiben in Boxplots sichtbar
 - Bevölkerungsdichte wird explorativ und nicht kausal eingeordnet
-- kontrollierte Samples demonstrieren nur die Mechanik
+- kurze reale EEA-API-Zeiträume demonstrieren nur die Mechanik
+- Städte ohne Messwerte für einen Schadstoff werden transparent ausgewiesen
+- Boxplots mit wenigen Tageswerten werden ausdrücklich als Smoke-Test-Visualisierung behandelt
 
 ## Erzeugte Abbildungen
 
@@ -21,7 +23,9 @@ Notebook `08_analysis_visualization_and_storytelling.ipynb` verwendet ausschlie�
 ## Lokale Marker
 
 ```text
-EEA-Sample-Fallback aktiv: True
+Historischer EEA-API-Zeitraum: 2 Tage
+Mindestzeitraum für finale Aussagen: 365 Tage
+Stadt ohne PM2.5-Messwerte im geprüften Zeitraum: Rome
 Live-Eingabemodus im strikten Docker-Lauf: phase6_spark_stream_silver
 Finale historische Aussagen zulässig: False
 ```

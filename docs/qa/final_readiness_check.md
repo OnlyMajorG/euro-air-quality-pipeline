@@ -19,8 +19,8 @@ Der lokale strikte Docker-Nachweis ist unter `docs/qa/docker_setup_verification.
 ## Offene FH- und Daten-Nachweise
 
 1. Für einen zusätzlichen FH-Lauf die FH-Endpunkte und ein gruppenspezifisches Kafka-Topic konfigurieren.
-2. Reale EEA-Daten für Notebook `03` bereitstellen.
-3. Notebooks `07` und `08` mit realen EEA-Daten erneut ausführen und die Abbildungen prüfen.
+2. Den EEA-API-Zeitraum in Notebook `03` für finale Aussagen auf mindestens `365` Tage erweitern.
+3. Notebooks `07` und `08` mit dem erweiterten EEA-API-Zeitraum erneut ausführen und die Abbildungen prüfen.
 
 ## Git-Hygiene
 

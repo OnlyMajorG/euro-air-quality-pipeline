@@ -2,14 +2,15 @@
 
 ## Pipeline
 
-1. Historische EEA-Dateien bilden die Datei- und Batch-Quelle.
-2. Wikipedia-Stadtseiten liefern Kontextdaten über Web-Scraping.
-3. Die Open-Meteo-REST-API liefert aktuelle Luftqualitätsdaten.
-4. Notebook `05` speichert Bronze-JSON und validierte JSONL-Ereignisse.
-5. Bei erreichbarem Broker werden Open-Meteo-Ereignisse an ein gruppenspezifisches Kafka-Topic gesendet und mit einem begrenzten Consumer-Test geprüft.
-6. Spark Structured Streaming liest Kafka-Ereignisse, validiert das Schema, ergänzt Stadtkontext und schreibt Parquet-Dateien.
-7. Notebook `07` erstellt Gold-Datensätze und einen Qualitätsbericht.
-8. Notebook `08` erzeugt Diagramme und die Ergebnisgeschichte.
+1. Notebook `03_eea_batch_ingestion.ipynb` ruft historische Messungen über die EEA Downloads API ab und schreibt sie in die PostgreSQL-Bronze-Tabelle `bronze.eea_observation`.
+2. Dieselbe Phase liest PostgreSQL als Datenbank- und Batch-Quelle, normalisiert die Messungen und schreibt Silver-Parquet.
+3. Wikipedia-Stadtseiten liefern Kontextdaten über Web-Scraping.
+4. Die Open-Meteo-REST-API liefert aktuelle Luftqualitätsdaten ausschließlich für den Live-Pfad.
+5. Notebook `05` speichert Bronze-JSON und validierte JSONL-Ereignisse.
+6. Bei erreichbarem Broker werden Open-Meteo-Ereignisse an ein gruppenspezifisches Kafka-Topic gesendet und mit einem begrenzten Consumer-Test geprüft.
+7. Spark Structured Streaming liest Kafka-Ereignisse, validiert das Schema, ergänzt Stadtkontext und schreibt Parquet-Dateien.
+8. Notebook `07` erstellt Gold-Datensätze und einen Qualitätsbericht.
+9. Notebook `08` erzeugt Diagramme und die Ergebnisgeschichte.
 
 ## Ereignisvertrag
 

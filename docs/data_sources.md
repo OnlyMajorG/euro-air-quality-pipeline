@@ -4,13 +4,13 @@
 
 | Quelle | Typ | Zweck | Notebook |
 | --- | --- | --- | --- |
-| Historische EEA-Luftqualitätsdaten | Datei und Batch | PM2.5-, PM10- und NO2-Messungen | `03_eea_batch_ingestion.ipynb` |
+| Historische EEA-Luftqualitätsdaten | EEA Downloads API und PostgreSQL-Batch | PM2.5-, PM10- und NO2-Messungen | `03_eea_batch_ingestion.ipynb` |
 | Wikipedia-Stadtseiten | Web-Scraping | Bevölkerung, Fläche und Bevölkerungsdichte | `04_wikipedia_web_scraping.ipynb` |
 | Open-Meteo Air Quality API | REST-API | Aktuelle Ereignisse für den Kafka-Pfad | `05_open_meteo_api_and_kafka_producer.ipynb` |
 
 ## EEA
 
-Notebook `03` erwartet lokale CSV- oder Parquet-Dateien. Messungen werden auf PM2.5, PM10 und NO2 gefiltert, normalisiert, einer `city_id` zugeordnet und auf Tageswerte aggregiert. Ohne realen Extrakt kann ein kontrolliertes Sample den technischen Ablauf demonstrieren. Dieses Sample ist keine Grundlage für finale empirische Aussagen.
+Notebook `03` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab, filtert PM2.5, PM10 und NO2 und speichert quellnahe Messungen in `bronze.eea_observation` im PostgreSQL-Container. Die Silver-Verarbeitung liest anschließend aus PostgreSQL und aggregiert auf Tageswerte. Der Standardzeitraum ist ein kurzer reproduzierbarer Smoke-Test; finale Aussagen erfordern einen erweiterten Zeitraum.
 
 ## Wikipedia
 
@@ -18,7 +18,7 @@ Wikipedia dient ausschließlich als Kontextquelle. Das HTML-Parsing ist defensiv
 
 ## Open-Meteo
 
-Open-Meteo liefert REST-API-Daten und Kafka-Ereignisse. Die API-Felder werden auf `pm2_5`, `pm10` und `no2` vereinheitlicht. Notebook `05` speichert pro Stadt eine Bronze-JSON-Datei, ein Manifest und einen validierten JSONL-Batch.
+Open-Meteo liefert REST-API-Daten und Kafka-Ereignisse. Die API-Felder werden auf `pm2_5`, `pm10` und `no2` vereinheitlicht. Notebook `05` speichert pro Stadt eine Bronze-JSON-Datei, ein Manifest und einen validierten JSONL-Batch für Kafka.
 
 ## Gold-Ausgaben
 

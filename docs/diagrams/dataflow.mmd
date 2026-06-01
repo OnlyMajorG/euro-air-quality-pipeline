@@ -1,5 +1,5 @@
 flowchart TD
-    Quellen["EEA-Dateien, Wikipedia-HTML und Open-Meteo-API"] --> Bronze["Bronze: quellnahe lokale Daten und JSONL-Ereignisse"]
+    Quellen["EEA Downloads API, Wikipedia-HTML und Open-Meteo-API"] --> Bronze["Bronze: PostgreSQL-Messungen, HTML und JSONL-Ereignisse"]
     Bronze --> Broker["Kafka-Topic oder lokaler Mock-Broker"]
     Broker --> Nachweis["Begrenzter Produzenten- und Consumer-Test"]
     Broker --> Spark["06 Spark: lesen, parsen, validieren und verknüpfen"]

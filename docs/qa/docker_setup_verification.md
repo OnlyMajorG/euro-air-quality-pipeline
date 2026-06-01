@@ -27,4 +27,4 @@ Notebook `00_project_scope_and_requirements.ipynb` enthält Start, Auswahl und P
 
 ## Abgrenzung
 
-Der Docker-Nachweis belegt den lokalen Kafka-zu-Spark-Pfad. Für finale empirische Aussagen bleiben reale EEA-Daten erforderlich. Ein zusätzlicher FH-Lauf ist optional möglich und benötigt die tatsächlichen FH-Endpunkte sowie ein gruppenspezifisches Topic.
+Der Docker-Nachweis belegt den lokalen Kafka-zu-Spark-Pfad. Für finale empirische Aussagen muss der EEA-API-Analysezeitraum erweitert werden. Ein zusätzlicher FH-Lauf ist optional möglich und benötigt die tatsächlichen FH-Endpunkte sowie ein gruppenspezifisches Topic.

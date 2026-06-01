@@ -5,11 +5,12 @@
 Das Docker-Setup bildet den strikten Kafka-zu-Spark-Pfad lokal mit Docker Desktop ab. Es startet:
 
 - einen Kafka-Broker im KRaft-Modus
+- eine PostgreSQL-Datenbank für historische EEA-Bronze-Daten
 - einen Spark-Master
 - einen Spark-Worker
 - Jupyter Notebook mit den Python-Abhängigkeiten des Projekts
 
-Notebook `05` veröffentlicht Open-Meteo-Ereignisse an Kafka. Notebook `06` liest sie mit Spark Structured Streaming aus Kafka und schreibt Parquet-Dateien. Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden. Dadurch ist gemeinsamer Speicher für Driver und Worker vorhanden.
+Notebook `03` ruft historische EEA-Parquet-URLs ab, schreibt Messungen in PostgreSQL und erzeugt Silver-Parquet. Notebook `05` veröffentlicht Open-Meteo-Ereignisse an Kafka. Notebook `06` liest sie mit Spark Structured Streaming aus Kafka und schreibt Parquet-Dateien. Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden. Dadurch ist gemeinsamer Speicher für Driver und Worker vorhanden.
 
 Die Spark-Streaming-Checkpoints liegen in einem gemeinsamen Docker-Named-Volume. Für den kleinen lokalen Nachweislauf ist `SPARK_SQL_SHUFFLE_PARTITIONS=1` gesetzt, damit Checkpoint-State auf Docker Desktop reproduzierbar geschrieben wird.
 
@@ -28,19 +29,21 @@ Die Oberflächen sind anschließend erreichbar:
 | Dienst | URL |
 | --- | --- |
 | Jupyter Notebook | `http://localhost:8888` |
+| PostgreSQL | `localhost:5432` |
 | Spark-Master | `http://localhost:8080` |
 | Spark-Worker | `http://localhost:8081` |
 
-Die Docker-Konfiguration liegt in `.env.docker.example` und wird automatisch in den Jupyter-Container geladen. Sie verwendet einen lokalen, nicht gruppenspezifischen Kafka-Topic-Namen.
+Die Docker-Konfiguration liegt in `.env.docker.example` und wird automatisch in den Jupyter-Container geladen. Sie verwendet einen lokalen, nicht gruppenspezifischen Kafka-Topic-Namen. PostgreSQL-Daten bleiben im Named Volume `postgres-data` erhalten, bis das Volume ausdrücklich entfernt wird.
 
 ## Notebook-Lauf
 
 Die Notebooks werden in Jupyter in der Reihenfolge `00` bis `08` ausgeführt. Für den Infrastruktur-Nachweis sind insbesondere relevant:
 
-1. Notebook `05`: `broker_result["mode"] == "kafka"`
-2. Notebook `06`: `selected_source_mode == "kafka"`
-3. Notebook `06`: `spark_read_kafka_requirement_proven == True`
-4. Notebook `07`: erfolgreiche Spark-Speicherprobe
+1. Notebook `03`: reale API-Daten in `bronze.eea_observation`
+2. Notebook `05`: `broker_result["mode"] == "kafka"`
+3. Notebook `06`: `selected_source_mode == "kafka"`
+4. Notebook `06`: `spark_read_kafka_requirement_proven == True`
+5. Notebook `07`: erfolgreiche Spark-Speicherprobe
 
 Der erste Spark-Kafka-Lauf lädt den passenden Connector aus Maven Central. Dafür benötigt der Jupyter-Container Netzwerkzugriff.
 

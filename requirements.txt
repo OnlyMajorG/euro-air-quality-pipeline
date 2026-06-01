@@ -4,6 +4,7 @@ requests
 beautifulsoup4
 lxml
 python-dotenv
+psycopg[binary]
 pyarrow
 pyspark
 kafka-python

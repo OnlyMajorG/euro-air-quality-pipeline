@@ -5,7 +5,7 @@
 - Wikipedia-Daten können sich ändern und sind keine amtliche Quelle.
 - Gemeinsamer FH-Cluster-Speicher darf erst nach einem erfolgreichen Test behauptet werden.
 - Stadtbezogene Luftqualitätsaggregate vereinfachen die Repräsentativität einzelner Messstationen.
-- Kontrollierte EEA-Samples demonstrieren Verarbeitungsschritte, erlauben aber keine finalen empirischen Aussagen.
+- Der kurze EEA-API-Standardzeitraum demonstriert den reproduzierbaren API-zu-PostgreSQL-Pfad. Finale empirische Aussagen benötigen einen erweiterten Analysezeitraum.
 - Lokale Kafka-Mocks belegen nur die Mechanik. Der Kafka-Nachweis erfordert einen strikten Docker- oder FH-Lauf.
 - Der lokale Spark-Dateistream ist kein Kafka-Nachweis.
 - Der Modus `pandas_mock_no_pyspark` ist weder ein Spark- noch ein Kafka-Nachweis.
