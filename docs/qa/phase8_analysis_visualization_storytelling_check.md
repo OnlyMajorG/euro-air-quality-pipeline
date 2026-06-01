@@ -29,3 +29,26 @@ Stadt ohne PM2.5-Messwerte im geprüften Zeitraum: Rome
 Live-Eingabemodus im strikten Docker-Lauf: phase6_spark_stream_silver
 Finale historische Aussagen zulässig: False
 ```
+
+## FH-Nachweis
+
+Notebook `08` wurde nach dem erfolgreichen FH-Gold-Lauf ausgeführt:
+
+| Marker | Ergebnis |
+| --- | --- |
+| EEA-Herkunft | `eea_downloads_api_parquet` |
+| EEA-Datenstatus | `real_eea_api_parquet` |
+| Historischer Zeitraum | `2025-01-01` bis `2025-01-07` |
+| Historische Tageswerte | `154` |
+| Städte | `8` |
+| Schadstoffe | `no2`, `pm10`, `pm2_5` |
+| Live-Eingabe | `phase6_spark_stream_silver` |
+| Live-Snapshot-Zeitpunkt | `2026-06-01 23:00:00+00:00` |
+| Stadt ohne PM2.5-Messwerte | `Rome` |
+| PM2.5-Ranking | `7` Städte |
+| Explorative Spearman-Rangkorrelation | `rho=-0.393`, `n=7` Städte |
+| Erzeugte Abbildungen | `6` |
+| Historische und Live-Daten getrennt | `PASS` |
+| `final_analytical_claims_allowed` | `False` |
+
+Der FH-Lauf ist technisch bestanden. Die Rangkorrelation und die Diagramme dienen bei sieben historischen Tagen ausschließlich als Smoke-Test und explorative Darstellung. Finale fachliche Aussagen erfordern weiterhin mindestens `365` historische Tage.

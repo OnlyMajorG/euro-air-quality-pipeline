@@ -30,3 +30,21 @@ Status: IMPLEMENTIERT, REDUZIERTER LOKALER STRUKTURTEST BESTANDEN, STRIKTER DOCK
 ## Strikter Nachweis
 
 Der Docker-Lauf gibt `selected_source_mode=kafka` und `spark_read_kafka_requirement_proven=True` aus. Ein zusätzlicher FH-Lauf bleibt möglich.
+
+## FH-Nachweis
+
+Der FH-Lauf wurde mit dem gruppenspezifischen Topic `bdeng_g1_air_quality_live` erfolgreich ausgeführt:
+
+| Marker | Ergebnis |
+| --- | --- |
+| `SPARK_MASTER_URL` | `local[*]` |
+| `SPARK_KAFKA_MODE` | `kafka` |
+| Kafka-Broker | `172.29.16.101:9092` |
+| `selected_source_mode` | `kafka` |
+| `spark_read_kafka_requirement_proven` | `True` |
+| Bronze-Zeilen | `16` |
+| Silver-Zeilen | `16` |
+| Reject-Zeilen | `0` |
+| Neuester Snapshot | `8` Städte |
+
+Die `16` Bronze- und Silver-Zeilen sind plausibel, weil das Topic Ereignisse aus mehreren Phase-5-Läufen enthält. Der neueste Snapshot reduziert sie korrekt auf eine Zeile pro Stadt.

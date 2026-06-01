@@ -25,7 +25,7 @@ RUN_PHASE7_SPARK_STORAGE_PROBE=true
 
 Vor dem FH-Lauf die nicht versionierte `.env` aus `.env.cluster.example` ableiten, Platzhalter ersetzen und Notebook `00` mit `PROJECT_EXECUTION_MODE=fh` ausführen. Die Erreichbarkeitsprüfung liegt vollständig im Notebook.
 
-Notebook `03` verwendet in der FH `EEA_BRONZE_STORAGE_MODE=parquet`. PostgreSQL ist dort nicht erforderlich. Ein Docker-Lauf exportiert automatisch `data/bronze/eea/eea_observation.parquet`; alternativ kann die FH diese Datei mit `EEA_RUN_API_FETCH=true` selbst aus der EEA API erzeugen.
+Notebook `03` verwendet in der FH `EEA_BRONZE_STORAGE_MODE=parquet`. PostgreSQL ist dort nicht erforderlich. Ein Docker-Lauf exportiert automatisch `data/bronze/eea/eea_observation.parquet`; alternativ erzeugt die FH diese Datei mit `EEA_RUN_API_FETCH=true` selbst aus der EEA API. Der Default `[2025-01-01, 2026-01-01)` fragt exakt `365` Tage ab. Kürzere technische Läufe benötigen ausdrücklich `EEA_ALLOW_SHORT_SMOKE_TEST=true`.
 
 Notebook `05` begrenzt den Kafka-Nachweis mit `KAFKA_CONNECTION_TIMEOUT_SECONDS` und `KAFKA_OPERATION_TIMEOUT_MS`. Die Ausgaben `kafka_phase=tcp_preflight`, `producer_metadata`, `producer_send`, `consumer_create_after_send` und `consumer_poll` zeigen, in welcher Netzwerkphase eine FH-Konfiguration scheitert.
 

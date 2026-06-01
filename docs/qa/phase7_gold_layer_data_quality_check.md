@@ -22,3 +22,26 @@ Notebook `07_gold_layer_and_data_quality.ipynb` erzeugt fünf Gold-Parquet-Datei
 | Finale empirische Aussagen erlaubt | `False` |
 
 Der kurze reale EEA-API-Zeitraum dient als reproduzierbarer Smoke-Test. Für finale empirische Aussagen muss Notebook `03` mit einem ausreichend langen EEA-API-Zeitraum ausgeführt werden.
+
+## FH-Nachweis
+
+Der FH-Lauf wurde nach dem erfolgreichen Kafka-zu-Spark-Lauf ausgeführt:
+
+| Marker | Ergebnis |
+| --- | --- |
+| EEA-Herkunft | `real_eea_api_parquet` |
+| Historische Tageswerte | `154` Zeilen |
+| Historischer Zeitraum | `7` Tage |
+| Mindestzeitraum für finale Aussagen | `365` Tage |
+| `history_window_sufficient` | `False` |
+| `final_analytical_claims_allowed` | `False` |
+| Spark-Speicherprobe mit `local[*]` | bestanden |
+| Live-Eingabe | `phase6_spark_stream_silver` |
+| Gelesene Live-Ereignisse | `16` |
+| Neuester Live-Snapshot | `8` Städte |
+| Gold-Rangfolgen | `22` Zeilen |
+| Gold-Stadtkontext | `22` Zeilen |
+| Duplikate | `0` |
+| Historisch oder live unplausible Werte | `0` |
+
+Die Warnung zur optionalen Hadoop-GCS-Dateisystemklasse beeinflusst den Lauf nicht. Die Speicherprobe, Gold-Erzeugung und Readbacks wurden erfolgreich abgeschlossen. Die Probe belegt den lokalen FH-JupyterHub-Pfad mit `local[*]`, nicht einen gemeinsam sichtbaren Remote-Worker-Speicher.

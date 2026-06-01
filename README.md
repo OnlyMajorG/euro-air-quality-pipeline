@@ -26,7 +26,7 @@ Die Analyse basiert auf drei methodisch klar getrennten Quellen:
 
 Rom fehlt bei PM10 und PM2.5 in der EEA-Stichprobe — die EEA-Stationsabdeckung für diesen Zeitraum ist unvollständig.
 
-**Wichtige Einschränkung:** Nur 2 Tage Beobachtungszeitraum — `final_analytical_claims_allowed = False`. Die Qualitätssicherung in Notebook 07 sperrt finale Aussagen automatisch. Für belastbare Befunde `EEA_DATE_START` / `EEA_DATE_END` auf mindestens ein Jahr erweitern.
+**Wichtige Einschränkung:** Die bisherigen QA-Smoke-Tests verwendeten kurze Zeiträume. Notebook `03` ist jetzt standardmäßig auf `[2025-01-01, 2026-01-01)` und damit exakt `365` Tage eingestellt. Die Qualitätssicherung in Notebook `07` sperrt finale Aussagen automatisch, falls die tatsächlich geladenen Daten weniger als `365` Tage abdecken.
 
 Die Bevölkerungsdichte erklärt Unterschiede nur teilweise; Heizungsverhalten, Geografie und Verkehr spielen eine mindestens ebenso große Rolle.
 
@@ -400,7 +400,10 @@ ALLOW_SPARK_KAFKA_MOCK_FALLBACK=false
 RUN_OPEN_METEO_KAFKA_PRODUCER=false
 RESET_PHASE6_CHECKPOINTS=false
 EEA_BRONZE_STORAGE_MODE=parquet
-EEA_RUN_API_FETCH=false
+EEA_RUN_API_FETCH=true
+EEA_DATE_START=2025-01-01T00:00:00Z
+EEA_DATE_END=2026-01-01T00:00:00Z
+EEA_ALLOW_SHORT_SMOKE_TEST=false
 DATA_DIR=data
 CHECKPOINT_DIR=data/checkpoints
 ```
@@ -446,7 +449,8 @@ Alle Konfigurationswerte werden über eine nicht versionierte `.env` gesetzt. Dr
 | `EEA_BRONZE_STORAGE_MODE` | `postgres` oder `parquet` | Bronze-Backend für Notebook 03; Docker verwendet PostgreSQL, die FH ein portables Parquet |
 | `EEA_RUN_API_FETCH` | `true` | EEA API erneut abrufen; mit `false` vorhandenen Bronze-Speicher lesen |
 | `EEA_DATE_START` | `2025-01-01T00:00:00Z` | Startzeitpunkt für EEA-API-Abruf |
-| `EEA_DATE_END` | `2025-01-08T00:00:00Z` | Endzeitpunkt (kurz = Smoke-Test; für finale Aussagen verlängern) |
+| `EEA_DATE_END` | `2026-01-01T00:00:00Z` | Exklusiver Endzeitpunkt; Default ergibt exakt `365` historische Tage |
+| `EEA_ALLOW_SHORT_SMOKE_TEST` | `false` | Nur bewusst für kurze technische Läufe auf `true` setzen |
 | `MIN_FINAL_HISTORY_DAYS` | `365` | Mindestanzahl Tage für finale empirische Aussagen |
 
 ---
@@ -502,7 +506,7 @@ Die Notebooks werden in numerischer Reihenfolge ausgeführt. Jedes Notebook ist 
 - Portables Bronze-Artefakt: `data/bronze/eea/eea_observation.parquet`
 - `data/silver/eea_city_daily.parquet`
 
-**Hinweis:** Für finale Aussagen sollte `EEA_DATE_START` / `EEA_DATE_END` auf mindestens ein Jahr erweitert werden (`MIN_FINAL_HISTORY_DAYS=365`).
+**Hinweis:** Der Default `[2025-01-01, 2026-01-01)` umfasst exakt ein Jahr. Kürzere technische Läufe benötigen ausdrücklich `EEA_ALLOW_SHORT_SMOKE_TEST=true`.
 
 ---
 
@@ -770,15 +774,15 @@ Jede Schicht der Medallion-Architektur hat eigene Bereinigungsregeln. Die folgen
 | **NB07 Gold** | Gold | `dataset_context`-Trennung: `"eea_historical"` vs. `"open_meteo_live"` |
 | **NB07 Gold** | Gold | `final_analytical_claims_allowed`-Flag sperrt Aussagen bei unzureichendem Zeitraum |
 
-### Warum nur 2 Tage EEA-Daten, obwohl 7 Tage konfiguriert sind?
+### Warum enthielten frühere Smoke-Tests trotz größerer Konfiguration teilweise nur wenige EEA-Tage?
 
-Der EEA-Filter mit `Validity > 0` und `Verification > 0` ist die Ursache. Die EEA-Datenbank (Quelle `E1a`) enthält nur formal validierte Messungen. Für Daten aus dem Jahr 2025 waren zum Zeitpunkt des Abrufs nur die ersten zwei Tage (1.–2. Januar) vollständig durch die EEA validiert und verifiziert. Spätere Tage hatten noch Validierungsstatus `-1` (ungültig) oder `-2` (nicht validiert) und werden vom Filter korrekt ausgeschlossen.
+Der EEA-Filter mit `Validity > 0` und `Verification > 0` ist die Ursache. Die EEA-Datenbank (Quelle `E1a`) enthält nur formal validierte Messungen. Frühere Smoke-Tests zeigten deshalb weniger tatsächlich verfügbare Tage als angefragt. Zeilen mit Validierungsstatus `-1` oder `-2` werden vom Filter korrekt ausgeschlossen.
 
 **Das ist kein Fehler, sondern korrekte Qualitätssicherung.** Unvalidierte EEA-Daten würden zu falschen Durchschnittswerten führen.
 
 ### Warum keine 10 Jahre EEA-Daten als Standard?
 
-Die Defaults `EEA_DATE_START=2025-01-01` / `EEA_DATE_END=2025-01-08` sind ein bewusster **Smoke-Test**. Für 10 Jahre historische Daten:
+Die Defaults `EEA_DATE_START=2025-01-01` / `EEA_DATE_END=2026-01-01` umfassen exakt `365` Tage. Für 10 Jahre historische Daten:
 
 ```env
 EEA_DATE_START=2015-01-01T00:00:00Z
@@ -798,7 +802,7 @@ Für finale empirische Aussagen (z.B. saisonale Muster, Jahresvergleiche) ist ei
 ## Bekannte Einschränkungen
 
 - Das Projekt ist keine Produktionsplattform. Pipeline und Analysen sind für einen akademischen Nachweis konzipiert.
-- Der EEA-Standardzeitraum (eine Woche) reicht nicht für finale empirische Aussagen. Für belastbare Befunde `EEA_DATE_START` und `EEA_DATE_END` auf mindestens ein Jahr erweitern.
+- Notebook `03` erzwingt standardmäßig mindestens `365` Tage. Kurze technische Läufe sind nur mit `EEA_ALLOW_SHORT_SMOKE_TEST=true` zulässig.
 - Wikipedia-Metadaten können sich ändern. Nicht alle Felder sind für alle Städte vollständig parsbar.
 - Notebook 06 verwendet in der FH-Umgebung automatisch `local[*]` statt des Remote-Spark-Masters, da kein gemeinsamer Storage bestätigt ist. Der Kafka-Nachweis (lesen aus FH-Kafka) bleibt davon unberührt.
 - Open-Meteo-Werte sind Modelldaten, keine Messstationswerte. Sie dürfen nicht mit EEA-Messwerten gemischt verglichen werden.

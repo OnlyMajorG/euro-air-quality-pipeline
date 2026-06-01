@@ -39,6 +39,14 @@ Die Notebooks `00` bis `08` bestehen den lokalen Test nach Kernel-Neustart und v
 | Wikipedia-Web-Scraping | `8` Städte, Parse-Status `5 success`, `3 partial` |
 | Open-Meteo → Kafka | `8` reale API-Ereignisse gesendet und konsumiert, kein Mock-Fallback |
 | Spark liest Kafka | `selected_source_mode='kafka'`, `spark_read_kafka_requirement_proven=True` |
+| FH Spark liest FH Kafka | `selected_source_mode='kafka'`, `spark_read_kafka_requirement_proven=True`, `16` Silver-Zeilen, `0` Rejects, `8` Snapshot-Zeilen |
+| FH Gold-Schicht | `real_eea_api_parquet`, `154` historische Tageswerte, `16` Live-Ereignisse aus Spark-Silver, `8` Snapshot-Zeilen, `0` Duplikate |
+| FH historische Aussagegrenze | `7` Tage vorhanden, `365` Tage erforderlich, finale Aussagen daher `False` |
+| FH Analyse und Storytelling | `6` Abbildungen, historische und Live-Daten getrennt (`PASS`), Rom ohne PM2.5 transparent ausgewiesen, Spearman `rho=-0.393` bei `n=7` Städten nur explorativ |
+| Notebook-03-Jahresdefault | `[2025-01-01, 2026-01-01)`, exakt `365` angefragte Tage |
+| Notebook-03-Guardrail: zu kurzer Anfragezeitraum | ohne `EEA_ALLOW_SHORT_SMOKE_TEST=true` korrekt abgelehnt |
+| Notebook-03-Guardrail: zu wenige tatsächlich geladene Tage | Jahresfenster mit Kurz-Parquet korrekt abgelehnt |
+| Notebook-03-Kurzmodus | mit explizitem `EEA_ALLOW_SHORT_SMOKE_TEST=true` weiterhin ausführbar |
 | Historische Aussagegrenze | `2` Tage vorhanden, `365` Tage erforderlich, finale Aussagen daher `False` |
 | Laufzeitdaten unter `data/` ignoriert | bestanden |
 | Secret-Scan versionierter Textdateien | bestanden |

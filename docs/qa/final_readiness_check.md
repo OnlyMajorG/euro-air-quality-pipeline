@@ -19,8 +19,9 @@ Der lokale strikte Docker-Nachweis ist unter `docs/qa/docker_setup_verification.
 ## Offene FH- und Daten-Nachweise
 
 1. Für einen zusätzlichen FH-Lauf die FH-Endpunkte und ein gruppenspezifisches Kafka-Topic konfigurieren.
-2. Den EEA-API-Zeitraum in Notebook `03` für finale Aussagen auf mindestens `365` Tage erweitern.
-3. Notebooks `07` und `08` mit dem erweiterten EEA-API-Zeitraum erneut ausführen und die Abbildungen prüfen.
+2. Notebook `03` mit dem neuen Jahresdefault `[2025-01-01, 2026-01-01)` und `EEA_RUN_API_FETCH=true` ausführen.
+3. Prüfen, dass nach EEA-Validitätsfiltern tatsächlich mindestens `365` unterschiedliche historische Tage verbleiben.
+4. Notebooks `07` und `08` mit dem Jahres-Parquet erneut ausführen und die Abbildungen prüfen.
 
 ## Git-Hygiene
 
