@@ -2,13 +2,13 @@
 
 ## Ergebnis
 
-Status: IMPLEMENTIERT, REDUZIERTER LOKALER STRUKTURTEST BESTANDEN, FH-NACHWEIS OFFEN
+Status: IMPLEMENTIERT, REDUZIERTER LOKALER STRUKTURTEST BESTANDEN, STRIKTER DOCKER-NACHWEIS BESTANDEN
 
 ## Modi
 
 | Modus | Zweck | Nachweiswert |
 | --- | --- | --- |
-| `SPARK_KAFKA_MODE=kafka` | strikter FH-Lauf | erforderlicher finaler Nachweis |
+| `SPARK_KAFKA_MODE=kafka` | strikter Docker- oder FH-Lauf | erforderlicher finaler Nachweis |
 | `SPARK_KAFKA_MODE=auto` | Kafka bevorzugen, erlaubten Fallback nutzen | Entwicklung |
 | `SPARK_KAFKA_MODE=mock` | lokaler Spark-Dateistream | Spark-Mechanik ohne Kafka |
 | `pandas_mock_no_pyspark` | reduzierter lokaler Strukturtest | weder Spark- noch Kafka-Nachweis |
@@ -27,6 +27,6 @@ Status: IMPLEMENTIERT, REDUZIERTER LOKALER STRUKTURTEST BESTANDEN, FH-NACHWEIS O
 
 `192` Bronze-Zeilen, `192` Silver-Zeilen, `0` Rejects und `8` Live-Snapshot-Zeilen.
 
-## Offener FH-Nachweis
+## Strikter Nachweis
 
-Der finale Lauf muss `selected_source_mode=kafka` und `spark_read_kafka_requirement_proven=True` ausgeben.
+Der Docker-Lauf gibt `selected_source_mode=kafka` und `spark_read_kafka_requirement_proven=True` aus. Ein zusätzlicher FH-Lauf bleibt möglich.

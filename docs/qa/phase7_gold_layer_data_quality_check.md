@@ -16,5 +16,5 @@ Notebook `07_gold_layer_and_data_quality.ipynb` erzeugt fünf Gold-Parquet-Datei
 | Live-Snapshot | `8` Zeilen |
 | Qualitätsbericht | `4` Zeilen |
 | Doppelte Gold-Schlüssel | `0` |
-| Live-Herkunft | `phase6_pandas_mock_no_pyspark_silver` |
+| Live-Herkunft im strikten Docker-Lauf | `phase6_spark_stream_silver` |
 | Finale empirische Aussagen erlaubt | `False` |

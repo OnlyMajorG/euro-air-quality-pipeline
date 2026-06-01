@@ -34,7 +34,7 @@ Wie unterscheiden sich PM2.5-, PM10- und NO2-Muster zwischen ausgewählten europ
 
 | Reihenfolge | Notebook | Zweck |
 | ---: | --- | --- |
-| 00 | `notebooks/00_project_scope_and_requirements.ipynb` | Projektumfang, Anforderungen und Gesamtüberblick |
+| 00 | `notebooks/00_project_scope_and_requirements.ipynb` | Infrastruktur starten oder prüfen, Umgebung wählen, Projektumfang und Anforderungen |
 | 01 | `notebooks/01_source_spike_and_cluster_check.ipynb` | Machbarkeit der Quellen und Infrastrukturprüfung |
 | 02 | `notebooks/02_city_reference_model.ipynb` | Stabile Stadt-IDs und Referenzdaten |
 | 03 | `notebooks/03_eea_batch_ingestion.ipynb` | Historische EEA-Daten normalisieren und aggregieren |
@@ -43,7 +43,7 @@ Wie unterscheiden sich PM2.5-, PM10- und NO2-Muster zwischen ausgewählten europ
 | 06 | `notebooks/06_spark_structured_streaming_kafka_to_parquet.ipynb` | Kafka-Ereignisse mit Spark verarbeiten und persistieren |
 | 07 | `notebooks/07_gold_layer_and_data_quality.ipynb` | Gold-Datensätze und Qualitätsbericht erzeugen |
 | 08 | `notebooks/08_analysis_visualization_and_storytelling.ipynb` | Analysen, Diagramme und Ergebnisgeschichte erstellen |
-| Hilfsnotebook | `notebooks/09_reset_data.ipynb` | Lokale Laufzeitdaten kontrolliert zurücksetzen |
+| 09 | `notebooks/09_reset_data.ipynb` | Laufzeitdaten löschen und lokales Docker-Setup kontrolliert herunterfahren |
 
 ## Architektur
 
@@ -71,9 +71,9 @@ flowchart LR
 | Phase | Status | Hinweis |
 | --- | --- | --- |
 | 0 bis 4 | Lokal umgesetzt und geprüft | Projektstruktur, Quellen, Stadtmodell, EEA-Batch und Wikipedia-Scraping |
-| 5 | Lokal mit Mock-Broker geprüft | Strikter Kafka-Nachweis muss in der FH-Umgebung erfolgen |
-| 6 | Implementiert; reduzierter lokaler Strukturtest bestanden | Der lokale Rechner besitzt kein PySpark. Der strikte Kafka-zu-Spark-Nachweis muss in der FH-Umgebung erfolgen |
-| 7 | Lokal geprüft | Gold-Datensätze und Qualitätsbericht werden erzeugt |
+| 5 | Lokal mit Docker Desktop strikt geprüft | Kafka-Produzent und begrenzter Consumer-Test laufen ohne Mock-Fallback |
+| 6 | Lokal mit Docker Desktop strikt geprüft | Spark Structured Streaming liest aus Kafka und schreibt Parquet |
+| 7 | Lokal mit Docker Desktop geprüft | Gold-Datensätze, Qualitätsbericht und Spark-Speicherprobe werden erzeugt |
 | 8 | Lokal mit kontrollierten Fallback-Daten geprüft | Finale empirische Aussagen erfordern reale EEA-Daten |
 
 ## Datenquellen
@@ -105,11 +105,17 @@ presentation/  Storyline, Präsentationsstruktur und erzeugte Abbildungen
 - Java 17 oder 21 für lokale PySpark-Ausführungen
 - Jupyter Notebook oder JupyterLab
 - Netzwerkzugriff für Open-Meteo und Wikipedia
-- Zugriff auf Kafka und Spark für den strikten FH-Nachweislauf
+- Docker Desktop oder Zugriff auf Kafka und Spark in der FH-Umgebung für den strikten Nachweislauf
 
 Unter Windows benötigen lokale Spark-Dateizugriffe kompatible Hadoop-Binärdateien über `HADOOP_HOME` oder eine Linux-basierte Laufzeitumgebung wie WSL oder Docker.
 
-### Windows PowerShell
+### Lokaler Docker-Desktop-Lauf
+
+Ein lokal verfügbares Jupyter öffnen und ausschließlich Notebook `00_project_scope_and_requirements.ipynb` ausführen. Notebook `00` startet Docker Desktop bei Bedarf, baut den Compose-Stack auf und prüft Kafka, Spark-Master und Jupyter.
+
+Danach `http://localhost:8888` öffnen, Notebook `00` dort erneut ausführen und mit den Notebooks `01` bis `09` fortfahren. Die Notebooks `05` und `06` verwenden dabei den strikten Kafka-zu-Spark-Pfad. Details stehen in `docs/docker_setup.md`.
+
+### FH-Umgebung oder lokaler Lauf ohne Docker
 
 ```powershell
 python -m venv .venv
@@ -120,9 +126,11 @@ Copy-Item .env.example .env
 jupyter notebook
 ```
 
+Für die FH-Umgebung die Platzhalter in der nicht versionierten `.env` durch die tatsächlichen FH-Werte ersetzen und Notebook `00` mit `PROJECT_EXECUTION_MODE=fh` ausführen. Notebook `00` prüft die FH-Endpunkte direkt.
+
 ## Konfiguration
 
-Die lokale `.env` wird nicht versioniert. Sichere Vorlagen stehen in `.env.example` und `.env.cluster.example`.
+Die lokale `.env` wird nicht versioniert. Sichere Vorlagen stehen in `.env.example`, `.env.docker.example` und `.env.cluster.example`.
 
 ```env
 KAFKA_BOOTSTRAP_SERVERS=<fh-kafka-broker-host>:9092
@@ -136,7 +144,7 @@ RUN_OPEN_METEO_KAFKA_PRODUCER=false
 
 Für lokale Durchläufe bleibt `RUN_OPEN_METEO_KAFKA_PRODUCER=false`. Notebook `05` verwendet dann einen klar gekennzeichneten JSONL-Mock-Broker.
 
-Für den strikten FH-Nachweislauf:
+Für einen strikten Docker- oder FH-Nachweislauf:
 
 ```env
 KAFKA_MODE=kafka
@@ -149,20 +157,25 @@ ALLOW_SPARK_KAFKA_MOCK_FALLBACK=false
 
 Notebook `06` verwendet bevorzugt Kafka und Spark Structured Streaming. Ist PySpark lokal nicht installiert, prüft der sichtbar gekennzeichnete Modus `pandas_mock_no_pyspark` ausschließlich Ereignisvertrag, Qualitätsregeln, Joins und Parquet-Übergaben. Dieser reduzierte Pfad ist weder ein Spark- noch ein Kafka-Nachweis.
 
-Notebook `07` schreibt Gold-Parquet-Dateien lokal und hält die Herkunft des Live-Snapshots explizit fest. Der Modus `phase6_pandas_mock_no_pyspark_silver` bleibt in den Ausgaben sichtbar.
+Bei einem entfernten Spark-Master verwendet Notebook `06` diesen nur mit `ALLOW_SHARED_SPARK_STORAGE=true`. Im Docker-Setup ist der gemeinsame Pfad `/workspace` für Jupyter und Spark-Worker eingebunden. In der FH-Umgebung darf der Schalter erst nach bestätigter Schreib- und Leseprobe aktiviert werden.
+
+Notebook `07` schreibt Gold-Parquet-Dateien lokal und hält die Herkunft des Live-Snapshots explizit fest. Im strikten Docker-Lauf ist der Modus `phase6_spark_stream_silver` sichtbar; ohne Docker bleibt der reduzierte Fallback `phase6_pandas_mock_no_pyspark_silver` erkennbar.
 
 ## Ausführungsplan
 
-1. Notebooks `00` und `01` ausführen und Rahmenbedingungen prüfen.
-2. Notebook `02` für die Stadtreferenz ausführen.
-3. Notebook `03` vor finalen Aussagen mit einem realen EEA-Extrakt ausführen.
-4. Notebook `04` für die Wikipedia-Metadaten ausführen.
-5. Notebook `05` für Open-Meteo-Ereignisse und den Kafka-Produzenten ausführen.
-6. Notebook `06` für den Spark-Kafka-Pfad ausführen.
-7. Notebook `07` für Gold-Datensätze und Qualitätsbericht ausführen.
-8. Notebook `08` für Analyse, Diagramme und Ergebnisgeschichte ausführen.
+1. Notebook `00` ausführen, Umgebung auswählen und Infrastruktur starten oder prüfen.
+2. Im Docker-Weg Notebook `00` im gestarteten Docker-Jupyter erneut ausführen.
+3. Notebook `01` für Quellen- und Clusterkontext ausführen.
+4. Notebook `02` für die Stadtreferenz ausführen.
+5. Notebook `03` vor finalen Aussagen mit einem realen EEA-Extrakt ausführen.
+6. Notebook `04` für die Wikipedia-Metadaten ausführen.
+7. Notebook `05` für Open-Meteo-Ereignisse und den Kafka-Produzenten ausführen.
+8. Notebook `06` für den Spark-Kafka-Pfad ausführen.
+9. Notebook `07` für Gold-Datensätze und Qualitätsbericht ausführen.
+10. Notebook `08` für Analyse, Diagramme und Ergebnisgeschichte ausführen.
+11. Notebook `09` ausführen, um Laufzeitdateien zu löschen und das lokale Docker-Setup herunterzufahren.
 
-Notebook `09` ist optional. Standardmäßig gilt `DRY_RUN=true`. Eine Löschung erfordert `DRY_RUN=false`. Für externe Datenpfade ist zusätzlich `ALLOW_EXTERNAL_DATA_RESET=true` notwendig.
+Notebook `09` löscht standardmäßig die erzeugten Dateien. Für eine reine Vorschau `DRY_RUN=true` setzen. Für externe Datenpfade ist zusätzlich `ALLOW_EXTERNAL_DATA_RESET=true` notwendig.
 
 ## Geplante Ergebnisgeschichte
 
@@ -185,4 +198,4 @@ Erzeugte CSV-, JSON-, HTML-, Parquet- und Checkpoint-Dateien unter `data/` bleib
 
 ## Einschränkungen
 
-Das Projekt ist keine Produktionsplattform. Die Datenmenge ist überschaubar, die Analyse bleibt explorativ und Wikipedia-Metadaten können sich ändern. Aussagen über Kafka und Spark sind erst nach dem strikten FH-Nachweislauf zulässig. Finale empirische Aussagen erfordern reale EEA-Daten.
+Das Projekt ist keine Produktionsplattform. Die Datenmenge ist überschaubar, die Analyse bleibt explorativ und Wikipedia-Metadaten können sich ändern. Aussagen über Kafka und Spark sind erst nach einem strikten Docker- oder FH-Nachweislauf zulässig. Finale empirische Aussagen erfordern reale EEA-Daten.

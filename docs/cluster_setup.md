@@ -15,8 +15,12 @@ Die FH-Umgebung kann VPN-Zugriff, JupyterHub, eine Spark-Master-URL und einen Ka
 
 Für reproduzierbare lokale Parquet-Ausgaben wird `SPARK_MASTER_URL=local[*]` verwendet. Der FH-Cluster dient für den strikten Kafka-zu-Spark-Nachweis. Gemeinsamer Cluster-Speicher darf erst nach einem erfolgreichen Schreib- und Lesetest behauptet werden.
 
+Alternativ steht ein lokales Docker-Compose-Setup bereit. Dort teilen sich Jupyter und Spark-Worker den eingebundenen Pfad `/workspace`; deshalb ist `ALLOW_SHARED_SPARK_STORAGE=true` zulässig. Details stehen in `docs/docker_setup.md`.
+
 Notebook `07` bietet dafür den optionalen Schalter:
 
 ```env
 RUN_PHASE7_SPARK_STORAGE_PROBE=true
 ```
+
+Vor dem FH-Lauf die nicht versionierte `.env` aus `.env.cluster.example` ableiten, Platzhalter ersetzen und Notebook `00` mit `PROJECT_EXECUTION_MODE=fh` ausführen. Die Erreichbarkeitsprüfung liegt vollständig im Notebook.

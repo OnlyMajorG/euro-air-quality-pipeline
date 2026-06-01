@@ -22,6 +22,6 @@ Notebook `08_analysis_visualization_and_storytelling.ipynb` verwendet ausschlie√
 
 ```text
 EEA-Sample-Fallback aktiv: True
-Live-Eingabemodus: phase6_pandas_mock_no_pyspark_silver
+Live-Eingabemodus im strikten Docker-Lauf: phase6_spark_stream_silver
 Finale historische Aussagen zul√§ssig: False
 ```

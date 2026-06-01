@@ -37,4 +37,4 @@ Welche Luftqualitätsmuster zeigen ausgewählte europäische Städte im historis
 
 ## Lokaler Datenstatus
 
-Der lokale Lauf verwendet für EEA `controlled_sample_fallback` und für den Live-Pfad `phase6_pandas_mock_no_pyspark_silver`. Finale empirische Aussagen erfordern reale EEA-Daten und den strikten FH-Kafka-zu-Spark-Lauf.
+Der lokale Docker-Lauf verwendet für EEA `controlled_sample_fallback` und für den Live-Pfad `phase6_spark_stream_silver`. Finale empirische Aussagen erfordern reale EEA-Daten. Ein zusätzlicher FH-Kafka-zu-Spark-Lauf bleibt möglich.

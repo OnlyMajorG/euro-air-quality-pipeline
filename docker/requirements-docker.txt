@@ -1,0 +1,11 @@
+pandas
+numpy
+requests
+beautifulsoup4
+lxml
+python-dotenv
+pyarrow
+pyspark==3.5.7
+kafka-python
+jupyter
+matplotlib

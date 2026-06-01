@@ -17,13 +17,13 @@ Notebook `05_open_meteo_api_and_kafka_producer.ipynb` erzeugt flache JSON-Ereign
 
 ## Kafka-Modi
 
-- `KAFKA_MODE=kafka`: strikter FH-Nachweismodus; Brokerfehler brechen den Lauf ab.
+- `KAFKA_MODE=kafka`: strikter Docker- oder FH-Nachweismodus; Brokerfehler brechen den Lauf ab.
 - `KAFKA_MODE=auto`: Kafka bevorzugen und nur bei erlaubtem Fallback den Mock-Broker verwenden.
 - `KAFKA_MODE=mock`: lokaler JSONL-Mock-Broker.
 
 ## Spark-Kafka-Modi
 
-- `SPARK_KAFKA_MODE=kafka`: strikter FH-Nachweismodus.
+- `SPARK_KAFKA_MODE=kafka`: strikter Docker- oder FH-Nachweismodus.
 - `SPARK_KAFKA_MODE=auto`: Kafka bevorzugen und bei erlaubtem Fallback den lokalen Spark-Dateistream verwenden.
 - `SPARK_KAFKA_MODE=mock`: lokale Spark-Structured-Streaming-Verarbeitung aus JSONL.
 - `pandas_mock_no_pyspark`: reduzierter Strukturtest, wenn PySpark lokal fehlt.
@@ -36,4 +36,4 @@ Notebook `07_gold_layer_and_data_quality.ipynb` schreibt reproduzierbare Gold-Pa
 
 ## Notebook-basierte Umsetzung
 
-Die Implementierungslogik liegt in den geordneten Notebooks `00` bis `08`. Notebook `09` ist ein abgesichertes Hilfsnotebook zum Zurücksetzen lokaler Laufzeitdaten.
+Die Implementierungslogik liegt in den geordneten Notebooks `00` bis `09`. Notebook `00` startet oder prüft die Infrastruktur und wählt Docker oder FH. Notebook `09` löscht Laufzeitdaten und fährt das lokale Docker-Setup kontrolliert herunter.
