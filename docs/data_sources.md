@@ -10,7 +10,7 @@
 
 ## EEA
 
-Notebook `03` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab, filtert PM2.5, PM10 und NO2 und speichert quellnahe Messungen in `bronze.eea_observation` im PostgreSQL-Container. Die Silver-Verarbeitung liest anschließend aus PostgreSQL und aggregiert auf Tageswerte. Der Standardzeitraum ist ein kurzer reproduzierbarer Smoke-Test; finale Aussagen erfordern einen erweiterten Zeitraum.
+Notebook `03` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab und filtert PM2.5, PM10 und NO2. Im Docker-Modus speichert es quellnahe Messungen in `bronze.eea_observation` im PostgreSQL-Container und exportiert zusätzlich `data/bronze/eea/eea_observation.parquet`. In der FH kann das Notebook ohne PostgreSQL direkt dieses portable Bronze-Parquet erzeugen oder lesen. Die Silver-Verarbeitung aggregiert anschließend in beiden Modi auf Tageswerte. Der Standardzeitraum ist ein kurzer reproduzierbarer Smoke-Test; finale Aussagen erfordern einen erweiterten Zeitraum.
 
 ## Wikipedia
 

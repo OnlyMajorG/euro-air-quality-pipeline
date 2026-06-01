@@ -24,3 +24,5 @@ RUN_PHASE7_SPARK_STORAGE_PROBE=true
 ```
 
 Vor dem FH-Lauf die nicht versionierte `.env` aus `.env.cluster.example` ableiten, Platzhalter ersetzen und Notebook `00` mit `PROJECT_EXECUTION_MODE=fh` ausführen. Die Erreichbarkeitsprüfung liegt vollständig im Notebook.
+
+Notebook `03` verwendet in der FH `EEA_BRONZE_STORAGE_MODE=parquet`. PostgreSQL ist dort nicht erforderlich. Ein Docker-Lauf exportiert automatisch `data/bronze/eea/eea_observation.parquet`; alternativ kann die FH diese Datei mit `EEA_RUN_API_FETCH=true` selbst aus der EEA API erzeugen.

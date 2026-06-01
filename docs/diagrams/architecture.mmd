@@ -1,6 +1,7 @@
 flowchart LR
-    EEA["EEA Downloads API"] --> PG["PostgreSQL Bronze"]
-    PG --> N03["03 EEA-Batch-Notebook"]
+    EEA["EEA Downloads API"] --> N03["03 EEA-Batch-Notebook"]
+    N03 <--> PG["PostgreSQL Bronze: Docker"]
+    N03 <--> EEA_PARQUET["EEA Bronze-Parquet: Docker-Export oder FH-Datei"]
     WIKI["Wikipedia-Stadtseiten"] --> N04["04 Web-Scraping-Notebook"]
     API["Open-Meteo-REST-API"] --> N05["05 API- und Kafka-Produzent"]
     N05 --> RAW["Bronze-JSON und validierte JSONL-Ereignisse"]

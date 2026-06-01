@@ -2,8 +2,8 @@
 
 ## Pipeline
 
-1. Notebook `03_eea_batch_ingestion.ipynb` ruft historische Messungen über die EEA Downloads API ab und schreibt sie in die PostgreSQL-Bronze-Tabelle `bronze.eea_observation`.
-2. Dieselbe Phase liest PostgreSQL als Datenbank- und Batch-Quelle, normalisiert die Messungen und schreibt Silver-Parquet.
+1. Notebook `03_eea_batch_ingestion.ipynb` ruft historische Messungen über die EEA Downloads API ab. Im Docker-Modus schreibt es in die PostgreSQL-Bronze-Tabelle `bronze.eea_observation` und exportiert zusätzlich ein portables Bronze-Parquet.
+2. In der FH kann dieselbe Phase ohne PostgreSQL direkt `data/bronze/eea/eea_observation.parquet` erzeugen oder lesen. Beide Wege schreiben dasselbe Silver-Parquet.
 3. Wikipedia-Stadtseiten liefern Kontextdaten über Web-Scraping.
 4. Die Open-Meteo-REST-API liefert aktuelle Luftqualitätsdaten ausschließlich für den Live-Pfad.
 5. Notebook `05` speichert Bronze-JSON und validierte JSONL-Ereignisse.

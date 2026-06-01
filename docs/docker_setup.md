@@ -10,7 +10,7 @@ Das Docker-Setup bildet den strikten Kafka-zu-Spark-Pfad lokal mit Docker Deskto
 - einen Spark-Worker
 - Jupyter Notebook mit den Python-Abhängigkeiten des Projekts
 
-Notebook `03` ruft historische EEA-Parquet-URLs ab, schreibt Messungen in PostgreSQL und erzeugt Silver-Parquet. Notebook `05` veröffentlicht Open-Meteo-Ereignisse an Kafka. Notebook `06` liest sie mit Spark Structured Streaming aus Kafka und schreibt Parquet-Dateien. Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden. Dadurch ist gemeinsamer Speicher für Driver und Worker vorhanden.
+Notebook `03` ruft historische EEA-Parquet-URLs ab, schreibt Messungen in PostgreSQL, exportiert `data/bronze/eea/eea_observation.parquet` für portable FH-Läufe und erzeugt Silver-Parquet. Notebook `05` veröffentlicht Open-Meteo-Ereignisse an Kafka. Notebook `06` liest sie mit Spark Structured Streaming aus Kafka und schreibt Parquet-Dateien. Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden. Dadurch ist gemeinsamer Speicher für Driver und Worker vorhanden.
 
 Die Spark-Streaming-Checkpoints liegen in einem gemeinsamen Docker-Named-Volume. Für den kleinen lokalen Nachweislauf ist `SPARK_SQL_SHUFFLE_PARTITIONS=1` gesetzt, damit Checkpoint-State auf Docker Desktop reproduzierbar geschrieben wird.
 

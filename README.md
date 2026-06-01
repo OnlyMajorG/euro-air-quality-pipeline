@@ -399,6 +399,8 @@ SPARK_KAFKA_MODE=kafka
 ALLOW_SPARK_KAFKA_MOCK_FALLBACK=false
 RUN_OPEN_METEO_KAFKA_PRODUCER=false
 RESET_PHASE6_CHECKPOINTS=false
+EEA_BRONZE_STORAGE_MODE=parquet
+EEA_RUN_API_FETCH=false
 DATA_DIR=data
 CHECKPOINT_DIR=data/checkpoints
 ```
@@ -408,7 +410,7 @@ CHECKPOINT_DIR=data/checkpoints
 Im JupyterHub-Interface Notebook `00` öffnen und ausführen. Danach `01` bis `09` in der angegebenen Reihenfolge.
 
 **Hinweise für die FH-Umgebung:**
-- Notebook 03 (EEA-Batch) benötigt PostgreSQL — ohne lokale Datenbank entfällt der EEA-Pfad oder wird durch vorhandene Parquet-Dateien aus einem vorangegangenen Lauf abgedeckt.
+- Notebook 03 verwendet in der FH `EEA_BRONZE_STORAGE_MODE=parquet` und benötigt dort kein PostgreSQL. Mit `EEA_RUN_API_FETCH=false` liest es ein mitgebrachtes `data/bronze/eea/eea_observation.parquet`. Mit `EEA_RUN_API_FETCH=true` erzeugt es diese Datei direkt aus der EEA API.
 - Notebook 05 mit `RUN_OPEN_METEO_KAFKA_PRODUCER=true` nur kurz ausführen, danach wieder auf `false` setzen.
 - Wenn Notebook 06 bei leerem Checkpoint neu gestartet werden soll: `RESET_PHASE6_CHECKPOINTS=true` setzen, einmal ausführen, dann wieder auf `false`.
 
@@ -439,6 +441,8 @@ Alle Konfigurationswerte werden über eine nicht versionierte `.env` gesetzt. Dr
 | `ALLOW_SHARED_SPARK_STORAGE` | `true` | Gemeinsamen Storage für Driver und Worker bestätigt |
 | `DATA_DIR` | `data` | Relativer oder absoluter Pfad zum Dateiverzeichnis |
 | `CHECKPOINT_DIR` | `data/checkpoints` | Spark-Streaming-Checkpoint-Pfad |
+| `EEA_BRONZE_STORAGE_MODE` | `postgres` oder `parquet` | Bronze-Backend für Notebook 03; Docker verwendet PostgreSQL, die FH ein portables Parquet |
+| `EEA_RUN_API_FETCH` | `true` | EEA API erneut abrufen; mit `false` vorhandenen Bronze-Speicher lesen |
 | `EEA_DATE_START` | `2025-01-01T00:00:00Z` | Startzeitpunkt für EEA-API-Abruf |
 | `EEA_DATE_END` | `2025-01-08T00:00:00Z` | Endzeitpunkt (kurz = Smoke-Test; für finale Aussagen verlängern) |
 | `MIN_FINAL_HISTORY_DAYS` | `365` | Mindestanzahl Tage für finale empirische Aussagen |
@@ -483,15 +487,17 @@ Die Notebooks werden in numerischer Reihenfolge ausgeführt. Jedes Notebook ist 
 
 ### 03 — EEA-Batch-Ingestion
 
-**Zweck:** Historische PM2.5-, PM10- und NO2-Messungen über die EEA Downloads API abrufen, quelltreu in PostgreSQL (`bronze.eea_observation`) speichern und auf tägliche Silver-Parquet-Dateien aggregieren.
+**Zweck:** Historische PM2.5-, PM10- und NO2-Messungen über die EEA Downloads API abrufen, quelltreu in PostgreSQL oder einem portablen Bronze-Parquet speichern und auf tägliche Silver-Parquet-Dateien aggregieren.
 
 **Ablauf:**
 1. EEA-API liefert Parquet-URLs je Stadt und Schadstoff.
-2. Rohdaten landen in PostgreSQL-Bronze.
-3. Silver-Aggregation: Tagesmittelwert, Minimum, Maximum je Stadt/Tag/Schadstoff.
+2. Docker speichert Rohdaten in PostgreSQL-Bronze und exportiert zusätzlich ein portables Parquet.
+3. Die FH liest oder erzeugt `data/bronze/eea/eea_observation.parquet` ohne PostgreSQL.
+4. Silver-Aggregation: Tagesmittelwert, Minimum, Maximum je Stadt/Tag/Schadstoff.
 
 **Ausgaben:**
 - PostgreSQL: `bronze.eea_observation`
+- Portables Bronze-Artefakt: `data/bronze/eea/eea_observation.parquet`
 - `data/silver/eea_city_daily.parquet`
 
 **Hinweis:** Für finale Aussagen sollte `EEA_DATE_START` / `EEA_DATE_END` auf mindestens ein Jahr erweitert werden (`MIN_FINAL_HISTORY_DAYS=365`).

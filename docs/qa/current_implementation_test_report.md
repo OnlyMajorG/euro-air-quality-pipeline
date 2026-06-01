@@ -31,6 +31,10 @@ Die Notebooks `00` bis `08` bestehen den lokalen Test nach Kernel-Neustart und v
 | Git-Diff-Prüfung | bestanden |
 | EEA Downloads API → PostgreSQL-Smoke-Test | `284` Parquet-URLs, `13.200` Bronze-Zeilen, `8` Städte für `2025-01-01` bis `2025-01-03` |
 | PostgreSQL-Wiederverwendung ohne erneuten EEA-Download | bestanden |
+| Docker PostgreSQL → portables EEA-Bronze-Parquet | `data/bronze/eea/eea_observation.parquet`, `13.200` Zeilen, `8` Städte |
+| FH-Parquet-Wiederverwendung ohne PostgreSQL und ohne erneuten EEA-Download | bestanden |
+| FH-Parquet-Erzeugung direkt aus der EEA API | bestanden |
+| Gold- und Analysepfad mit `real_eea_api_parquet` | bestanden |
 | PostgreSQL-Bronze-Schema | nur `bronze.eea_observation`; kein Open-Meteo-Snapshot in PostgreSQL |
 | Wikipedia-Web-Scraping | `8` Städte, Parse-Status `5 success`, `3 partial` |
 | Open-Meteo → Kafka | `8` reale API-Ereignisse gesendet und konsumiert, kein Mock-Fallback |
