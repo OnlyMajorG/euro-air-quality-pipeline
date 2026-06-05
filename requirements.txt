@@ -7,6 +7,6 @@ python-dotenv
 psycopg[binary]
 pyarrow
 pyspark
-kafka-python
+confluent-kafka
 jupyter
 matplotlib

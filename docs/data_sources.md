@@ -4,21 +4,21 @@
 
 | Quelle | Typ | Zweck | Notebook |
 | --- | --- | --- | --- |
-| Historische EEA-Luftqualitätsdaten | EEA Downloads API und PostgreSQL-Batch | PM2.5-, PM10- und NO2-Messungen | `03_eea_batch_ingestion.ipynb` |
-| Wikipedia-Stadtseiten | Web-Scraping | Bevölkerung, Fläche und Bevölkerungsdichte | `04_wikipedia_web_scraping.ipynb` |
-| Open-Meteo Air Quality API | REST-API | Aktuelle Ereignisse für den Kafka-Pfad | `05_open_meteo_api_and_kafka_producer.ipynb` |
+| Historische EEA-Luftqualitätsdaten | EEA Downloads API (Datei/DB) | PM2.5-, PM10- und NO2-Messungen | `04_eea_batch_ingestion.ipynb` |
+| Wikipedia-Stadtseiten | Web-Scraping | Bevölkerung, Fläche und Bevölkerungsdichte | `05_wikipedia_web_scraping.ipynb` |
+| Open-Meteo Air Quality API | REST-API | Aktuelle Ereignisse für den Kafka-Pfad | `06_open_meteo_api_and_kafka_producer.ipynb` |
 
 ## EEA
 
-Notebook `03` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab und filtert PM2.5, PM10 und NO2. Im Docker-Modus speichert es quellnahe Messungen in `bronze.eea_observation` im PostgreSQL-Container und exportiert zusätzlich `data/bronze/eea/eea_observation.parquet`. In der FH kann das Notebook ohne PostgreSQL direkt dieses portable Bronze-Parquet erzeugen oder lesen. Die Silver-Verarbeitung aggregiert anschließend in beiden Modi auf Tageswerte. Der Default `[2025-01-01, 2026-01-01)` umfasst exakt `365` Tage. Kürzere technische Läufe benötigen ausdrücklich `EEA_ALLOW_SHORT_SMOKE_TEST=true`.
+Notebook `04` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab und filtert PM2.5, PM10 und NO2. Lokal speichert es die Messungen in `bronze.eea_observation` im PostgreSQL-Container, auf der FH ohne PostgreSQL in `data/bronze/eea/eea_observation.parquet`. Die Silver-Verarbeitung aggregiert in beiden Modi auf Tageswerte. Der Default `[2025-01-01, 2026-01-01)` umfasst exakt `365` Tage; für einen kürzeren Testlauf `EEA_DATE_END` näher an `EEA_DATE_START` setzen.
 
 ## Wikipedia
 
-Wikipedia dient ausschließlich als Kontextquelle. Das HTML-Parsing ist defensiv implementiert. Fehlende oder mehrdeutige Werte bleiben leer und werden nicht geraten.
+Wikipedia dient ausschließlich als Kontextquelle. Das HTML-Parsing ist defensiv: fehlende oder mehrdeutige Werte bleiben leer und werden nicht geraten. `parse_status` dokumentiert den Erfolg je Stadt.
 
 ## Open-Meteo
 
-Open-Meteo liefert REST-API-Daten und Kafka-Ereignisse. Die API-Felder werden auf `pm2_5`, `pm10` und `no2` vereinheitlicht. Notebook `05` speichert pro Stadt eine Bronze-JSON-Datei, ein Manifest und einen validierten JSONL-Batch für Kafka.
+Open-Meteo liefert REST-API-Daten für den Kafka-Pfad. Die API-Felder werden auf `pm2_5`, `pm10` und `no2` vereinheitlicht. Notebook `06` speichert pro Stadt eine Bronze-JSON-Datei und einen validierten JSONL-Batch und sendet die Events mit einem `confluent-kafka`-Producer an das Topic.
 
 ## Gold-Ausgaben
 

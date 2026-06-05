@@ -1,11 +1,8 @@
 flowchart TD
-    Quellen["EEA Downloads API, Wikipedia-HTML und Open-Meteo-API"] --> Bronze["Bronze: PostgreSQL-Messungen, HTML und JSONL-Ereignisse"]
-    Bronze --> Broker["Kafka-Topic oder lokaler Mock-Broker"]
-    Broker --> Nachweis["Begrenzter Produzenten- und Consumer-Test"]
-    Broker --> Spark["06 Spark: lesen, parsen, validieren und verknüpfen"]
-    Bronze -. "lokaler Fallback" .-> Spark
+    Quellen["EEA Downloads API, Wikipedia-HTML und Open-Meteo-API"] --> Bronze["Bronze: PostgreSQL/Parquet-Messungen, HTML und JSON-Ereignisse"]
+    Bronze --> Broker["Kafka-Topic: air_quality_live"]
+    Broker --> Spark["07 Spark: lesen, parsen, validieren und verknüpfen"]
     Bronze --> Silver["Silver: normalisierte und verknüpfbare Daten"]
     Spark --> Silver
-    Silver --> Gold["Gold: analysebereite Tabellen"]
-    Gold --> Qualität["07 Qualitätsbericht"]
-    Gold --> Analyse["08 Visualisierung und Storytelling"]
+    Silver --> Gold["08 Gold: analysebereite Tabellen + Qualitätsbericht"]
+    Gold --> Analyse["09 Visualisierung und Storytelling"]

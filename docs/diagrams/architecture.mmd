@@ -1,18 +1,14 @@
 flowchart LR
-    EEA["EEA Downloads API"] --> N03["03 EEA-Batch-Notebook"]
-    N03 <--> PG["PostgreSQL Bronze: Docker"]
-    N03 <--> EEA_PARQUET["EEA Bronze-Parquet: Docker-Export oder FH-Datei"]
-    WIKI["Wikipedia-Stadtseiten"] --> N04["04 Web-Scraping-Notebook"]
-    API["Open-Meteo-REST-API"] --> N05["05 API- und Kafka-Produzent"]
-    N05 --> RAW["Bronze-JSON und validierte JSONL-Ereignisse"]
-    N05 --> KAFKA["Kafka-Topic: LIVE-bdeng_gXX_air_quality_live"]
-    N05 -. "lokaler Fallback" .-> MOCK["JSONL-Mock-Broker"]
-    KAFKA --> N06["06 Spark Structured Streaming"]
-    RAW -. "lokaler Spark-Dateistream" .-> N06
-    RAW -. "reduzierter pandas-Strukturtest" .-> N06
-    N03 --> PARQUET["Parquet: Bronze, Silver und Gold"]
-    N04 --> PARQUET
-    N06 --> PARQUET
-    PARQUET --> N07["07 Gold-Schicht und Datenqualität"]
-    N07 --> N08["08 Analyse und Storytelling"]
-    N08 --> PRES["Abbildungen und Präsentation"]
+    EEA["EEA Downloads API"] --> N04["04 EEA-Batch"]
+    N04 <--> PG["Bronze: PostgreSQL (Docker) ODER Parquet (FH)"]
+    WIKI["Wikipedia-Stadtseiten"] --> N05["05 Web-Scraping"]
+    API["Open-Meteo-REST-API"] --> N06["06 Kafka-Producer"]
+    N06 --> KAFKA["Kafka-Topic: air_quality_live"]
+    KAFKA --> N07["07 Spark Structured Streaming"]
+    N04 --> SILVER["Silver-Parquet"]
+    N05 --> SILVER
+    N07 --> SILVER
+    SILVER --> N08["08 Gold-Schicht und Datenqualität"]
+    N08 --> GOLD["Gold-Parquet"]
+    GOLD --> N09["09 Analyse und Storytelling"]
+    N09 --> PRES["Abbildungen und Präsentation"]

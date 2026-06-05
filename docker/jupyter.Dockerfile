@@ -1,13 +1,8 @@
-FROM docker:27-cli AS docker-cli
-
 FROM python:3.10-bookworm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openjdk-17-jre-headless \
     && rm -rf /var/lib/apt/lists/*
-
-COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
-COPY --from=docker-cli /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
 
 COPY docker/requirements-docker.txt /tmp/requirements-docker.txt
 RUN python3 -m pip install --no-cache-dir -r /tmp/requirements-docker.txt \

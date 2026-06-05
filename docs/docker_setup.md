@@ -2,55 +2,48 @@
 
 ## Zweck
 
-Das Docker-Setup bildet den strikten Kafka-zu-Spark-Pfad lokal mit Docker Desktop ab. Es startet:
+Das Docker-Setup bildet den Kafka-zu-Spark-Pfad lokal mit Docker Desktop ab. `docker compose` startet:
 
 - einen Kafka-Broker im KRaft-Modus
 - eine PostgreSQL-Datenbank für historische EEA-Bronze-Daten
-- einen Spark-Master
-- einen Spark-Worker
+- einen Spark-Master und einen Spark-Worker
 - Jupyter Notebook mit den Python-Abhängigkeiten des Projekts
 
-Notebook `03` ruft historische EEA-Parquet-URLs ab, schreibt Messungen in PostgreSQL, exportiert `data/bronze/eea/eea_observation.parquet` für portable FH-Läufe und erzeugt Silver-Parquet. Notebook `05` veröffentlicht Open-Meteo-Ereignisse an Kafka. Notebook `06` liest sie mit Spark Structured Streaming aus Kafka und schreibt Parquet-Dateien. Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden. Dadurch ist gemeinsamer Speicher für Driver und Worker vorhanden.
+Das Projektverzeichnis wird in Jupyter und Spark-Worker unter `/workspace` eingebunden, daher haben
+Driver und Worker gemeinsamen Speicher. Die Spark-Streaming-Checkpoints liegen in einem gemeinsamen
+Docker-Named-Volume. Jupyter verwendet Python `3.10`, passend zur Python-Version des Spark-Images,
+damit PySpark-Jobs mit Python-Serialisierung funktionieren.
 
-Die Spark-Streaming-Checkpoints liegen in einem gemeinsamen Docker-Named-Volume. Für den kleinen lokalen Nachweislauf ist `SPARK_SQL_SHUFFLE_PARTITIONS=1` gesetzt, damit Checkpoint-State auf Docker Desktop reproduzierbar geschrieben wird.
+## Start über Notebook `00`
 
-Der lokale Spark-Worker läuft im Compose-Setup als `root`, weil Jupyter und Worker denselben Windows-Bind-Mount beschreiben. Das ist eine lokale Entwicklungsentscheidung und keine Produktionskonfiguration.
+Docker Desktop starten, dann Notebook `00_infrastructure_startup.ipynb` ausführen. Es führt
+`docker compose up -d --build` aus und wartet, bis Kafka, Spark, PostgreSQL und Jupyter erreichbar sind.
 
-Jupyter verwendet im Docker-Setup Python `3.10`, passend zur Python-Minor-Version des offiziellen Spark-Worker-Images. Dadurch funktionieren auch PySpark-Jobs mit Python-Serialisierung.
-
-## Start über Notebook 00
-
-Der Benutzerablauf erfolgt ausschließlich über Notebooks. In einem lokal verfügbaren Jupyter Notebook `00_project_scope_and_requirements.ipynb` öffnen und ausführen. Notebook `00` startet Docker Desktop bei Bedarf, führt Docker Compose aus und prüft die Host-Endpunkte.
-
-Danach `http://localhost:8888` öffnen und Notebook `00` im Docker-Jupyter erneut ausführen. Dort werden Kafka und Spark im internen Compose-Netzwerk geprüft. Anschließend die Notebooks `01` bis `09` in Reihenfolge ausführen.
-
-Die Oberflächen sind anschließend erreichbar:
+Danach `http://localhost:8888` öffnen und die Notebooks `01` bis `09` in Reihenfolge ausführen.
+Notebook `07` (Spark Structured Streaming) muss im Docker-Jupyter laufen.
 
 | Dienst | URL |
 | --- | --- |
 | Jupyter Notebook | `http://localhost:8888` |
 | PostgreSQL | `localhost:5432` |
-| Spark-Master | `http://localhost:8080` |
-| Spark-Worker | `http://localhost:8081` |
+| Spark-Master-UI | `http://localhost:8080` |
+| Spark-Worker-UI | `http://localhost:8081` |
 
-Die Docker-Konfiguration liegt in `.env.docker.example` und wird automatisch in den Jupyter-Container geladen. Sie verwendet einen lokalen, nicht gruppenspezifischen Kafka-Topic-Namen. PostgreSQL-Daten bleiben im Named Volume `postgres-data` erhalten, bis das Volume ausdrücklich entfernt wird.
+Die Datei `.env.docker.example` wird automatisch in den Jupyter-Container geladen. PostgreSQL-Daten
+bleiben im Named Volume `postgres-data`, bis es entfernt wird.
 
-## Notebook-Lauf
+## Infrastruktur-Nachweis
 
-Die Notebooks werden in Jupyter in der Reihenfolge `00` bis `08` ausgeführt. Für den Infrastruktur-Nachweis sind insbesondere relevant:
+1. Notebook `04`: reale EEA-API-Daten in `bronze.eea_observation`
+2. Notebook `06`: Events werden an Kafka gesendet
+3. Notebook `07`: `spark_read_kafka_requirement_proven == True`
 
-1. Notebook `03`: reale API-Daten in `bronze.eea_observation`
-2. Notebook `05`: `broker_result["mode"] == "kafka"`
-3. Notebook `06`: `selected_source_mode == "kafka"`
-4. Notebook `06`: `spark_read_kafka_requirement_proven == True`
-5. Notebook `07`: erfolgreiche Spark-Speicherprobe
+Der erste Spark-Kafka-Lauf lädt den passenden Connector aus Maven Central; dafür benötigt der
+Jupyter-Container Netzwerkzugriff.
 
-Der erste Spark-Kafka-Lauf lädt den passenden Connector aus Maven Central. Dafür benötigt der Jupyter-Container Netzwerkzugriff.
+## Stop über Notebook `10`
 
-## Stop über Notebook 09
-
-Notebook `09_reset_data.ipynb` löscht standardmäßig die erzeugten Laufzeitdateien und startet einen kurzlebigen Docker-Helper. Dieser fährt den Compose-Stack nach Abschluss der Notebook-Zelle herunter. Für eine reine Löschvorschau `DRY_RUN=true` setzen.
-
-## FH-Umgebung
-
-Die FH-Umgebung bleibt eine zweite, unabhängige Ausführungsoption. Vor der Ausführung von Notebook `00` müssen die Platzhalter in `.env` durch die tatsächlichen FH-Endpunkte, das Gruppen-Topic und gegebenenfalls einen bestätigten gemeinsamen Speicherpfad ersetzt werden. Mit `PROJECT_EXECUTION_MODE=fh` prüft Notebook `00` ausschließlich die FH-Umgebung. `ALLOW_SHARED_SPARK_STORAGE=true` darf erst nach bestätigtem gemeinsamem Speicher gesetzt werden.
+Notebook `10_reset_data.ipynb` löscht die erzeugten Laufzeitdateien (außer `.gitkeep`) und fährt mit
+`docker compose down` die Infrastruktur herunter. Die gelöschten Daten lassen sich durch erneutes
+Ausführen der Pipeline wiederherstellen. Für einen vollständigen Reset inkl. Datenbank
+`docker compose down -v` im Terminal verwenden.

@@ -1,32 +1,27 @@
-# Cluster-Konfiguration
+# FH-Cluster-Konfiguration
 
 ## Annahmen
 
-Die FH-Umgebung kann VPN-Zugriff, JupyterHub, eine Spark-Master-URL und einen Kafka-Broker erfordern. Zugangsdaten und private Hostnamen dürfen nicht versioniert werden.
+Die FH-Umgebung kann VPN-Zugriff, JupyterHub, eine Spark-Master-URL und einen Kafka-Broker erfordern.
+Zugangsdaten und private Hostnamen dürfen nicht versioniert werden.
 
-## Bekannte Erkenntnisse
+## Vorgehen
 
-- Der Spark-Master war erreichbar.
-- Eine grundlegende Spark-Berechnung war möglich.
-- Gemeinsamer Speicher für Spark-Worker ist noch nicht bestätigt.
-- Lokale Jupyter-Pfade sind nicht automatisch für Cluster-Executors sichtbar.
+1. Die nicht versionierte `.env` aus `.env.cluster.example` ableiten und die FH-Werte eintragen
+   (`KAFKA_BOOTSTRAP_SERVERS`, gruppenspezifisches `KAFKA_TOPIC_AIR_QUALITY_LIVE`).
+2. Notebook `00` ausführen. Bei `EXECUTION_ENV=fh_jupyterhub` prüft es nur die Erreichbarkeit des
+   FH-Kafka (kein Docker).
+3. Notebooks `01`–`09` im FH-Kernel ausführen, `10` zum Aufräumen.
 
-## Entscheidung
+## Entscheidungen für die FH
 
-Für reproduzierbare lokale Parquet-Ausgaben wird `SPARK_MASTER_URL=local[*]` verwendet. Der FH-Cluster dient für den strikten Kafka-zu-Spark-Nachweis. Gemeinsamer Cluster-Speicher darf erst nach einem erfolgreichen Schreib- und Lesetest behauptet werden.
+- **Spark:** `SPARK_MASTER_URL=local[*]` — Spark läuft im Notebook-Prozess, da kein gemeinsamer
+  Cluster-Storage für entfernte Worker bestätigt ist. Der Kafka-Nachweis (Lesen aus dem FH-Broker)
+  bleibt davon unberührt.
+- **EEA-Bronze:** `EEA_BRONZE_STORAGE_MODE=parquet`, da die FH kein PostgreSQL hat. Notebook `04`
+  erzeugt `data/bronze/eea/eea_observation.parquet` direkt aus der EEA-API.
+- **Kafka-Connector:** `SPARK_KAFKA_CONNECTOR_PACKAGE` leer lassen, wenn der Connector im FH-Kernel
+  bereits vorhanden ist.
 
-Alternativ steht ein lokales Docker-Compose-Setup bereit. Dort teilen sich Jupyter und Spark-Worker den eingebundenen Pfad `/workspace`; deshalb ist `ALLOW_SHARED_SPARK_STORAGE=true` zulässig. Details stehen in `docs/docker_setup.md`.
-
-Notebook `07` bietet dafür den optionalen Schalter:
-
-```env
-RUN_PHASE7_SPARK_STORAGE_PROBE=true
-```
-
-Vor dem FH-Lauf die nicht versionierte `.env` aus `.env.cluster.example` ableiten, Platzhalter ersetzen und Notebook `00` mit `PROJECT_EXECUTION_MODE=fh` ausführen. Die Erreichbarkeitsprüfung liegt vollständig im Notebook.
-
-Notebook `03` verwendet in der FH `EEA_BRONZE_STORAGE_MODE=parquet`. PostgreSQL ist dort nicht erforderlich. Ein Docker-Lauf exportiert automatisch `data/bronze/eea/eea_observation.parquet`; alternativ erzeugt die FH diese Datei mit `EEA_RUN_API_FETCH=true` selbst aus der EEA API. Der Default `[2025-01-01, 2026-01-01)` fragt exakt `365` Tage ab. Kürzere technische Läufe benötigen ausdrücklich `EEA_ALLOW_SHORT_SMOKE_TEST=true`.
-
-Notebook `05` begrenzt den Kafka-Nachweis mit `KAFKA_CONNECTION_TIMEOUT_SECONDS` und `KAFKA_OPERATION_TIMEOUT_MS`. Die Ausgaben `kafka_phase=tcp_preflight`, `producer_metadata`, `producer_send`, `consumer_create_after_send` und `consumer_poll` zeigen, in welcher Netzwerkphase eine FH-Konfiguration scheitert.
-
-Wenn eine ältere Notebook-Ausführung bereits in der Kafka-Zelle hängt, brechen Sie den Kernel-Lauf einmal ab und starten den Kernel nach dem Aktualisieren von Notebook `05` neu. Führen Sie anschließend alle Zellen bis einschließlich der Definition von `publish_and_consume_kafka()` erneut aus. Die aktuelle Version erstellt den Smoke-Test-Consumer erst nach dem Senden und verwendet keine Vorab-Offset-Initialisierung. Bleibt der Lauf bei `tcp_preflight`, ist der konfigurierte Broker-Port aus dem JupyterHub nicht erreichbar. Scheitert er nach `producer_metadata`, muss zusätzlich der vom Broker beworbene advertised listener geprüft werden.
+Der EEA-Default `[2025-01-01, 2026-01-01)` umfasst 365 Tage. Für einen kürzeren Testlauf `EEA_DATE_END`
+näher an `EEA_DATE_START` setzen.
