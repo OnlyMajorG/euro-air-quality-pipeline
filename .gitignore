@@ -23,5 +23,9 @@ data/**
 !data/**/
 !data/**/.gitkeep
 
+# LV-Exercises: jeder generierte data/-Ordner bleibt lokal und wird nicht getrackt.
+LV-Exercises/**/data/
+!LV-Exercises/**/data/.gitkeep
+
 # Claude Code local config
 .claude/
