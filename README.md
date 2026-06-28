@@ -70,6 +70,47 @@ Vorlagen: `.env.example` (lokaler Host), `.env.docker.example` (vom Container au
 
 ---
 
+## Jupyter-Kernel erstellen
+
+In den Root-Ordner des Projekts wechseln.
+
+- Windows
+
+``` cmd
+python -m venv .venv
+```
+
+``` cmd
+.venv\Scripts\activate
+```
+
+``` cmd
+pip install -r requirements.txt
+```
+
+``` cmd
+python -m ipykernel install --user --name=.venv --display-name "Euro Air Quality Pipeline"
+```
+
+- Linux/macOS
+
+
+``` bash
+python -m venv .venv
+```
+``` bash
+source .venv/bin/activate
+```
+``` bash
+pip install -r requirements.txt
+```
+``` bash
+python -m ipykernel install --user --name=.venv --display-name "Euro Air Quality Pipeline"
+```
+
+
+---
+
 ## Inbetriebnahme (lokal mit Docker)
 
 **Voraussetzung:** Docker Desktop läuft; Python mit den Paketen aus `requirements.txt`.
