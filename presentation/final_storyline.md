@@ -21,7 +21,7 @@ Welche Luftqualitätsmuster zeigen ausgewählte europäische Städte im historis
 
 - **H1:** Die mittleren historischen PM2.5-Werte unterscheiden sich zwischen den betrachteten Städten.
 - **H2:** Die Rangfolge der Städte ist schadstoffabhängig.
-- **H3:** Bevölkerungsdichte kann explorativ mit Luftqualitätskennzahlen zusammenhängen, beweist aber keine Ursache.
+- **H3:** Bevölkerungsdichte kann explorativ mit Luftqualitätskennzahlen zusammenhängen, beweist aber keine Ursache. Der Zusammenhang ist zudem **nicht robust**: Er hängt stark an Paris, dessen Dichte auf der Kernkommune beruht und mit den anderen Städten nicht direkt vergleichbar ist (Modifiable Areal Unit Problem).
 - **H4:** Live-Daten ergänzen den technischen Datenfluss, nicht die historische Aussage.
 
 ## Zulässige Aussagen
@@ -32,9 +32,9 @@ Welche Luftqualitätsmuster zeigen ausgewählte europäische Städte im historis
 | `pollutant_comparison.png` | Stadtmuster unterscheiden sich zwischen PM2.5, PM10 und NO2. |
 | `selected_city_timeseries.png` | Die Tageswerte zeigen kurzfristige Schwankungen ohne langfristige Trendbehauptung. |
 | `pollutant_distribution.png` | Median und Streuung ergänzen Mittelwert-Rangfolgen. |
-| `density_vs_air_quality.png` | Der Zusammenhang zwischen Dichte und PM2.5 ist ausschließlich explorativ. |
+| `density_vs_air_quality.png` | Der Zusammenhang zwischen Dichte und PM2.5 ist ausschließlich explorativ und **nicht robust** (r ≈ −0,23 mit, −0,95 ohne das nicht vergleichbare Paris). |
 | `live_air_quality_snapshot.png` | Open-Meteo zeigt eine Momentaufnahme, keine langfristige Rangfolge. |
 
-## Lokaler Datenstatus
+## Datenstatus
 
-Der lokale Docker-Lauf verwendet für EEA `controlled_sample_fallback` und für den Live-Pfad `phase6_spark_stream_silver`. Finale empirische Aussagen erfordern reale EEA-Daten. Ein zusätzlicher FH-Kafka-zu-Spark-Lauf bleibt möglich.
+Die Analyse beruht auf **echten EEA-Messdaten** (`real_eea_api`): 2.352.005 validierte Stundenwerte → 7.938 Tagesmittel über 365 Tage (Kalenderjahr 2025) und 8 Städte. Lokal liegen die Bronze-Daten in PostgreSQL (`real_eea_api_postgres`), in der FH-Umgebung portabel als Parquet (`real_eea_api_parquet`). Der Live-Pfad nutzt Open-Meteo-Modellwerte, die über **Kafka** produziert und von **Spark Structured Streaming** (`trigger(availableNow)`) gelesen werden — 192 Ereignisse (8 Städte × 24 h), bewusst getrennt von der historischen Messanalyse.

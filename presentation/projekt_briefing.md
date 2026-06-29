@@ -96,8 +96,10 @@ z. B. bei 40 µg/m³). Aussage also: „über dem, was die WHO als gesund ansieh
    verkehrsgeprägt, PM stärker durch Heizung/Witterung bestimmt.
 4. **Saisonalität:** PM-Werte sind im Winter höher (Heizen + Inversionswetterlagen halten
    Schadstoffe am Boden).
-5. **Bevölkerungsdichte erklärt die Belastung nicht.** Explorativer Zusammenhang Dichte ↔ PM2.5
-   schwach/negativ (Pearson r = −0,23, n = 7). Paris ist extrem dicht, aber bei PM2.5 nur mittig.
+5. **Bevölkerungsdichte erklärt die Belastung nicht.** Der explorative Zusammenhang Dichte ↔ PM2.5
+   ist **nicht robust**: r = −0,23 über alle Städte (n = 7), aber −0,95 ohne Paris (n = 6). Paris
+   ist als Kernkommune (~105 km²) mit den anderen, größer abgegrenzten Städten **nicht direkt
+   vergleichbar** (Modifiable Areal Unit Problem) und wird daher gesondert markiert.
 6. **Live-Nachweis:** 192 aktuelle Werte (8 Städte × 24 h) flossen über Kafka → Spark – als
    Beleg der laufenden Pipeline, **getrennt** von der historischen Messanalyse.
 
@@ -129,7 +131,8 @@ zeigt und welcher Befund dazugehört.
 4. **`selected_city_timeseries.png`** — PM2.5-Tagesverlauf der datenreichsten Städte über das
    Jahr; Lücken bleiben sichtbar; Winter höher. → Befund 4 (Saisonalität).
 5. **`density_vs_air_quality.png`** — Streudiagramm Bevölkerungsdichte (Wikipedia) vs. PM2.5
-   (EEA); r = −0,23 (n = 7); kein klarer Trend. → Befund 5.
+   (EEA); Paris als „nicht vergleichbar" gesondert markiert; r = −0,23 (alle, n = 7) vs. −0,95
+   (ohne Paris, n = 6) → Zusammenhang nicht robust. → Befund 5.
 6. **`live_air_quality_snapshot.png`** — Aktuelle Stundenwerte je Stadt aus Open-Meteo
    (Kafka → Spark). → Befund 6 (Live-Nachweis).
 
@@ -174,10 +177,10 @@ zeigt und welcher Befund dazugehört.
 | Gemessene EEA-Stundenwerte (Bronze) | 2.352.005 |
 | Tagesmittel (Silver/Gold) | 7.938 (365 Tage, 8 Städte, 3 Schadstoffe) |
 | **NO2-Jahresmittel** (µg/m³) | Rom 25,0 · Paris 23,0 · Prag 22,7 · Warschau 22,6 · Madrid 22,5 · Amsterdam 18,1 · Wien 16,0 · Berlin 15,3 |
-| **PM2.5-Jahresmittel** (µg/m³) | Warschau 14,7 · Prag 14,5 · Berlin 11,4 · Paris 11,1 · Wien 9,8 · Amsterdam 9,6 · Madrid 9,3 · (Rom: keine Daten) |
+| **PM2.5-Jahresmittel** (µg/m³) | Warschau 14,7 · Prag 14,5 · Berlin 11,4 · Paris 11,1 · Wien 9,8 · Amsterdam 9,5 · Madrid 9,3 · (Rom: keine Daten) |
 | **PM10-Jahresmittel** (µg/m³) | Höchste: Warschau 21,0 · Prag 20,7; Spanne ca. 14–21 |
 | WHO-2021-Jahresrichtwerte | PM2.5 5 · PM10 15 · NO2 10 |
-| Dichte ↔ PM2.5 | Pearson r = −0,23 (n = 7), explorativ, kein Signifikanztest |
+| Dichte ↔ PM2.5 | r = −0,23 (alle, n = 7) vs. −0,95 (ohne Paris, n = 6); explorativ, nicht robust, kein Signifikanztest |
 | Live-Events über Kafka → Spark | 192 (8 Städte × 24 h) |
 | Abdeckung | Rom: 0 PM-Tage, 364 NO2-Tage; übrige Städte 348–365 Tage je Schadstoff |
 

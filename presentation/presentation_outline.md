@@ -6,8 +6,8 @@
 | --- | --- | --- |
 | 0:00-0:45 | Leitfrage, Umfang und Hypothesen | Notebook `00`, Storyline |
 | 0:45-1:45 | Drei Datenquellen | README, Datenflussdiagramm |
-| 1:45-3:00 | Bronze, Silver, Gold, Kafka und Spark | Architekturdiagramm, Notebooks `05` und `06` |
-| 3:00-4:00 | Datenqualität und Aussagegrenzen | Notebook `07` |
+| 1:45-3:00 | Bronze, Silver, Gold, Kafka und Spark | Architekturdiagramm, Notebooks `04`–`07` |
+| 3:00-4:00 | Datenqualität und Aussagegrenzen | Notebook `08` |
 | 4:00-5:00 | PM2.5-Rangfolge | `pm25_city_ranking.png` |
 | 5:00-6:00 | Schadstoffvergleich | `pollutant_comparison.png` |
 | 6:00-7:00 | Zeitreihe und Verteilung | `selected_city_timeseries.png`, `pollutant_distribution.png` |

@@ -169,9 +169,9 @@ with PdfPages(str(OUT)) as pdf:
     figure_slide(
         pdf, "07 · Befund 5", "Bevölkerungsdichte erklärt die Belastung nicht",
         FIG / "density_vs_air_quality.png",
-        ["Explorativer Zusammenhang schwach/negativ (Pearson r = −0,23, n = 7).",
-         "Paris ist extrem dicht, bei PM2.5 aber nur mittig.",
-         "Kein Signifikanztest – bewusst nur als Orientierung, keine Kausalität."],
+        ["Nicht robust: r = −0,23 über alle (n=7), aber −0,95 ohne Paris (n=6).",
+         "Paris = Kernkommune (~105 km²) → mit den anderen nicht vergleichbar (MAUP).",
+         "Bewusst explorativ, kein Signifikanztest – keine Kausalität."],
         7)
 
     # ---- Slide 8: live snapshot ----

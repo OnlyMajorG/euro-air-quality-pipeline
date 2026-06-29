@@ -120,13 +120,20 @@ veröffentlicht. Wir vergleichen unsere Stadt-Jahresmittel damit:
 
 ### Folie 7 – Befund 5: *Bevölkerungsdichte erklärt die Belastung nicht*  ▸ `density_vs_air_quality.png`
 - **Grafik:** Streudiagramm Dichte (x, aus **Wikipedia**) vs. PM2.5 (y, aus **EEA**), je Punkt eine Stadt.
-- **Was man sieht:** Kein klarer Trend. **Pearson r = −0,23 (n = 7)**. Paris ist mit
-  ~19.430 Einw./km² extrem dicht, aber bei PM2.5 nur mittig.
-- **Bedeutung:** Ein bewusst **negativer/exploratives** Ergebnis – Dichte ist *kein*
-  Erklärungsfaktor. **Kein Signifikanztest**, nur Orientierung.
-- **Sagen:** „Man könnte denken: dichter = schmutziger. Unsere Daten stützen das nicht.
-  Wichtig: Das ist explorativ, wir behaupten keine Ursache." *(Hier zeigt sich auch, dass
-  zwei verschiedene Quellen – Scraping + EEA – sinnvoll verknüpft wurden.)*
+  **Paris ist bewusst gesondert markiert** (graues Quadrat „nicht vergleichbar").
+- **Was man sieht:** Kein klarer Trend. Der Zusammenhang ist **nicht robust**:
+  **r = −0,23 über alle Städte (n = 7)**, aber **r = −0,95 ohne Paris (n = 6)** – er hängt also
+  an einem einzigen Punkt.
+- **Warum Paris ein Sonderfall ist:** Wikipedia führt Paris als **Kernkommune** (~105 km²,
+  Dichte 19.430), die anderen Städte als größere Verwaltungsgebiete. Die Dichten sind damit
+  **nicht direkt vergleichbar** (*Modifiable Areal Unit Problem*). Wir rechnen das nicht glatt,
+  sondern markieren es über das Flag `density_comparable` und zeigen die Korrelation **mit und ohne** Paris.
+- **Bedeutung:** Bewusst **explorativ**, **kein Signifikanztest**. Gerade die Instabilität belegt:
+  Dichte ist *kein* Erklärungsfaktor.
+- **Sagen:** „Man könnte denken: dichter = schmutziger. Unsere Daten stützen das nicht – und wir
+  zeigen sogar, dass das Ergebnis kippt, sobald man das nicht vergleichbare Paris herausnimmt.
+  Das ist explorativ, wir behaupten keine Ursache." *(Hier zeigt sich auch, dass zwei verschiedene
+  Quellen – Scraping + EEA – sinnvoll verknüpft und ihre Grenzen offengelegt wurden.)*
 
 ### Folie 8 – Befund 6: *Live-Momentaufnahme (Kafka → Spark)*  ▸ `live_air_quality_snapshot.png`
 - **Grafik:** Aktuelle Stundenwerte je Stadt aus **Open-Meteo**, über **Kafka** produziert und
@@ -191,7 +198,7 @@ veröffentlicht. Wir vergleichen unsere Stadt-Jahresmittel damit:
 | Gemessene EEA-Stundenwerte (Bronze) | 2.352.005 |
 | Tagesmittel (Silver/Gold) | 7.938 über 365 Tage, 8 Städte |
 | NO2-Jahresmittel (µg/m³) | Rom 25,0 · Paris 23,0 · Prag 22,7 · Warschau 22,6 · Madrid 22,5 · Amsterdam 18,1 · Wien 16,0 · Berlin 15,3 |
-| PM2.5-Jahresmittel (µg/m³) | Warschau 14,7 · Prag 14,5 · Berlin 11,4 · Paris 11,1 · Wien 9,8 · Amsterdam 9,6 · Madrid 9,3 · (Rom fehlt) |
+| PM2.5-Jahresmittel (µg/m³) | Warschau 14,7 · Prag 14,5 · Berlin 11,4 · Paris 11,1 · Wien 9,8 · Amsterdam 9,5 · Madrid 9,3 · (Rom fehlt) |
 | WHO-2021-Jahresrichtwerte | PM2.5 5 · PM10 15 · NO2 10 |
-| Dichte ↔ PM2.5 | Pearson r = −0,23 (n = 7), explorativ |
+| Dichte ↔ PM2.5 | r = −0,23 (alle, n = 7) vs. −0,95 (ohne Paris, n = 6), explorativ, nicht robust |
 | Live-Events über Kafka→Spark | 192 (8 Städte × 24 h) |
