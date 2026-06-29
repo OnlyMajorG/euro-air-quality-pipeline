@@ -15,8 +15,9 @@
    `confluent-kafka`-Producer an das Topic.
 8. **`07`** liest die Events mit Spark Structured Streaming aus Kafka, validiert das Schema, ergänzt
    Stadtkontext und schreibt das Silver-Parquet `open_meteo_city_hourly`. Das Kafka-Topic ist die Rohschicht.
-9. **`08`** erstellt fünf Gold-Tabellen und einen Qualitätsbericht.
-10. **`09`** erzeugt die Abbildungen und die Ergebnisgeschichte.
+9. **`08`** erstellt fünf analysebereite Gold-Tabellen, einen **explorativen** Vergleich
+   `live_vs_historical_median` (Open-Meteo-Live gegen historischen EEA-Median 2025) und einen Qualitätsbericht.
+10. **`09`** erzeugt sieben Abbildungen und die Ergebnisgeschichte.
 11. **`10`** löscht Laufzeitdaten und fährt die lokale Infrastruktur herunter.
 
 ## Ereignisvertrag
@@ -35,3 +36,9 @@ und schreibt mit `writeStream.format("parquet")`.
 
 Notebook `08` schreibt reproduzierbare Gold-Parquet-Dateien. Historische EEA-Daten und der
 Open-Meteo-Live-Snapshot bleiben über `dataset_context` getrennt (`eea_historical` / `open_meteo_live`).
+
+Zusätzlich stellt die Tabelle `live_vs_historical_median` den aktuellen Open-Meteo-Live-Wert je Stadt
+und Schadstoff dem **Median** der gemessenen EEA-Tageswerte 2025 gegenüber (`delta_abs`, `delta_pct`,
+`comparison_status`). Dieser Vergleich ist ausdrücklich **explorativ** — Modellwert gegen Mess-Baseline,
+ohne die Quellen gleichzusetzen. Fehlt eine historische Referenz (z. B. Rom PM2.5/PM10), bleibt die Zeile
+als `no_historical_reference` offen und wird nicht aufgefüllt.

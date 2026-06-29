@@ -16,8 +16,8 @@ Vollständiger Durchlauf der Pipeline (Notebooks `00`–`10`) im lokalen Docker-
 | `05` Wikipedia | **8 von 8 Städten `parse_status=success`** |
 | `06` Open-Meteo + Kafka | **192 Events** (8 Städte × 24 h) an Topic `air_quality_live` |
 | `07` Spark Streaming | `spark_read_kafka_requirement_proven=True`, **192 Silver-Zeilen** |
-| `08` Gold | 5 Tabellen: daily 7 938, ranking 22, context 22, live 8, quality 4 Zeilen (Spalte `coverage_days`; Live-Snapshot `<NA>`) |
-| `09` Storytelling | 6 Abbildungen; Geltungs-Hinweis „365 Tage"; Rom-Lücke (PM2.5/PM10) als `<NA>` ausgewiesen; Dichte-Korrelation mit und ohne Paris ausgewiesen |
+| `08` Gold | 6 Tabellen: daily 7 938, ranking 22, context 22, live 8, **live_vs_historical_median 24** (22 `comparable` / 2 `no_historical_reference`), quality 5 Zeilen (Spalte `coverage_days`; Live-Snapshot und Vergleich `<NA>`); Struktur-Assertions bestanden |
+| `09` Storytelling | 7 Abbildungen; Geltungs-Hinweis „365 Tage"; Rom-Lücke (PM2.5/PM10) als `<NA>` ausgewiesen; Dichte-Korrelation mit und ohne Paris ausgewiesen; Live-vs-EEA-Median-Vergleich als explorative Abbildung 7 |
 | `10` Reset | löscht `data/`-Dateien und fährt die Infrastruktur herunter |
 
 ## Belege für die Datenqualität
@@ -35,6 +35,10 @@ Vollständiger Durchlauf der Pipeline (Notebooks `00`–`10`) im lokalen Docker-
   Städte, ≈ −0,95 ohne Paris). Paris ist als Kernkommune nicht direkt vergleichbar (Modifiable Areal
   Unit Problem), wird über `density_comparable` markiert und im Streudiagramm gesondert dargestellt;
   die Korrelation wird mit und ohne Paris ausgewiesen.
+- **Live-vs-Median-Vergleich (explorativ):** `live_vs_historical_median` stellt den Open-Meteo-Live-Wert
+  dem historischen EEA-Median 2025 gegenüber (Quartile als Streubreite). Die Quellen werden ausdrücklich
+  als Modellwert vs. Messdaten gekennzeichnet; kein WHO-Jahres- oder Kausalbezug. Wo keine historische
+  Referenz existiert (Rom PM2.5/PM10), bleibt der Vergleich offen (`no_historical_reference`).
 
 ## Bekannte Grenzen des Tests
 

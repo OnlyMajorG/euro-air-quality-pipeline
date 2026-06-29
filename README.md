@@ -145,8 +145,8 @@ python -m ipykernel install --user --name=.venv --display-name "Euro Air Quality
 | `05` | `05_wikipedia_web_scraping` | Wikipedia-Stadtseiten → Silver-Metadaten |
 | `06` | `06_open_meteo_api_and_kafka_producer` | Open-Meteo REST-API → Events → Kafka-Producer |
 | `07` | `07_spark_structured_streaming_kafka_to_parquet` | Spark liest aus Kafka → Silver-Parquet |
-| `08` | `08_gold_layer_and_data_quality` | 5 Gold-Tabellen + Qualitätsbericht |
-| `09` | `09_analysis_visualization_and_storytelling` | Analyse, 6 Abbildungen, Ergebnisgeschichte |
+| `08` | `08_gold_layer_and_data_quality` | 6 Gold-Parquet-Dateien (inkl. Live-vs-EEA-Median-Vergleich) + Qualitätsbericht |
+| `09` | `09_analysis_visualization_and_storytelling` | Analyse, 7 Abbildungen, Ergebnisgeschichte |
 | `10` | `10_reset_data` | Daten löschen und Infrastruktur herunterfahren |
 
 ### Abdeckung der Projektanforderungen

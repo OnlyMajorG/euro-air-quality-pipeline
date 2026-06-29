@@ -28,4 +28,5 @@ Open-Meteo liefert REST-API-Daten für den Kafka-Pfad. Die API-Felder werden auf
 | `pollutant_ranking_by_city.parquet` | `eea_historical` | Schadstoffspezifische Rangfolgen |
 | `city_context_air_quality.parquet` | `eea_historical` | Rangfolgen mit Stadtkontext (inkl. `density_comparable`, `area_basis_note`) |
 | `live_air_quality_latest.parquet` | `open_meteo_live` | Getrennter aktueller API- und Kafka-Snapshot |
-| `data_quality_summary.parquet` | Qualitätsmetadaten | Zeilen- und Spaltenzahl, fehlende Werte und abgedeckter Zeitraum (`coverage_days`; für den Live-Snapshot `<NA>`, da Momentaufnahme) |
+| `live_vs_historical_median.parquet` | quellenübergreifend (explorativ) | Live-Wert vs. historischer EEA-Median 2025 je Stadt/Schadstoff (`delta_abs`, `delta_pct`, `comparison_status`); Rom PM2.5/PM10 als `no_historical_reference` offen |
+| `data_quality_summary.parquet` | Qualitätsmetadaten | Zeilen- und Spaltenzahl, fehlende Werte und abgedeckter Zeitraum (`coverage_days`; für den Live-Snapshot und den Vergleich `<NA>`) |
