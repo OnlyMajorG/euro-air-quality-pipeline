@@ -202,3 +202,4 @@ veröffentlicht. Wir vergleichen unsere Stadt-Jahresmittel damit:
 | WHO-2021-Jahresrichtwerte | PM2.5 5 · PM10 15 · NO2 10 |
 | Dichte ↔ PM2.5 | r = −0,23 (alle, n = 7) vs. −0,95 (ohne Paris, n = 6), explorativ, nicht robust |
 | Live-Events über Kafka→Spark | 192 (8 Städte × 24 h) |
+| Live-vs-EEA-Median-Vergleich | 24 Paare: 22 vergleichbar, 2 ohne Referenz (Rom PM2.5/PM10) — explorativ, kein Trend-/WHO-Bezug |

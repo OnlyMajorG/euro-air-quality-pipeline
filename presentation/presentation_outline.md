@@ -21,4 +21,5 @@
 - Zeitraum, Quelle und Beobachtungsanzahl nennen.
 - Live-Werte nie als historischen Trend interpretieren.
 - Korrelation nie als Kausalität darstellen.
-- Bei Sample-Fallback ausdrücklich von einer reproduzierbaren Demonstration sprechen.
+- Auf echten, validierten EEA-Messdaten aufsetzen (kein Sample-Fallback) und die Reproduzierbarkeit betonen.
+- Den Live-vs-EEA-Median-Vergleich nur als explorative Lage-Einordnung darstellen (Modellwert vs. Messdaten, kein Trend- oder WHO-Bezug).
