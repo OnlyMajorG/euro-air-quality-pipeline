@@ -14,7 +14,7 @@ Notebook `04` ruft über `/ParquetFile/urls` stadtbezogene EEA-Parquet-URLs ab u
 
 ## Wikipedia
 
-Wikipedia dient ausschließlich als Kontextquelle. Das HTML-Parsing ist defensiv: fehlende oder mehrdeutige Werte bleiben leer und werden nicht geraten. `parse_status` dokumentiert den Erfolg je Stadt.
+Wikipedia dient ausschließlich als Kontextquelle. Das HTML-Parsing ist defensiv: fehlende oder mehrdeutige Werte bleiben leer und werden nicht geraten. `parse_status` dokumentiert den Erfolg je Stadt. Zusätzlich kennzeichnet das Flag `density_comparable` (mit Begründung in `area_basis_note`) Städte, deren Fläche/Dichte nicht direkt vergleichbar ist — z. B. **Paris**, das Wikipedia als Kernkommune (~105 km²) statt als größeres Verwaltungsgebiet führt (Modifiable Areal Unit Problem). Notebook `09` wertet dieses Flag aus, statt die Werte stillschweigend zu vermischen.
 
 ## Open-Meteo
 
@@ -26,6 +26,6 @@ Open-Meteo liefert REST-API-Daten für den Kafka-Pfad. Die API-Felder werden auf
 | --- | --- | --- |
 | `city_air_quality_daily_summary.parquet` | `eea_historical` | Historische Tageswerte |
 | `pollutant_ranking_by_city.parquet` | `eea_historical` | Schadstoffspezifische Rangfolgen |
-| `city_context_air_quality.parquet` | `eea_historical` | Rangfolgen mit Stadtkontext |
+| `city_context_air_quality.parquet` | `eea_historical` | Rangfolgen mit Stadtkontext (inkl. `density_comparable`, `area_basis_note`) |
 | `live_air_quality_latest.parquet` | `open_meteo_live` | Getrennter aktueller API- und Kafka-Snapshot |
-| `data_quality_summary.parquet` | Qualitätsmetadaten | Zeilenzahlen, Duplikate, fehlende Werte und Herkunft |
+| `data_quality_summary.parquet` | Qualitätsmetadaten | Zeilen- und Spaltenzahl, fehlende Werte und abgedeckter Zeitraum (`coverage_days`; für den Live-Snapshot `<NA>`, da Momentaufnahme) |

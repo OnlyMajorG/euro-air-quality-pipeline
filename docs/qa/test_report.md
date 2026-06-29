@@ -16,8 +16,8 @@ Vollständiger Durchlauf der Pipeline (Notebooks `00`–`10`) im lokalen Docker-
 | `05` Wikipedia | **8 von 8 Städten `parse_status=success`** |
 | `06` Open-Meteo + Kafka | **192 Events** (8 Städte × 24 h) an Topic `air_quality_live` |
 | `07` Spark Streaming | `spark_read_kafka_requirement_proven=True`, **192 Silver-Zeilen** |
-| `08` Gold | 5 Tabellen: daily 7 938, ranking 22, context 22, live 8, quality 4 |
-| `09` Storytelling | 6 Abbildungen; Geltungs-Hinweis „365 Tage"; Rom-Lücke (PM2.5/PM10) ausgewiesen |
+| `08` Gold | 5 Tabellen: daily 7 938, ranking 22, context 22, live 8, quality 4 Zeilen (Spalte `coverage_days`; Live-Snapshot `<NA>`) |
+| `09` Storytelling | 6 Abbildungen; Geltungs-Hinweis „365 Tage"; Rom-Lücke (PM2.5/PM10) als `<NA>` ausgewiesen; Dichte-Korrelation mit und ohne Paris ausgewiesen |
 | `10` Reset | löscht `data/`-Dateien und fährt die Infrastruktur herunter |
 
 ## Belege für die Datenqualität
@@ -31,6 +31,10 @@ Vollständiger Durchlauf der Pipeline (Notebooks `00`–`10`) im lokalen Docker-
 - **Storytelling (NB 09)** bleibt deskriptiv: Mittelwerte mit Standardabweichung und Beobachtungszahl
   (`n`), sichtbare Saisonalität im Jahresverlauf, strikte Trennung von EEA-historisch und
   Open-Meteo-live, Bevölkerungsdichte nur explorativ.
+- **Robustheit offengelegt:** Der Zusammenhang Dichte ↔ PM2.5 ist nicht robust (r ≈ −0,23 über alle
+  Städte, ≈ −0,95 ohne Paris). Paris ist als Kernkommune nicht direkt vergleichbar (Modifiable Areal
+  Unit Problem), wird über `density_comparable` markiert und im Streudiagramm gesondert dargestellt;
+  die Korrelation wird mit und ohne Paris ausgewiesen.
 
 ## Bekannte Grenzen des Tests
 

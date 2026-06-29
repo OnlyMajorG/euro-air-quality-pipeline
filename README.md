@@ -235,5 +235,10 @@ euro-air-quality-pipeline/
 - Akademischer Nachweis, keine Produktionsplattform.
 - Open-Meteo-Werte sind **Modelldaten**, keine Messwerte — getrennt von den EEA-Messungen zu lesen.
 - Die EEA-Stationsabdeckung ist nicht für jede Stadt vollständig; einzelne Schadstoffe können fehlen.
+  **Rom** hat z. B. keine validierten PM2.5/PM10-Werte — die Lücke wird offen als `<NA>` ausgewiesen
+  (nicht als `0`, nicht interpoliert).
+- Bevölkerungsdichte ist **kein** Erklärungsfaktor: Der Zusammenhang zur PM2.5-Belastung ist nicht
+  robust (r ≈ −0,23 über alle Städte, ≈ −0,95 ohne das nicht vergleichbare **Paris**, das als
+  Kernkommune abgegrenzt ist — Modifiable Areal Unit Problem, markiert über `density_comparable`).
 - Alle Aussagen in NB 09 sind **deskriptiv und explorativ** (keine Kausalität, keine universelle Rangliste).
 - Der FH-Pfad ist code-seitig vorbereitet; getestet wurde der lokale Docker-Pfad.
